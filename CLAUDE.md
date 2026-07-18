@@ -41,8 +41,6 @@ An activity's `categorie` is a string that keys into `av_cats`; unknown categori
 
 ## Deployment
 
-Pushing to `main` triggers `.github/workflows/deploy.yml`, which runs `npm ci && npm run build` and publishes `dist/` to GitHub Pages.
-
-**One-time setup:** in the repo's *Settings → Pages*, the **Source** must be set to **"GitHub Actions"** (not "Deploy from a branch") for the workflow to publish. Files in `public/` (`manifest.json`, `.nojekyll`) are copied into `dist/` as-is.
+Pushing to `main` triggers `.github/workflows/deploy.yml`, which runs `npm ci && npm run build` and publishes `dist/` to GitHub Pages. The workflow uses `actions/configure-pages` with `enablement: true`, so it turns Pages on and puts it in "GitHub Actions" mode automatically — no manual *Settings → Pages* change is needed (unless an org policy blocks the Actions token from managing Pages, in which case set the Source to "GitHub Actions" by hand). Files in `public/` (`manifest.json`, `.nojekyll`) are copied into `dist/` as-is.
 
 Because `base` is `/mijn-avonturen/`, all built asset URLs are prefixed accordingly — do not hardcode absolute `/asset` paths in code; let Vite handle them.
