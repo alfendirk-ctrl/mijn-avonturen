@@ -1,0 +1,9 @@
+{
+  "name": "Mijn Avonturen",
+  "short_name": "Avonturen",
+  "description": "Persoonlijke activiteiten & vakantie database",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0C0C14",
+  "theme_color": "#6366F1"
+}
