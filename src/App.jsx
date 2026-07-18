@@ -3,20 +3,24 @@ import { useLocalStorage } from "./useLocalStorage.js";
 import {
   SEED_ACTIVITIES,
   SEED_CATEGORIES,
-  STATUSES,
   FALLBACK_CATEGORY,
+  HIKE_CATEGORIES,
 } from "./data/seed.js";
 import Header from "./components/Header.jsx";
 import ActivityCard from "./components/ActivityCard.jsx";
+import HikesView from "./components/HikesView.jsx";
 import DetailModal from "./components/DetailModal.jsx";
 import ConfirmDialog from "./components/ConfirmDialog.jsx";
 import SettingsPanel from "./components/SettingsPanel.jsx";
 import Toast from "./components/Toast.jsx";
 
+const isHike = (a) => HIKE_CATEGORIES.includes(a.categorie);
+
 export default function App() {
   const [activities, setActivities] = useLocalStorage("av_db", SEED_ACTIVITIES);
   const [categories, setCategories] = useLocalStorage("av_cats", SEED_CATEGORIES);
 
+  const [view, setView] = useState("activiteiten"); // "activiteiten" | "hikes"
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("Alle");
   const [surpriseScope, setSurpriseScope] = useState("Alle");
@@ -25,7 +29,7 @@ export default function App() {
 
   const [panelOpen, setPanelOpen] = useState(false);
   const [modal, setModal] = useState(null); // { activity, mode: "view" | "edit" }
-  const [adding, setAdding] = useState(false); // nieuwe activiteit
+  const [adding, setAdding] = useState(null); // null | "activity" | "hike"
   const [confirmActivity, setConfirmActivity] = useState(null);
   const [confirmCategory, setConfirmCategory] = useState(null);
   const [moveTarget, setMoveTarget] = useState("");
@@ -35,12 +39,25 @@ export default function App() {
   const gridRef = useRef(null);
 
   const catNames = useMemo(() => Object.keys(categories), [categories]);
+  // Categorieën die in de activiteiten-planner horen (hikes uitgesloten).
+  const activityCatNames = useMemo(
+    () => catNames.filter((c) => !HIKE_CATEGORIES.includes(c)),
+    [catNames],
+  );
   const catMeta = useCallback(
     (name) => categories[name] || FALLBACK_CATEGORY,
     [categories],
   );
 
-  // Aantal activiteiten per categorie.
+  // Splits activiteiten en bewaarde hikes.
+  const plannerActivities = useMemo(
+    () => activities.filter((a) => !isHike(a)),
+    [activities],
+  );
+  const hikeList = useMemo(() => activities.filter(isHike), [activities]);
+
+  // Aantal per categorie (over alle activiteiten; activiteit-categorieën bevatten
+  // alleen planner-items, dus dit klopt ook voor de chips).
   const counts = useMemo(() => {
     const m = {};
     activities.forEach((a) => {
@@ -49,10 +66,10 @@ export default function App() {
     return m;
   }, [activities]);
 
-  // Gefilterde lijst (categorie + zoekterm).
+  // Gefilterde planner-lijst (categorie + zoekterm).
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    return activities.filter((a) => {
+    return plannerActivities.filter((a) => {
       const catOk = catFilter === "Alle" || a.categorie === catFilter;
       const searchOk =
         !q ||
@@ -61,24 +78,46 @@ export default function App() {
         a.type.toLowerCase().includes(q);
       return catOk && searchOk;
     });
-  }, [activities, catFilter, search]);
+  }, [plannerActivities, catFilter, search]);
 
-  const stats = useMemo(
-    () => ({
-      totaal: activities.length,
-      gedaan: activities.filter((a) => a.status === "gedaan").length,
-      fav: activities.filter((a) => a.status === "favoriet").length,
-      wil: activities.filter((a) => a.status === "wil doen").length,
-    }),
-    [activities],
-  );
+  // Weergave-afhankelijke statistieken voor de kop.
+  const stats = useMemo(() => {
+    if (view === "hikes") {
+      return [
+        { value: hikeList.length, label: "hikes bewaard", color: "#6366F1" },
+        {
+          value: hikeList.filter((h) => h.status === "gedaan").length,
+          label: "gedaan",
+          color: "#3DBE8A",
+        },
+        {
+          value: hikeList.filter((h) => h.status === "favoriet").length,
+          label: "favoriet",
+          color: "#F5A623",
+        },
+      ];
+    }
+    return [
+      { value: plannerActivities.length, label: "activiteiten", color: "#6366F1" },
+      {
+        value: plannerActivities.filter((a) => a.status === "favoriet").length,
+        label: "favorieten",
+        color: "#F5A623",
+      },
+      {
+        value: plannerActivities.filter((a) => a.status === "wil doen").length,
+        label: "op de lijst",
+        color: "#4A90D9",
+      },
+    ];
+  }, [view, plannerActivities, hikeList]);
 
   // Sluit alles met Escape.
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") {
         setModal(null);
-        setAdding(false);
+        setAdding(null);
         setPanelOpen(false);
         setConfirmActivity(null);
         setConfirmCategory(null);
@@ -94,7 +133,7 @@ export default function App() {
     setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 2200);
   }, []);
 
-  // ---- Activiteiten ----
+  // ---- Activiteiten / hikes opslaan ----
   const saveActivity = (form, id) => {
     const clean = {
       naam: form.naam.trim(),
@@ -111,14 +150,17 @@ export default function App() {
       setActivities((list) => [{ id: newId, ...clean }, ...list]);
       setPopId(newId);
       setTimeout(() => setPopId(null), 1800);
-      setCatFilter("Alle");
-      setSearch("");
-      setAdding(false);
-      setTimeout(
-        () => gridRef.current?.scrollIntoView({ behavior: "smooth" }),
-        60,
-      );
-      pushToast("Activiteit toegevoegd");
+      const addedHike = HIKE_CATEGORIES.includes(clean.categorie);
+      setAdding(null);
+      if (!addedHike) {
+        setCatFilter("Alle");
+        setSearch("");
+        setTimeout(
+          () => gridRef.current?.scrollIntoView({ behavior: "smooth" }),
+          60,
+        );
+      }
+      pushToast(addedHike ? "Hike bewaard" : "Activiteit toegevoegd");
     } else {
       setActivities((list) =>
         list.map((a) => (a.id === id ? { id, ...clean } : a)),
@@ -132,7 +174,16 @@ export default function App() {
     setActivities((list) => list.filter((a) => a.id !== id));
     setConfirmActivity(null);
     setModal(null);
-    pushToast("Activiteit verwijderd", "danger");
+    pushToast("Verwijderd", "danger");
+  };
+
+  // Hike afvinken als gedaan (en weer terug).
+  const toggleHikeDone = (hike) => {
+    const next = hike.status === "gedaan" ? "wil doen" : "gedaan";
+    setActivities((list) =>
+      list.map((a) => (a.id === hike.id ? { ...a, status: next } : a)),
+    );
+    pushToast(next === "gedaan" ? "Afgevinkt als gedaan ✓" : "Weer op de lijst");
   };
 
   // ---- Categorieën ----
@@ -161,7 +212,6 @@ export default function App() {
     pushToast("Categorie verwijderd", "danger");
   };
 
-  // Categorie verwijderen: met activiteiten -> bevestigen (+ verplaats-optie).
   const requestDeleteCategory = (name) => {
     if ((counts[name] || 0) > 0) {
       const others = catNames.filter((c) => c !== name);
@@ -172,12 +222,12 @@ export default function App() {
     }
   };
 
-  // ---- Verras me ----
+  // ---- Verras me (alleen planner) ----
   const doSurprise = () => {
     const pool =
       surpriseScope === "Alle"
-        ? activities
-        : activities.filter((a) => a.categorie === surpriseScope);
+        ? plannerActivities
+        : plannerActivities.filter((a) => a.categorie === surpriseScope);
     if (!pool.length) return;
     setSurpriseOn(false);
     setTimeout(() => {
@@ -186,163 +236,197 @@ export default function App() {
     }, 40);
   };
 
+  const switchView = (v) => {
+    setView(v);
+    setSurprise(null);
+  };
+
   return (
     <div>
       <Header stats={stats} />
 
-      {/* Zoekbalk + knoppen */}
-      <div className="bar">
-        <div className="srch">
-          <span className="srch-ico">⌕</span>
-          <input
-            placeholder="Zoek activiteit, locatie of type…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          {search && (
-            <button className="srch-clr" onClick={() => setSearch("")}>
-              ✕
-            </button>
-          )}
-        </div>
-        <button className="btn" onClick={() => setPanelOpen(true)}>
-          ⊞ <span>Categorieën</span>
+      {/* Weergave-schakelaar */}
+      <div className="tabs">
+        <button
+          className={`tab${view === "activiteiten" ? " on" : ""}`}
+          onClick={() => switchView("activiteiten")}
+        >
+          🗺️ Activiteiten
+          <span className="tab-count">{plannerActivities.length}</span>
         </button>
-        <button className="btn acc" onClick={() => setAdding(true)}>
-          + <span>Toevoegen</span>
+        <button
+          className={`tab${view === "hikes" ? " on" : ""}`}
+          onClick={() => switchView("hikes")}
+        >
+          🥾 Hikes<span className="tab-count">{hikeList.length}</span>
         </button>
       </div>
 
-      {/* Categorie-chips */}
-      <div className="cats">
-        <div className="cats-row">
-          <button
-            className={`chip${catFilter === "Alle" ? " on" : ""}`}
-            style={
-              catFilter === "Alle"
-                ? { background: "#6366F1", borderColor: "#6366F1" }
-                : undefined
-            }
-            onClick={() => setCatFilter("Alle")}
-          >
-            Alle <span className="chip-count">{activities.length}</span>
-          </button>
-          {catNames.map((name) => {
-            const meta = catMeta(name);
-            const active = catFilter === name;
-            return (
+      {view === "hikes" ? (
+        <HikesView
+          hikes={hikeList}
+          catMeta={catMeta}
+          onOpen={(h) => setModal({ activity: h, mode: "view" })}
+          onToggleDone={toggleHikeDone}
+          onAdd={() => setAdding("hike")}
+        />
+      ) : (
+        <>
+          {/* Zoekbalk + knoppen */}
+          <div className="bar">
+            <div className="srch">
+              <span className="srch-ico">⌕</span>
+              <input
+                placeholder="Zoek activiteit, locatie of type…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              {search && (
+                <button className="srch-clr" onClick={() => setSearch("")}>
+                  ✕
+                </button>
+              )}
+            </div>
+            <button className="btn" onClick={() => setPanelOpen(true)}>
+              ⊞ <span>Categorieën</span>
+            </button>
+            <button className="btn acc" onClick={() => setAdding("activity")}>
+              + <span>Toevoegen</span>
+            </button>
+          </div>
+
+          {/* Categorie-chips */}
+          <div className="cats">
+            <div className="cats-row">
               <button
-                key={name}
-                className={`chip${active ? " on" : ""}`}
+                className={`chip${catFilter === "Alle" ? " on" : ""}`}
                 style={
-                  active
-                    ? { background: meta.kleur, borderColor: meta.kleur }
+                  catFilter === "Alle"
+                    ? { background: "#6366F1", borderColor: "#6366F1" }
                     : undefined
                 }
-                onClick={() => setCatFilter(name)}
+                onClick={() => setCatFilter("Alle")}
               >
-                {meta.emoji} {name}{" "}
-                <span className="chip-count">{counts[name] || 0}</span>
-                <span
-                  className="x"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    requestDeleteCategory(name);
-                  }}
-                >
-                  ✕
-                </span>
+                Alle <span className="chip-count">{plannerActivities.length}</span>
               </button>
-            );
-          })}
-          <button className="chip-add" onClick={() => setPanelOpen(true)}>
-            + Nieuwe categorie
-          </button>
-        </div>
-      </div>
-
-      {/* Verras me */}
-      <div className="vbar">
-        <button className="vbtn" onClick={doSurprise}>
-          🎲 Verras me
-        </button>
-        <select
-          className="vsel"
-          value={surpriseScope}
-          onChange={(e) => {
-            setSurpriseScope(e.target.value);
-            setSurprise(null);
-          }}
-        >
-          <option value="Alle">Alle categorieën</option>
-          {catNames.map((name) => (
-            <option key={name} value={name}>
-              {catMeta(name).emoji} {name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {surprise && (
-        <div className="vcard">
-          <div
-            className={`vcard-in${surpriseOn ? " on" : ""}`}
-            onClick={() => setModal({ activity: surprise, mode: "view" })}
-          >
-            <div className="vcard-eye">
-              Jouw volgende avontuur — tik voor details
-            </div>
-            <div className="vcard-naam">{surprise.naam}</div>
-            <div className="vcard-meta">
-              {catMeta(surprise.categorie).emoji} {surprise.categorie} ·{" "}
-              {surprise.locatie}
+              {activityCatNames.map((name) => {
+                const meta = catMeta(name);
+                const active = catFilter === name;
+                return (
+                  <button
+                    key={name}
+                    className={`chip${active ? " on" : ""}`}
+                    style={
+                      active
+                        ? { background: meta.kleur, borderColor: meta.kleur }
+                        : undefined
+                    }
+                    onClick={() => setCatFilter(name)}
+                  >
+                    {meta.emoji} {name}{" "}
+                    <span className="chip-count">{counts[name] || 0}</span>
+                    <span
+                      className="x"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        requestDeleteCategory(name);
+                      }}
+                    >
+                      ✕
+                    </span>
+                  </button>
+                );
+              })}
+              <button className="chip-add" onClick={() => setPanelOpen(true)}>
+                + Nieuwe categorie
+              </button>
             </div>
           </div>
-        </div>
+
+          {/* Verras me */}
+          <div className="vbar">
+            <button className="vbtn" onClick={doSurprise}>
+              🎲 Verras me
+            </button>
+            <select
+              className="vsel"
+              value={surpriseScope}
+              onChange={(e) => {
+                setSurpriseScope(e.target.value);
+                setSurprise(null);
+              }}
+            >
+              <option value="Alle">Alle categorieën</option>
+              {activityCatNames.map((name) => (
+                <option key={name} value={name}>
+                  {catMeta(name).emoji} {name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {surprise && (
+            <div className="vcard">
+              <div
+                className={`vcard-in${surpriseOn ? " on" : ""}`}
+                onClick={() => setModal({ activity: surprise, mode: "view" })}
+              >
+                <div className="vcard-eye">
+                  Jouw volgende avontuur — tik voor details
+                </div>
+                <div className="vcard-naam">{surprise.naam}</div>
+                <div className="vcard-meta">
+                  {catMeta(surprise.categorie).emoji} {surprise.categorie} ·{" "}
+                  {surprise.locatie}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Teller */}
+          <div className="teller">
+            {filtered.length} {filtered.length === 1 ? "resultaat" : "resultaten"}
+            {search && ` — "${search}"`}
+            {catFilter !== "Alle" && ` — ${catFilter}`}
+          </div>
+
+          {/* Raster */}
+          <div className="grid" ref={gridRef}>
+            {filtered.length === 0 ? (
+              <div className="empty">
+                <span className="empty-ico">
+                  {catFilter !== "Alle" ? catMeta(catFilter).emoji : "🗺️"}
+                </span>
+                <div className="empty-h">
+                  {search ? "Niets gevonden" : `Geen activiteiten in ${catFilter}`}
+                </div>
+                <div className="empty-p">
+                  {search
+                    ? `Geen resultaten voor "${search}"`
+                    : "Voeg je eerste activiteit toe"}
+                </div>
+              </div>
+            ) : (
+              filtered.map((a) => (
+                <ActivityCard
+                  key={a.id}
+                  activity={a}
+                  cat={catMeta(a.categorie)}
+                  popping={popId === a.id}
+                  onClick={() => setModal({ activity: a, mode: "view" })}
+                />
+              ))
+            )}
+          </div>
+        </>
       )}
-
-      {/* Teller */}
-      <div className="teller">
-        {filtered.length} {filtered.length === 1 ? "resultaat" : "resultaten"}
-        {search && ` — "${search}"`}
-        {catFilter !== "Alle" && ` — ${catFilter}`}
-      </div>
-
-      {/* Raster */}
-      <div className="grid" ref={gridRef}>
-        {filtered.length === 0 ? (
-          <div className="empty">
-            <span className="empty-ico">
-              {catFilter !== "Alle" ? catMeta(catFilter).emoji : "🗺️"}
-            </span>
-            <div className="empty-h">
-              {search ? "Niets gevonden" : `Geen activiteiten in ${catFilter}`}
-            </div>
-            <div className="empty-p">
-              {search
-                ? `Geen resultaten voor "${search}"`
-                : "Voeg je eerste activiteit toe"}
-            </div>
-          </div>
-        ) : (
-          filtered.map((a) => (
-            <ActivityCard
-              key={a.id}
-              activity={a}
-              cat={catMeta(a.categorie)}
-              popping={popId === a.id}
-              onClick={() => setModal({ activity: a, mode: "view" })}
-            />
-          ))
-        )}
-      </div>
 
       {/* Detail / bewerk-venster */}
       {modal && (
         <DetailModal
           activity={modal.activity}
           mode={modal.mode}
-          categories={catNames}
+          categories={isHike(modal.activity) ? HIKE_CATEGORIES : activityCatNames}
           catMeta={catMeta}
           onClose={() => setModal(null)}
           onEdit={() => setModal({ ...modal, mode: "edit" })}
@@ -351,14 +435,15 @@ export default function App() {
         />
       )}
 
-      {/* Nieuwe activiteit */}
+      {/* Nieuwe activiteit of hike */}
       {adding && (
         <DetailModal
           activity={null}
           mode="edit"
-          categories={catNames}
+          categories={adding === "hike" ? HIKE_CATEGORIES : activityCatNames}
+          initialCategory={adding === "hike" ? "Hike" : activityCatNames[0]}
           catMeta={catMeta}
-          onClose={() => setAdding(false)}
+          onClose={() => setAdding(null)}
           onSave={saveActivity}
         />
       )}
@@ -374,10 +459,10 @@ export default function App() {
         />
       )}
 
-      {/* Activiteit verwijderen */}
+      {/* Item verwijderen */}
       {confirmActivity && (
         <ConfirmDialog
-          title="Activiteit verwijderen?"
+          title="Verwijderen?"
           message={
             <>
               Weet je zeker dat je <strong>{confirmActivity.naam}</strong> wil
@@ -396,8 +481,8 @@ export default function App() {
           message={
             <>
               <strong>{confirmCategory}</strong> heeft{" "}
-              {counts[confirmCategory] || 0} activiteiten. Verplaats ze of
-              verwijder ze mee.
+              {counts[confirmCategory] || 0} items. Verplaats ze of verwijder ze
+              mee.
             </>
           }
           moveOptions={catNames.filter((c) => c !== confirmCategory)}
