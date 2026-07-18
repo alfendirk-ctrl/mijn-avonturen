@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { lc } from "../data/seed.js";
 import HikeCard from "./HikeCard.jsx";
 
 // De "bewaard voor later"-sectie voor hikes. Gegroepeerd op Nederland en
@@ -13,16 +14,14 @@ export default function HikesView({ hikes, catMeta, onOpen, onToggleDone, onAdd 
   const [q, setQ] = useState("");
 
   const shown = useMemo(() => {
-    const term = q.toLowerCase();
+    const term = lc(q);
     return hikes.filter((h) => {
       const statusOk =
         filter === "alle" ||
         (filter === "done" && h.status === "gedaan") ||
         (filter === "todo" && h.status !== "gedaan");
       const searchOk =
-        !term ||
-        h.naam.toLowerCase().includes(term) ||
-        h.locatie.toLowerCase().includes(term);
+        !term || lc(h.naam).includes(term) || lc(h.locatie).includes(term);
       return statusOk && searchOk;
     });
   }, [hikes, filter, q]);

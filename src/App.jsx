@@ -5,6 +5,9 @@ import {
   SEED_CATEGORIES,
   FALLBACK_CATEGORY,
   HIKE_CATEGORIES,
+  lc,
+  sanitizeActivities,
+  sanitizeCategories,
 } from "./data/seed.js";
 import Header from "./components/Header.jsx";
 import ActivityCard from "./components/ActivityCard.jsx";
@@ -17,8 +20,16 @@ import Toast from "./components/Toast.jsx";
 const isHike = (a) => HIKE_CATEGORIES.includes(a.categorie);
 
 export default function App() {
-  const [activities, setActivities] = useLocalStorage("av_db", SEED_ACTIVITIES);
-  const [categories, setCategories] = useLocalStorage("av_cats", SEED_CATEGORIES);
+  const [activities, setActivities] = useLocalStorage(
+    "av_db",
+    SEED_ACTIVITIES,
+    sanitizeActivities,
+  );
+  const [categories, setCategories] = useLocalStorage(
+    "av_cats",
+    SEED_CATEGORIES,
+    sanitizeCategories,
+  );
 
   const [view, setView] = useState("activiteiten"); // "activiteiten" | "hikes"
   const [search, setSearch] = useState("");
@@ -68,14 +79,14 @@ export default function App() {
 
   // Gefilterde planner-lijst (categorie + zoekterm).
   const filtered = useMemo(() => {
-    const q = search.toLowerCase();
+    const q = lc(search);
     return plannerActivities.filter((a) => {
       const catOk = catFilter === "Alle" || a.categorie === catFilter;
       const searchOk =
         !q ||
-        a.naam.toLowerCase().includes(q) ||
-        a.locatie.toLowerCase().includes(q) ||
-        a.type.toLowerCase().includes(q);
+        lc(a.naam).includes(q) ||
+        lc(a.locatie).includes(q) ||
+        lc(a.type).includes(q);
       return catOk && searchOk;
     });
   }, [plannerActivities, catFilter, search]);

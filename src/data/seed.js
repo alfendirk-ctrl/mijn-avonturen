@@ -64,6 +64,47 @@ export const EMOJI_OPTIONS = [
 export const EMPTY_ACTIVITY = { naam: "", locatie: "", categorie: "Water", type: "", link: "", notities: "", status: "wil doen", periode: "" };
 export const EMPTY_CATEGORY = { naam: "", emoji: "🌍", kleurIndex: 0 };
 
+// Kleine hulp: veilig naar kleine letters (ook bij null/undefined/getallen).
+export const lc = (v) => String(v ?? "").toLowerCase();
+
+// Schoont een opgeslagen activiteitenlijst op zodat elk item de verwachte
+// velden heeft. Voorkomt crashes door onvolledige/oude data. Geeft null bij
+// onbruikbare invoer (dan valt de app terug op de seed).
+export function sanitizeActivities(arr) {
+  if (!Array.isArray(arr)) return null;
+  return arr
+    .filter((a) => a && typeof a === "object")
+    .map((a, i) => ({
+      id: typeof a.id === "number" ? a.id : Date.now() + i,
+      naam: String(a.naam ?? ""),
+      locatie: String(a.locatie ?? ""),
+      categorie: String(a.categorie ?? "Water"),
+      type: String(a.type ?? ""),
+      link: a.link ? String(a.link) : null,
+      notities: String(a.notities ?? ""),
+      status: ["wil doen", "gedaan", "favoriet"].includes(a.status)
+        ? a.status
+        : "wil doen",
+      periode: String(a.periode ?? ""),
+    }));
+}
+
+// Schoont een opgeslagen categorie-object op.
+export function sanitizeCategories(obj) {
+  if (!obj || typeof obj !== "object" || Array.isArray(obj)) return null;
+  const out = {};
+  for (const [naam, meta] of Object.entries(obj)) {
+    if (meta && typeof meta === "object") {
+      out[naam] = {
+        emoji: String(meta.emoji ?? FALLBACK_CATEGORY.emoji),
+        kleur: String(meta.kleur ?? FALLBACK_CATEGORY.kleur),
+        gradient: String(meta.gradient ?? FALLBACK_CATEGORY.gradient),
+      };
+    }
+  }
+  return Object.keys(out).length ? out : null;
+}
+
 // Standaard-activiteiten (opgeslagen onder av_db).
 export const SEED_ACTIVITIES = [
   { id: 1, naam: "Bootje varen", locatie: "Nederland", categorie: "Water", type: "Wateractiviteit", link: null, notities: "", status: "wil doen", periode: "" },
