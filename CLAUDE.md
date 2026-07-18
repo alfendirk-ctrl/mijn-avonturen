@@ -24,7 +24,9 @@ Note: the dev/preview URLs include the `/mijn-avonturen/` path because `base` is
 ## Architecture
 
 - **`src/main.jsx`** — React entry; mounts `<App>` and imports `src/styles.css`.
-- **`src/App.jsx`** — the whole app. Holds all state, filtering, stats, and CRUD handlers; renders the header, search/filter bar, category chips, "Verras me" (surprise) picker, the activity grid, and all overlays. This is the file to read first.
+- **`src/App.jsx`** — the whole app. Holds all state, filtering, stats, and CRUD handlers; renders the header, the tab switcher, and one of two views. This is the file to read first.
+  - A top-level tab toggles between two views: **Activiteiten** (the planner — search/filter bar, category chips, "Verras me" picker, activity grid) and **Hikes** (`HikesView`).
+  - The **Hikes** view is a "saved for later" wishlist for the categories in `HIKE_CATEGORIES` (`"Hike NL"`, `"Hike"` in `seed.js`). Those categories are excluded from the planner (chips, grid, surprise, stats) and shown only in `HikesView`, grouped into Nederland / internationaal, with a per-card done toggle. There is no separate data type — hikes are ordinary activities whose `categorie` is one of `HIKE_CATEGORIES`, so the data model and `av_db` key are unchanged.
 - **`src/data/seed.js`** — the default data and fixed option lists: `SEED_ACTIVITIES`, `SEED_CATEGORIES`, `STATUSES`, `COLOR_PALETTE`, `EMOJI_OPTIONS`, and the empty form templates. Edit here to change the starter content.
 - **`src/useLocalStorage.js`** — a `useState` wrapper that persists to `localStorage`.
 - **`src/components/`** — presentational pieces: `Header`, `ActivityCard`, `DetailModal` (both the read-only view *and* the add/edit form, switched by a `mode` prop), `ConfirmDialog`, `SettingsPanel` (category management), `Toast`.

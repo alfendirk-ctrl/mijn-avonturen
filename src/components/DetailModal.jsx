@@ -9,6 +9,7 @@ export default function DetailModal({
   mode,
   categories,
   catMeta,
+  initialCategory,
   onClose,
   onEdit,
   onDelete,
@@ -27,7 +28,7 @@ export default function DetailModal({
           status: activity.status,
           periode: activity.periode || "",
         }
-      : EMPTY_ACTIVITY,
+      : { ...EMPTY_ACTIVITY, categorie: initialCategory || EMPTY_ACTIVITY.categorie },
   );
 
   useEffect(() => {

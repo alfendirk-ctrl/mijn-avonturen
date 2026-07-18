@@ -2,6 +2,10 @@
 // De localStorage-sleutels (av_db / av_cats) worden gebruikt door useLocalStorage
 // zodat bestaande gebruikersdata behouden blijft.
 
+// Categorieën die als "Hikes" worden getoond (aparte bewaar-/wishlist-sectie
+// i.p.v. onderdeel van de activiteiten-planner).
+export const HIKE_CATEGORIES = ["Hike NL", "Hike"];
+
 // De drie statussen die een activiteit kan hebben.
 export const STATUSES = {
   "wil doen": { label: "Wil doen", emoji: "🔖", kleur: "#4A90D9", bg: "rgba(74,144,217,0.15)", dim: "rgba(74,144,217,0.06)" },
