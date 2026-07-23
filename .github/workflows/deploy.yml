@@ -1,19 +1,27 @@
-name: Deploy naar GitHub Pages
+name: Bouw en publiceer
 
-# Bouwt de app en publiceert de dist/-map naar GitHub Pages bij elke push naar main.
+# GitHub Pages van dit repo staat op "Deploy from a branch" (main / root) en
+# serveert de hoofdmap. Deze workflow bouwt de app bij een broncode-wijziging en
+# commit de gebouwde bestanden (index.html + assets) terug naar de hoofdmap,
+# zodat Pages de nieuwe versie serveert. Geen handmatige Pages-instelling nodig.
 on:
   push:
     branches: [main]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "index.html"
+      - "vite.config.js"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/deploy.yml"
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
-# Slechts één deploy tegelijk; nieuwe pushes annuleren een lopende run niet.
 concurrency:
-  group: pages
+  group: build
   cancel-in-progress: false
 
 jobs:
@@ -25,49 +33,26 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      # Forceer Pages naar "GitHub Actions"-modus. Nodig omdat het repo eerder op
-      # "Deploy from a branch" stond; configure-pages overschrijft dat niet vanzelf.
-      - name: Force Pages build type to workflow
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          curl -sS -X PUT \
-            -H "Authorization: Bearer $GH_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${{ github.repository }}/pages" \
-            -d '{"build_type":"workflow"}' -w "\nHTTP:%{http_code}\n" || true
-      # Zet GitHub Pages aan en op "GitHub Actions"-modus (geen handmatige instelling nodig).
-      - uses: actions/configure-pages@v5
-        with:
-          enablement: true
       - run: npm ci
       - run: npm run build
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
-      # Tijdelijke diagnose: controleer wat de live-site echt serveert.
-      - name: Verify live site
+      - name: Commit gebouwde bestanden
         run: |
-          BASE="${{ steps.deployment.outputs.page_url }}"
-          echo "page_url = $BASE"
-          sleep 20
-          echo "=== HTTP headers van index ==="
-          curl -sS -D - "$BASE" -o /tmp/index.html || echo "curl index faalde"
-          echo "=== eerste 2500 tekens van index.html ==="
-          head -c 2500 /tmp/index.html; echo
-          echo "=== asset-verwijzingen ==="
-          grep -oE '(src|href)="[^"]+\.(js|css)"' /tmp/index.html || echo "geen asset refs gevonden"
-          for A in $(grep -oE '/[^"]+\.(js|css)' /tmp/index.html); do
-            echo -n "asset $A -> "
-            curl -sS -o /dev/null -w "%{http_code}\n" "https://alfendirk-ctrl.github.io$A"
-          done
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets index.html manifest.json .nojekyll
+          if git diff --staged --quiet; then
+            echo "Geen wijzigingen in de build."
+          else
+            git commit -m "Build: gebouwde app bijwerken [skip ci]"
+            git push
+          fi
+      - name: Controleer live-site
+        run: |
+          echo "Even wachten tot GitHub Pages de nieuwe versie serveert…"
+          sleep 40
+          URL="https://alfendirk-ctrl.github.io/mijn-avonturen/"
+          curl -sS "$URL" -o /tmp/i.html -w "index: %{http_code}\n"
+          echo "--- verwijzingen ---"
+          grep -oE '/mijn-avonturen/assets/main\.(js|css)' /tmp/i.html || echo "geen main-assets in index"
+          curl -sS -o /dev/null -w "main.js:  %{http_code}\n" "https://alfendirk-ctrl.github.io/mijn-avonturen/assets/main.js"
+          curl -sS -o /dev/null -w "main.css: %{http_code}\n" "https://alfendirk-ctrl.github.io/mijn-avonturen/assets/main.css"
