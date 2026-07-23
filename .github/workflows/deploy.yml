@@ -44,3 +44,19 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+      # Tijdelijke diagnose: controleer wat de live-site echt serveert.
+      - name: Verify live site
+        run: |
+          BASE="${{ steps.deployment.outputs.page_url }}"
+          echo "page_url = $BASE"
+          sleep 20
+          echo "=== HTTP headers van index ==="
+          curl -sS -D - "$BASE" -o /tmp/index.html || echo "curl index faalde"
+          echo "=== eerste 2500 tekens van index.html ==="
+          head -c 2500 /tmp/index.html; echo
+          echo "=== asset-verwijzingen ==="
+          grep -oE '(src|href)="[^"]+\.(js|css)"' /tmp/index.html || echo "geen asset refs gevonden"
+          for A in $(grep -oE '/[^"]+\.(js|css)' /tmp/index.html); do
+            echo -n "asset $A -> "
+            curl -sS -o /dev/null -w "%{http_code}\n" "https://alfendirk-ctrl.github.io$A"
+          done
