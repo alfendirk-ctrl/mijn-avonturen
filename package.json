@@ -5,9 +5,7 @@
   "type": "module",
   "description": "Persoonlijke activiteiten & vakantie database",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "build": "vite build"
   },
   "dependencies": {
     "react": "^18.3.1",
