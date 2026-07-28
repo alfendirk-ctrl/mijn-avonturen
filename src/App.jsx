@@ -1,23 +1,27 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocalStorage } from "./useLocalStorage.js";
 import {
   SEED_ACTIVITIES,
   SEED_CATEGORIES,
   FALLBACK_CATEGORY,
-  HIKE_CATEGORIES,
-  lc,
+  SOORTEN,
+  soortVoorNaam,
   sanitizeActivities,
   sanitizeCategories,
 } from "./data/seed.js";
+import { verrijk } from "./lib/afleiden.js";
 import Header from "./components/Header.jsx";
-import ActivityCard from "./components/ActivityCard.jsx";
-import HikesView from "./components/HikesView.jsx";
+import NuView from "./views/NuView.jsx";
+import LijstView from "./views/LijstView.jsx";
 import DetailModal from "./components/DetailModal.jsx";
 import ConfirmDialog from "./components/ConfirmDialog.jsx";
 import SettingsPanel from "./components/SettingsPanel.jsx";
 import Toast from "./components/Toast.jsx";
 
-const isHike = (a) => HIKE_CATEGORIES.includes(a.categorie);
+const TABS = [
+  { key: "nu", tab: "Nu", emoji: "✨" },
+  ...Object.entries(SOORTEN).map(([key, s]) => ({ key, tab: s.tab, emoji: s.emoji })),
+];
 
 export default function App() {
   const [activities, setActivities] = useLocalStorage(
@@ -31,44 +35,48 @@ export default function App() {
     sanitizeCategories,
   );
 
-  const [view, setView] = useState("activiteiten"); // "activiteiten" | "hikes"
-  const [search, setSearch] = useState("");
-  const [catFilter, setCatFilter] = useState("Alle");
-  const [surpriseScope, setSurpriseScope] = useState("Alle");
-  const [surprise, setSurprise] = useState(null);
-  const [surpriseOn, setSurpriseOn] = useState(false);
-
+  const [tab, setTab] = useState("nu");
   const [panelOpen, setPanelOpen] = useState(false);
-  const [modal, setModal] = useState(null); // { activity, mode: "view" | "edit" }
-  const [adding, setAdding] = useState(null); // null | "activity" | "hike"
-  const [confirmActivity, setConfirmActivity] = useState(null);
+  const [modal, setModal] = useState(null); // { activity, mode }
+  const [adding, setAdding] = useState(null); // soort-sleutel
+  const [confirmItem, setConfirmItem] = useState(null);
   const [confirmCategory, setConfirmCategory] = useState(null);
   const [moveTarget, setMoveTarget] = useState("");
-  const [popId, setPopId] = useState(null);
   const [toasts, setToasts] = useState([]);
 
-  const gridRef = useRef(null);
-
-  const catNames = useMemo(() => Object.keys(categories), [categories]);
-  // Categorieën die in de activiteiten-planner horen (hikes uitgesloten).
-  const activityCatNames = useMemo(
-    () => catNames.filter((c) => !HIKE_CATEGORIES.includes(c)),
-    [catNames],
-  );
   const catMeta = useCallback(
-    (name) => categories[name] || FALLBACK_CATEGORY,
+    (naam) => categories[naam] || FALLBACK_CATEGORY,
+    [categories],
+  );
+  const soortVanCategorie = useCallback(
+    (naam) => categories[naam]?.soort || soortVoorNaam(naam),
     [categories],
   );
 
-  // Splits activiteiten en bewaarde hikes.
-  const plannerActivities = useMemo(
-    () => activities.filter((a) => !isHike(a)),
-    [activities],
-  );
-  const hikeList = useMemo(() => activities.filter(isHike), [activities]);
+  const catNamen = useMemo(() => Object.keys(categories), [categories]);
+  const catNamenPerSoort = useMemo(() => {
+    const m = { uitje: [], hike: [], reis: [] };
+    catNamen.forEach((naam) => {
+      (m[soortVanCategorie(naam)] || m.uitje).push(naam);
+    });
+    return m;
+  }, [catNamen, soortVanCategorie]);
 
-  // Aantal per categorie (over alle activiteiten; activiteit-categorieën bevatten
-  // alleen planner-items, dus dit klopt ook voor de chips).
+  // Alle items met afgeleide gegevens (seizoen, afstand, soort).
+  const items = useMemo(
+    () => activities.map((a) => verrijk(a, soortVanCategorie)),
+    [activities, soortVanCategorie],
+  );
+
+  const perSoort = useMemo(
+    () => ({
+      uitje: items.filter((a) => a.soort === "uitje"),
+      hike: items.filter((a) => a.soort === "hike"),
+      reis: items.filter((a) => a.soort === "reis"),
+    }),
+    [items],
+  );
+
   const counts = useMemo(() => {
     const m = {};
     activities.forEach((a) => {
@@ -77,60 +85,22 @@ export default function App() {
     return m;
   }, [activities]);
 
-  // Gefilterde planner-lijst (categorie + zoekterm).
-  const filtered = useMemo(() => {
-    const q = lc(search);
-    return plannerActivities.filter((a) => {
-      const catOk = catFilter === "Alle" || a.categorie === catFilter;
-      const searchOk =
-        !q ||
-        lc(a.naam).includes(q) ||
-        lc(a.locatie).includes(q) ||
-        lc(a.type).includes(q);
-      return catOk && searchOk;
-    });
-  }, [plannerActivities, catFilter, search]);
-
-  // Weergave-afhankelijke statistieken voor de kop.
   const stats = useMemo(() => {
-    if (view === "hikes") {
-      return [
-        { value: hikeList.length, label: "hikes bewaard", color: "#6366F1" },
-        {
-          value: hikeList.filter((h) => h.status === "gedaan").length,
-          label: "gedaan",
-          color: "#3DBE8A",
-        },
-        {
-          value: hikeList.filter((h) => h.status === "favoriet").length,
-          label: "favoriet",
-          color: "#F5A623",
-        },
-      ];
-    }
+    const bron = tab === "nu" ? items : perSoort[tab] || items;
     return [
-      { value: plannerActivities.length, label: "activiteiten", color: "#6366F1" },
-      {
-        value: plannerActivities.filter((a) => a.status === "favoriet").length,
-        label: "favorieten",
-        color: "#F5A623",
-      },
-      {
-        value: plannerActivities.filter((a) => a.status === "wil doen").length,
-        label: "op de lijst",
-        color: "#4A90D9",
-      },
+      { value: bron.length, label: tab === "nu" ? "avonturen" : SOORTEN[tab].meervoud, color: "#6366F1" },
+      { value: bron.filter((a) => a.favoriet).length, label: "favoriet", color: "#F5A623" },
+      { value: bron.filter((a) => a.gedaan).length, label: "gedaan", color: "#3DBE8A" },
     ];
-  }, [view, plannerActivities, hikeList]);
+  }, [tab, items, perSoort]);
 
-  // Sluit alles met Escape.
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") {
         setModal(null);
         setAdding(null);
         setPanelOpen(false);
-        setConfirmActivity(null);
+        setConfirmItem(null);
         setConfirmCategory(null);
       }
     };
@@ -144,37 +114,28 @@ export default function App() {
     setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 2200);
   }, []);
 
-  // ---- Activiteiten / hikes opslaan ----
+  // ---- Avonturen ----
   const saveActivity = (form, id) => {
-    const clean = {
+    const schoon = {
       naam: form.naam.trim(),
       locatie: form.locatie.trim(),
       categorie: form.categorie,
-      type: form.type.trim() || form.categorie,
+      type: form.type.trim(),
       link: form.link.trim() || null,
       notities: form.notities,
-      status: form.status,
+      gedaan: !!form.gedaan,
+      favoriet: !!form.favoriet,
       periode: form.periode.trim(),
     };
     if (id == null) {
-      const newId = Date.now();
-      setActivities((list) => [{ id: newId, ...clean }, ...list]);
-      setPopId(newId);
-      setTimeout(() => setPopId(null), 1800);
-      const addedHike = HIKE_CATEGORIES.includes(clean.categorie);
+      const nieuweId = Date.now();
+      setActivities((lijst) => [{ id: nieuweId, ...schoon }, ...lijst]);
       setAdding(null);
-      if (!addedHike) {
-        setCatFilter("Alle");
-        setSearch("");
-        setTimeout(
-          () => gridRef.current?.scrollIntoView({ behavior: "smooth" }),
-          60,
-        );
-      }
-      pushToast(addedHike ? "Hike bewaard" : "Activiteit toegevoegd");
+      setTab(soortVanCategorie(schoon.categorie));
+      pushToast("Toegevoegd");
     } else {
-      setActivities((list) =>
-        list.map((a) => (a.id === id ? { id, ...clean } : a)),
+      setActivities((lijst) =>
+        lijst.map((a) => (a.id === id ? { id, ...schoon } : a)),
       );
       setModal(null);
       pushToast("Wijzigingen opgeslagen");
@@ -182,310 +143,169 @@ export default function App() {
   };
 
   const deleteActivity = (id) => {
-    setActivities((list) => list.filter((a) => a.id !== id));
-    setConfirmActivity(null);
+    setActivities((lijst) => lijst.filter((a) => a.id !== id));
+    setConfirmItem(null);
     setModal(null);
     pushToast("Verwijderd", "danger");
   };
 
-  // Hike afvinken als gedaan (en weer terug).
-  const toggleHikeDone = (hike) => {
-    const next = hike.status === "gedaan" ? "wil doen" : "gedaan";
-    setActivities((list) =>
-      list.map((a) => (a.id === hike.id ? { ...a, status: next } : a)),
+  const toggleVeld = (item, veld, melding) => {
+    setActivities((lijst) =>
+      lijst.map((a) => (a.id === item.id ? { ...a, [veld]: !a[veld] } : a)),
     );
-    pushToast(next === "gedaan" ? "Afgevinkt als gedaan ✓" : "Weer op de lijst");
+    pushToast(melding(!item[veld]));
   };
+
+  const toggleGedaan = (item) =>
+    toggleVeld(item, "gedaan", (aan) =>
+      aan ? "Afgevinkt als gedaan ✓" : "Weer op de lijst",
+    );
+  const toggleFavoriet = (item) =>
+    toggleVeld(item, "favoriet", (aan) =>
+      aan ? "Toegevoegd aan favorieten ★" : "Uit favorieten",
+    );
 
   // ---- Categorieën ----
   const addCategory = (cat) => {
     setCategories((c) => ({
       ...c,
-      [cat.naam]: { emoji: cat.emoji, kleur: cat.kleur, gradient: cat.gradient },
+      [cat.naam]: {
+        emoji: cat.emoji,
+        kleur: cat.kleur,
+        gradient: cat.gradient,
+        soort: cat.soort,
+      },
     }));
     pushToast("Categorie aangemaakt");
   };
 
-  const removeCategory = (name, moveTo) => {
+  const setCategorySoort = (naam, soort) => {
+    setCategories((c) => ({ ...c, [naam]: { ...c[naam], soort } }));
+    pushToast(`${naam} staat nu bij ${SOORTEN[soort].tab}`);
+  };
+
+  const removeCategory = (naam, verplaatsNaar) => {
     setCategories((c) => {
-      const next = { ...c };
-      delete next[name];
-      return next;
+      const volgende = { ...c };
+      delete volgende[naam];
+      return volgende;
     });
-    setActivities((list) =>
-      moveTo
-        ? list.map((a) => (a.categorie === name ? { ...a, categorie: moveTo } : a))
-        : list.filter((a) => a.categorie !== name),
+    setActivities((lijst) =>
+      verplaatsNaar
+        ? lijst.map((a) =>
+            a.categorie === naam ? { ...a, categorie: verplaatsNaar } : a,
+          )
+        : lijst.filter((a) => a.categorie !== naam),
     );
-    if (catFilter === name) setCatFilter("Alle");
-    if (surpriseScope === name) setSurpriseScope("Alle");
     setConfirmCategory(null);
     pushToast("Categorie verwijderd", "danger");
   };
 
-  const requestDeleteCategory = (name) => {
-    if ((counts[name] || 0) > 0) {
-      const others = catNames.filter((c) => c !== name);
-      setMoveTarget(others[0] || "");
-      setConfirmCategory(name);
+  const requestDeleteCategory = (naam) => {
+    if ((counts[naam] || 0) > 0) {
+      setMoveTarget(catNamen.find((c) => c !== naam) || "");
+      setConfirmCategory(naam);
     } else {
-      removeCategory(name, null);
+      removeCategory(naam, null);
     }
   };
 
-  // ---- Verras me (alleen planner) ----
-  const doSurprise = () => {
-    const pool =
-      surpriseScope === "Alle"
-        ? plannerActivities
-        : plannerActivities.filter((a) => a.categorie === surpriseScope);
-    if (!pool.length) return;
-    setSurpriseOn(false);
-    setTimeout(() => {
-      setSurprise(pool[Math.floor(Math.random() * pool.length)]);
-      setSurpriseOn(true);
-    }, 40);
-  };
-
-  const switchView = (v) => {
-    setView(v);
-    setSurprise(null);
-  };
+  const openItem = (item) => setModal({ activity: item, mode: "view" });
 
   return (
     <div>
       <Header stats={stats} />
 
-      {/* Weergave-schakelaar */}
       <div className="tabs">
-        <button
-          className={`tab${view === "activiteiten" ? " on" : ""}`}
-          onClick={() => switchView("activiteiten")}
-        >
-          🗺️ Activiteiten
-          <span className="tab-count">{plannerActivities.length}</span>
-        </button>
-        <button
-          className={`tab${view === "hikes" ? " on" : ""}`}
-          onClick={() => switchView("hikes")}
-        >
-          🥾 Hikes<span className="tab-count">{hikeList.length}</span>
-        </button>
+        {TABS.map((t) => (
+          <button
+            key={t.key}
+            className={`tab${tab === t.key ? " on" : ""}`}
+            onClick={() => setTab(t.key)}
+          >
+            <span className="tab-emo">{t.emoji}</span>
+            <span className="tab-tekst">{t.tab}</span>
+            {t.key !== "nu" && (
+              <span className="tab-count">{perSoort[t.key].length}</span>
+            )}
+          </button>
+        ))}
       </div>
 
-      {view === "hikes" ? (
-        <HikesView
-          hikes={hikeList}
+      {tab === "nu" ? (
+        <NuView
+          items={items}
           catMeta={catMeta}
-          onOpen={(h) => setModal({ activity: h, mode: "view" })}
-          onToggleDone={toggleHikeDone}
-          onAdd={() => setAdding("hike")}
+          onOpen={openItem}
+          onToggleDone={toggleGedaan}
+          onGaNaar={setTab}
         />
       ) : (
-        <>
-          {/* Zoekbalk + knoppen */}
-          <div className="bar">
-            <div className="srch">
-              <span className="srch-ico">⌕</span>
-              <input
-                placeholder="Zoek activiteit, locatie of type…"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              {search && (
-                <button className="srch-clr" onClick={() => setSearch("")}>
-                  ✕
-                </button>
-              )}
-            </div>
-            <button className="btn" onClick={() => setPanelOpen(true)}>
-              ⊞ <span>Categorieën</span>
-            </button>
-            <button className="btn acc" onClick={() => setAdding("activity")}>
-              + <span>Toevoegen</span>
-            </button>
-          </div>
-
-          {/* Categorie-chips */}
-          <div className="cats">
-            <div className="cats-row">
-              <button
-                className={`chip${catFilter === "Alle" ? " on" : ""}`}
-                style={
-                  catFilter === "Alle"
-                    ? { background: "#6366F1", borderColor: "#6366F1" }
-                    : undefined
-                }
-                onClick={() => setCatFilter("Alle")}
-              >
-                Alle <span className="chip-count">{plannerActivities.length}</span>
-              </button>
-              {activityCatNames.map((name) => {
-                const meta = catMeta(name);
-                const active = catFilter === name;
-                return (
-                  <button
-                    key={name}
-                    className={`chip${active ? " on" : ""}`}
-                    style={
-                      active
-                        ? { background: meta.kleur, borderColor: meta.kleur }
-                        : undefined
-                    }
-                    onClick={() => setCatFilter(name)}
-                  >
-                    {meta.emoji} {name}{" "}
-                    <span className="chip-count">{counts[name] || 0}</span>
-                    <span
-                      className="x"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        requestDeleteCategory(name);
-                      }}
-                    >
-                      ✕
-                    </span>
-                  </button>
-                );
-              })}
-              <button className="chip-add" onClick={() => setPanelOpen(true)}>
-                + Nieuwe categorie
-              </button>
-            </div>
-          </div>
-
-          {/* Verras me */}
-          <div className="vbar">
-            <button className="vbtn" onClick={doSurprise}>
-              🎲 Verras me
-            </button>
-            <select
-              className="vsel"
-              value={surpriseScope}
-              onChange={(e) => {
-                setSurpriseScope(e.target.value);
-                setSurprise(null);
-              }}
-            >
-              <option value="Alle">Alle categorieën</option>
-              {activityCatNames.map((name) => (
-                <option key={name} value={name}>
-                  {catMeta(name).emoji} {name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {surprise && (
-            <div className="vcard">
-              <div
-                className={`vcard-in${surpriseOn ? " on" : ""}`}
-                onClick={() => setModal({ activity: surprise, mode: "view" })}
-              >
-                <div className="vcard-eye">
-                  Jouw volgende avontuur — tik voor details
-                </div>
-                <div className="vcard-naam">{surprise.naam}</div>
-                <div className="vcard-meta">
-                  {catMeta(surprise.categorie).emoji} {surprise.categorie} ·{" "}
-                  {surprise.locatie}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Teller */}
-          <div className="teller">
-            {filtered.length} {filtered.length === 1 ? "resultaat" : "resultaten"}
-            {search && ` — "${search}"`}
-            {catFilter !== "Alle" && ` — ${catFilter}`}
-          </div>
-
-          {/* Raster */}
-          <div className="grid" ref={gridRef}>
-            {filtered.length === 0 ? (
-              <div className="empty">
-                <span className="empty-ico">
-                  {catFilter !== "Alle" ? catMeta(catFilter).emoji : "🗺️"}
-                </span>
-                <div className="empty-h">
-                  {search ? "Niets gevonden" : `Geen activiteiten in ${catFilter}`}
-                </div>
-                <div className="empty-p">
-                  {search
-                    ? `Geen resultaten voor "${search}"`
-                    : "Voeg je eerste activiteit toe"}
-                </div>
-              </div>
-            ) : (
-              filtered.map((a) => (
-                <ActivityCard
-                  key={a.id}
-                  activity={a}
-                  cat={catMeta(a.categorie)}
-                  popping={popId === a.id}
-                  onClick={() => setModal({ activity: a, mode: "view" })}
-                />
-              ))
-            )}
-          </div>
-        </>
+        <LijstView
+          key={tab}
+          soort={tab}
+          items={perSoort[tab]}
+          catNames={catNamenPerSoort[tab]}
+          catMeta={catMeta}
+          counts={counts}
+          onOpen={openItem}
+          onToggleDone={toggleGedaan}
+          onToggleFav={toggleFavoriet}
+          onAdd={setAdding}
+          onOpenSettings={() => setPanelOpen(true)}
+        />
       )}
 
-      {/* Detail / bewerk-venster */}
       {modal && (
         <DetailModal
           activity={modal.activity}
           mode={modal.mode}
-          categories={isHike(modal.activity) ? HIKE_CATEGORIES : activityCatNames}
+          categories={catNamen}
           catMeta={catMeta}
           onClose={() => setModal(null)}
           onEdit={() => setModal({ ...modal, mode: "edit" })}
-          onDelete={() => setConfirmActivity(modal.activity)}
+          onDelete={() => setConfirmItem(modal.activity)}
           onSave={saveActivity}
         />
       )}
 
-      {/* Nieuwe activiteit of hike */}
       {adding && (
         <DetailModal
           activity={null}
           mode="edit"
-          categories={adding === "hike" ? HIKE_CATEGORIES : activityCatNames}
-          initialCategory={adding === "hike" ? "Hike" : activityCatNames[0]}
+          categories={catNamen}
+          initialCategory={catNamenPerSoort[adding]?.[0]}
           catMeta={catMeta}
           onClose={() => setAdding(null)}
           onSave={saveActivity}
         />
       )}
 
-      {/* Instellingen-paneel */}
       {panelOpen && (
         <SettingsPanel
           categories={categories}
           counts={counts}
           onAddCategory={addCategory}
+          onSetCategorySoort={setCategorySoort}
           onDeleteCategory={requestDeleteCategory}
           onClose={() => setPanelOpen(false)}
         />
       )}
 
-      {/* Item verwijderen */}
-      {confirmActivity && (
+      {confirmItem && (
         <ConfirmDialog
           title="Verwijderen?"
           message={
             <>
-              Weet je zeker dat je <strong>{confirmActivity.naam}</strong> wil
+              Weet je zeker dat je <strong>{confirmItem.naam}</strong> wil
               verwijderen?
             </>
           }
-          onConfirm={() => deleteActivity(confirmActivity.id)}
-          onCancel={() => setConfirmActivity(null)}
+          onConfirm={() => deleteActivity(confirmItem.id)}
+          onCancel={() => setConfirmItem(null)}
         />
       )}
 
-      {/* Categorie verwijderen (met verplaats-optie) */}
       {confirmCategory && (
         <ConfirmDialog
           title="Categorie verwijderen?"
@@ -496,7 +316,7 @@ export default function App() {
               mee.
             </>
           }
-          moveOptions={catNames.filter((c) => c !== confirmCategory)}
+          moveOptions={catNamen.filter((c) => c !== confirmCategory)}
           moveValue={moveTarget}
           onMoveChange={setMoveTarget}
           confirmLabel="Verwijder categorie"

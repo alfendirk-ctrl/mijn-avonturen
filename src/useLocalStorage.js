@@ -7,17 +7,20 @@ import { useState, useEffect } from "react";
 // `null` om op de standaardwaarde terug te vallen (beschermt tegen kapotte data).
 export function useLocalStorage(key, initial, validate) {
   const [value, setValue] = useState(() => {
+    // De standaardwaarde gaat door dezelfde opschoning als opgeslagen data,
+    // zodat beide altijd exact dezelfde vorm hebben.
+    const schoonInitial = () => (validate ? validate(initial) ?? initial : initial);
     try {
       const raw = localStorage.getItem(key);
-      if (!raw) return initial;
+      if (!raw) return schoonInitial();
       const parsed = JSON.parse(raw);
       if (validate) {
         const clean = validate(parsed);
-        return clean == null ? initial : clean;
+        return clean == null ? schoonInitial() : clean;
       }
       return parsed;
     } catch {
-      return initial;
+      return schoonInitial();
     }
   });
 
