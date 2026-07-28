@@ -1,11 +1,11 @@
-import { STATUSES } from "../data/seed.js";
+import { MARKERINGEN } from "../data/seed.js";
 
-// Eén activiteit als kaart in het raster.
-export default function ActivityCard({ activity, cat, popping, onClick }) {
-  const st = STATUSES[activity.status] || STATUSES["wil doen"];
+// Compacte kaart voor uitjes: snel scannen in een raster.
+export default function ActivityCard({ activity, cat, popping, onClick, onToggleDone }) {
+  const { gedaan, favoriet } = activity;
   return (
     <div
-      className={`card${popping ? " pop" : ""}`}
+      className={`card${popping ? " pop" : ""}${gedaan ? " af" : ""}`}
       onClick={onClick}
       role="button"
       tabIndex={0}
@@ -14,17 +14,32 @@ export default function ActivityCard({ activity, cat, popping, onClick }) {
       <div className="card-glow" style={{ background: cat.kleur }} />
       <div className="card-top">
         <div className="card-ico">{cat.emoji}</div>
-        <span
-          className="card-badge"
-          style={{ background: st.bg, color: st.kleur }}
+        <button
+          className={`vink${gedaan ? " on" : ""}`}
+          title={gedaan ? "Toch nog niet gedaan" : "Markeer als gedaan"}
+          aria-label={gedaan ? "Toch nog niet gedaan" : "Markeer als gedaan"}
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleDone();
+          }}
         >
-          {st.emoji} {st.label}
-        </span>
+          ✓
+        </button>
       </div>
-      <div className="card-name">{activity.naam}</div>
+      <div className="card-name">
+        {favoriet && <span className="ster">★</span>}
+        {activity.naam}
+      </div>
       <div className="card-loc">{activity.locatie}</div>
-      {activity.type && <span className="card-type">{activity.type}</span>}
-      {activity.periode && <div className="card-per">🗓 {activity.periode}</div>}
+      <div className="card-onder">
+        {activity.type && <span className="card-type">{activity.type}</span>}
+        {activity.periode && <span className="card-per">🗓 {activity.periode}</span>}
+      </div>
+      {gedaan && (
+        <span className="card-af-badge" style={{ color: MARKERINGEN.gedaan.kleur }}>
+          ✓ gedaan
+        </span>
+      )}
     </div>
   );
 }

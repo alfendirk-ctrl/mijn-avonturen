@@ -22,10 +22,15 @@ There is no linter or test runner configured.
 ## Architecture
 
 - **`src/main.jsx`** — React entry; mounts `<App>` and imports `src/styles.css`.
-- **`src/App.jsx`** — the whole app. Holds all state, filtering, stats, and CRUD handlers; renders the header, the tab switcher, and one of two views. This is the file to read first.
-  - A top-level tab toggles between two views: **Activiteiten** (the planner — search/filter bar, category chips, "Verras me" picker, activity grid) and **Hikes** (`HikesView`).
-  - The **Hikes** view is a "saved for later" wishlist for the categories in `HIKE_CATEGORIES` (`"Hike NL"`, `"Hike"` in `seed.js`). Those categories are excluded from the planner (chips, grid, surprise, stats) and shown only in `HikesView`, grouped into Nederland / internationaal, with a per-card done toggle. There is no separate data type — hikes are ordinary activities whose `categorie` is one of `HIKE_CATEGORIES`, so the data model and `av_db` key are unchanged.
-- **`src/data/seed.js`** — the default data and fixed option lists: `SEED_ACTIVITIES`, `SEED_CATEGORIES`, `STATUSES`, `COLOR_PALETTE`, `EMOJI_OPTIONS`, and the empty form templates. Edit here to change the starter content.
+- **`src/App.jsx`** — state, CRUD handlers, the tab bar, and all overlays (modal, settings panel, confirm dialogs). Read this first; the views below are presentational.
+- **`src/lib/afleiden.js`** — derives usable data from the free-text fields that already exist. `maandenUitPeriode` parses `periode` (`"juli-aug"`, `"okt-feb"`, `"lente/zomer"`) into month numbers; `afstandUitLocatie` maps `locatie` to one of `dichtbij` / `buurland` / `europa` / `ver` plus a region name. `verrijk()` adds `maanden`, `afstand`, `regio` and `soort` to an activity. **These are computed, never stored** — the free text stays the single source of truth, so there is nothing to migrate when the parser improves.
+- **`src/views/NuView.jsx`** — the "Wat doen we?" home screen: only shows what fits the current month, within a chosen distance range, and isn't done yet. Contains the "Verras me" picker.
+- **`src/views/LijstView.jsx`** — one list view reused by all three soorten. Uitjes render as compact `ActivityCard`s in a flat grid; hikes and reizen are "saved for later" and render as richer `WishCard`s grouped by distance.
+- **`src/data/seed.js`** — default data and fixed lists: `SEED_ACTIVITIES`, `SEED_CATEGORIES`, `SOORTEN`, `MARKERINGEN`, `COLOR_PALETTE`, `EMOJI_OPTIONS`, plus the `sanitize*` functions. Edit here to change starter content.
+
+### Soorten (the three tabs)
+
+Every category carries a `soort` (`uitje` | `hike` | `reis`) which decides the tab its activities appear in. **Do not key this off category names** — an earlier version hardcoded `["Hike NL", "Hike"]`, which silently emptied the Hikes tab if a category was renamed. `soortVoorNaam()` only supplies the default for pre-existing data; after that the stored `soort` wins, and the settings panel lets the user move a category between tabs.
 - **`src/useLocalStorage.js`** — a `useState` wrapper that persists to `localStorage`.
 - **`src/components/`** — presentational pieces: `Header`, `ActivityCard`, `DetailModal` (both the read-only view *and* the add/edit form, switched by a `mode` prop), `ConfirmDialog`, `SettingsPanel` (category management), `Toast`.
 - **`src/styles.css`** — all styling, plain CSS with class names matching the JSX (`.card`, `.chip`, `.modal`, `.vbtn`, …). All animation is CSS keyframes; there is no animation library. Fonts (Syne, DM Sans) load from Google Fonts via `@import`.
@@ -34,8 +39,10 @@ There is no linter or test runner configured.
 
 Two `localStorage` keys, **which must not be renamed** or existing users lose their data:
 
-- **`av_db`** — array of activities: `{ id, naam, locatie, categorie, type, link, notities, status, periode }`. `status` is one of `"wil doen"`, `"gedaan"`, `"favoriet"` (the keys of `STATUSES`).
-- **`av_cats`** — object mapping a category name → `{ emoji, kleur, gradient }`.
+- **`av_db`** — array of activities: `{ id, naam, locatie, categorie, type, link, notities, gedaan, favoriet, periode }`. `gedaan` and `favoriet` are **independent booleans** — an older single `status` field conflated them, so ticking a favourite as done wiped its favourite mark. `sanitizeActivities` migrates the old `status` field on read.
+- **`av_cats`** — object mapping a category name → `{ emoji, kleur, gradient, soort }`.
+
+Both `sanitize*` functions also run over the seed defaults (see `useLocalStorage`), so stored and default data always have the exact same shape.
 
 An activity's `categorie` is a string that keys into `av_cats`; unknown categories fall back to `FALLBACK_CATEGORY`. Deleting a category either reassigns its activities to another category or removes them (see `removeCategory` in `App.jsx`).
 

@@ -2,15 +2,33 @@
 // De localStorage-sleutels (av_db / av_cats) worden gebruikt door useLocalStorage
 // zodat bestaande gebruikersdata behouden blijft.
 
-// Categorieën die als "Hikes" worden getoond (aparte bewaar-/wishlist-sectie
-// i.p.v. onderdeel van de activiteiten-planner).
-export const HIKE_CATEGORIES = ["Hike NL", "Hike"];
+// De drie soorten waarin de app is opgedeeld (de tabs). Een categorie bepaalt
+// tot welke soort een item hoort — niet de naam van de categorie, zodat
+// hernoemen niets kapotmaakt.
+export const SOORTEN = {
+  uitje: { tab: "Uitjes", emoji: "🗺️", enkelvoud: "uitje", meervoud: "uitjes" },
+  hike: { tab: "Hikes", emoji: "🥾", enkelvoud: "hike", meervoud: "hikes" },
+  reis: { tab: "Reizen", emoji: "✈️", enkelvoud: "reis", meervoud: "reizen" },
+};
 
-// De drie statussen die een activiteit kan hebben.
-export const STATUSES = {
-  "wil doen": { label: "Wil doen", emoji: "🔖", kleur: "#4A90D9", bg: "rgba(74,144,217,0.15)", dim: "rgba(74,144,217,0.06)" },
-  gedaan:     { label: "Gedaan",   emoji: "✓", kleur: "#3DBE8A", bg: "rgba(61,190,138,0.15)", dim: "rgba(61,190,138,0.06)" },
-  favoriet:   { label: "Favoriet", emoji: "★", kleur: "#F5A623", bg: "rgba(245,166,35,0.15)", dim: "rgba(245,166,35,0.06)" },
+// Waar een categorie standaard bij hoort (gebruikt voor bestaande data en
+// als startwaarde voor nieuwe categorieën).
+const STANDAARD_SOORT = {
+  "Hike NL": "hike",
+  Hike: "hike",
+  Roadtrip: "reis",
+  Vakantie: "reis",
+  Verblijf: "reis",
+};
+
+export const soortVoorNaam = (naam) => STANDAARD_SOORT[naam] || "uitje";
+
+// Markeringen die een item kan hebben. "gedaan" en "favoriet" staan los van
+// elkaar: een favoriet die je gedaan hebt blijft een favoriet.
+export const MARKERINGEN = {
+  open: { label: "Wil doen", emoji: "🔖", kleur: "#4A90D9", bg: "rgba(74,144,217,0.15)" },
+  gedaan: { label: "Gedaan", emoji: "✓", kleur: "#3DBE8A", bg: "rgba(61,190,138,0.15)" },
+  favoriet: { label: "Favoriet", emoji: "★", kleur: "#F5A623", bg: "rgba(245,166,35,0.15)" },
 };
 
 // Fallback voor een categorie die (nog) niet in de lijst staat.
@@ -18,22 +36,24 @@ export const FALLBACK_CATEGORY = {
   emoji: "✦",
   kleur: "#6366F1",
   gradient: "linear-gradient(135deg,#312e81,#4338ca)",
+  soort: "uitje",
 };
 
-// Standaard-categorieën (opgeslagen onder av_cats). Object: naam -> { emoji, kleur, gradient }.
+// Standaard-categorieën (opgeslagen onder av_cats).
+// Object: naam -> { emoji, kleur, gradient, soort }.
 export const SEED_CATEGORIES = {
-  Water:       { emoji: "🌊", kleur: "#4FC3F7", gradient: "linear-gradient(135deg,#0d47a1,#0288d1)" },
-  Ontspanning: { emoji: "☀️", kleur: "#FFD54F", gradient: "linear-gradient(135deg,#e65100,#f57c00)" },
-  Leisure:     { emoji: "🎳", kleur: "#CE93D8", gradient: "linear-gradient(135deg,#4a148c,#7b1fa2)" },
-  Kids:        { emoji: "🧸", kleur: "#FF8A65", gradient: "linear-gradient(135deg,#bf360c,#e64a19)" },
-  Avontuur:    { emoji: "🧗", kleur: "#A5D6A7", gradient: "linear-gradient(135deg,#1b5e20,#2e7d32)" },
-  Sport:       { emoji: "🏃", kleur: "#64B5F6", gradient: "linear-gradient(135deg,#0d47a1,#1565c0)" },
-  Pretpark:    { emoji: "🎢", kleur: "#EF9A9A", gradient: "linear-gradient(135deg,#b71c1c,#c62828)" },
-  Verblijf:    { emoji: "🏕️", kleur: "#C5E1A5", gradient: "linear-gradient(135deg,#1b5e20,#33691e)" },
-  Roadtrip:    { emoji: "🛣️", kleur: "#FFCC80", gradient: "linear-gradient(135deg,#e65100,#bf360c)" },
-  "Hike NL":   { emoji: "🇳🇱", kleur: "#81D4FA", gradient: "linear-gradient(135deg,#01579b,#0277bd)" },
-  Hike:        { emoji: "🥾", kleur: "#BCAAA4", gradient: "linear-gradient(135deg,#3e2723,#4e342e)" },
-  Vakantie:    { emoji: "✈️", kleur: "#F48FB1", gradient: "linear-gradient(135deg,#880e4f,#ad1457)" },
+  Water:       { emoji: "🌊", kleur: "#4FC3F7", gradient: "linear-gradient(135deg,#0d47a1,#0288d1)", soort: "uitje" },
+  Ontspanning: { emoji: "☀️", kleur: "#FFD54F", gradient: "linear-gradient(135deg,#e65100,#f57c00)", soort: "uitje" },
+  Leisure:     { emoji: "🎳", kleur: "#CE93D8", gradient: "linear-gradient(135deg,#4a148c,#7b1fa2)", soort: "uitje" },
+  Kids:        { emoji: "🧸", kleur: "#FF8A65", gradient: "linear-gradient(135deg,#bf360c,#e64a19)", soort: "uitje" },
+  Avontuur:    { emoji: "🧗", kleur: "#A5D6A7", gradient: "linear-gradient(135deg,#1b5e20,#2e7d32)", soort: "uitje" },
+  Sport:       { emoji: "🏃", kleur: "#64B5F6", gradient: "linear-gradient(135deg,#0d47a1,#1565c0)", soort: "uitje" },
+  Pretpark:    { emoji: "🎢", kleur: "#EF9A9A", gradient: "linear-gradient(135deg,#b71c1c,#c62828)", soort: "uitje" },
+  Verblijf:    { emoji: "🏕️", kleur: "#C5E1A5", gradient: "linear-gradient(135deg,#1b5e20,#33691e)", soort: "reis" },
+  Roadtrip:    { emoji: "🛣️", kleur: "#FFCC80", gradient: "linear-gradient(135deg,#e65100,#bf360c)", soort: "reis" },
+  "Hike NL":   { emoji: "🇳🇱", kleur: "#81D4FA", gradient: "linear-gradient(135deg,#01579b,#0277bd)", soort: "hike" },
+  Hike:        { emoji: "🥾", kleur: "#BCAAA4", gradient: "linear-gradient(135deg,#3e2723,#4e342e)", soort: "hike" },
+  Vakantie:    { emoji: "✈️", kleur: "#F48FB1", gradient: "linear-gradient(135deg,#880e4f,#ad1457)", soort: "reis" },
 };
 
 // Kleuren-palet voor het aanmaken van een nieuwe categorie.
@@ -61,8 +81,8 @@ export const EMOJI_OPTIONS = [
 ];
 
 // Lege sjablonen voor de formulieren.
-export const EMPTY_ACTIVITY = { naam: "", locatie: "", categorie: "Water", type: "", link: "", notities: "", status: "wil doen", periode: "" };
-export const EMPTY_CATEGORY = { naam: "", emoji: "🌍", kleurIndex: 0 };
+export const EMPTY_ACTIVITY = { naam: "", locatie: "", categorie: "Water", type: "", link: "", notities: "", gedaan: false, favoriet: false, periode: "" };
+export const EMPTY_CATEGORY = { naam: "", emoji: "🌍", kleurIndex: 0, soort: "uitje" };
 
 // Kleine hulp: veilig naar kleine letters (ook bij null/undefined/getallen).
 export const lc = (v) => String(v ?? "").toLowerCase();
@@ -74,19 +94,26 @@ export function sanitizeActivities(arr) {
   if (!Array.isArray(arr)) return null;
   return arr
     .filter((a) => a && typeof a === "object")
-    .map((a, i) => ({
-      id: typeof a.id === "number" ? a.id : Date.now() + i,
-      naam: String(a.naam ?? ""),
-      locatie: String(a.locatie ?? ""),
-      categorie: String(a.categorie ?? "Water"),
-      type: String(a.type ?? ""),
-      link: a.link ? String(a.link) : null,
-      notities: String(a.notities ?? ""),
-      status: ["wil doen", "gedaan", "favoriet"].includes(a.status)
-        ? a.status
-        : "wil doen",
-      periode: String(a.periode ?? ""),
-    }));
+    .map((a, i) => {
+      // Oudere data had één statusveld; dat wordt hier gesplitst in twee
+      // losse markeringen, zodat een gedane favoriet favoriet blijft.
+      const gedaan =
+        typeof a.gedaan === "boolean" ? a.gedaan : a.status === "gedaan";
+      const favoriet =
+        typeof a.favoriet === "boolean" ? a.favoriet : a.status === "favoriet";
+      return {
+        id: typeof a.id === "number" ? a.id : Date.now() + i,
+        naam: String(a.naam ?? ""),
+        locatie: String(a.locatie ?? ""),
+        categorie: String(a.categorie ?? "Water"),
+        type: String(a.type ?? ""),
+        link: a.link ? String(a.link) : null,
+        notities: String(a.notities ?? ""),
+        gedaan,
+        favoriet,
+        periode: String(a.periode ?? ""),
+      };
+    });
 }
 
 // Schoont een opgeslagen categorie-object op.
@@ -99,6 +126,7 @@ export function sanitizeCategories(obj) {
         emoji: String(meta.emoji ?? FALLBACK_CATEGORY.emoji),
         kleur: String(meta.kleur ?? FALLBACK_CATEGORY.kleur),
         gradient: String(meta.gradient ?? FALLBACK_CATEGORY.gradient),
+        soort: SOORTEN[meta.soort] ? meta.soort : soortVoorNaam(naam),
       };
     }
   }
