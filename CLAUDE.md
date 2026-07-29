@@ -32,6 +32,7 @@ There is no linter or test runner configured.
 
 Every category carries a `soort` (`uitje` | `hike` | `reis`) which decides the tab its activities appear in. **Do not key this off category names** — an earlier version hardcoded `["Hike NL", "Hike"]`, which silently emptied the Hikes tab if a category was renamed. `soortVoorNaam()` only supplies the default for pre-existing data; after that the stored `soort` wins, and the settings panel lets the user move a category between tabs.
 - **`src/useLocalStorage.js`** — a `useState` wrapper that persists to `localStorage`.
+- **`src/lib/sync.js`** — optional sharing between two people. See "Delen" below.
 - **`src/components/`** — presentational pieces: `Header`, `ActivityCard`, `DetailModal` (both the read-only view *and* the add/edit form, switched by a `mode` prop), `ConfirmDialog`, `SettingsPanel` (category management), `Toast`.
 - **`src/styles.css`** — all styling, plain CSS with class names matching the JSX (`.card`, `.chip`, `.modal`, `.vbtn`, …). All animation is CSS keyframes; there is no animation library. Fonts (Syne, DM Sans) load from Google Fonts via `@import`.
 
@@ -56,3 +57,32 @@ This repo's GitHub Pages is configured as **"Deploy from a branch" (`main` / roo
 - `.github/workflows/deploy.yml` automates this: on a push that touches source, it builds and commits the regenerated build outputs back to `main` (`contents: write`), then verifies the live URL. Its trigger `paths` exclude the build outputs so the bot's commit doesn't loop.
 
 Note: `base` is `/mijn-avonturen/` (the Pages sub-path); keep asset URLs prefixed accordingly.
+
+## Delen (optional sync)
+
+Two people can share one list. The design is **local-first**: `localStorage`
+stays the working copy so the app is fully usable offline, and syncing merges
+on top of it. Nothing here is required — with no key configured the app runs
+purely locally and the share panel says so.
+
+- **Access model**: a secret `ruimte_id` (uuid). It travels in an `x-ruimte`
+  request header; Postgres RLS compares it against the row's `ruimte_id`, so
+  knowing the uuid *is* the credential. There is no login. Anyone with the link
+  can read and write the list — an accepted trade-off for a list of day trips,
+  but do not put anything sensitive in it.
+- **Merging** is last-write-wins per row on a `bijgewerkt` epoch-ms stamp.
+  Every mutation in `App.jsx` goes through `stempel()` to set it. On a tie the
+  remote row wins, which makes both sides converge.
+- **Deletions** need tombstones, otherwise a delete on one device is undone by
+  the other device pushing the row back. Local deletes are recorded in
+  `av_verwijderd` (`{id: bijgewerkt}`) and pushed as rows with
+  `verwijderd = true`.
+- **Order matters**: `synchroniseer()` pulls, merges, *then* pushes the merged
+  result. Pushing first would let a stale local row overwrite a newer remote one.
+- The sync effect compares a JSON snapshot (`laatsteMomentopname`) before
+  running, otherwise writing the merge result back into state would retrigger
+  the effect forever.
+
+`PUBLIEKE_SLEUTEL` in `sync.js` is the Supabase anon key. It is public by
+design; it grants nothing without a `ruimte_id`. `syncBeschikbaar()` gates the
+whole feature on it being set.

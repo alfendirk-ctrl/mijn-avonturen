@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import {
   huidigeMaand,
-  seizoenVanMaand,
   MAAND_LABEL,
   pastInMaand,
+  themaVanMaand,
 } from "../lib/afleiden.js";
 import { SOORTEN } from "../data/seed.js";
 import ActivityCard from "../components/ActivityCard.jsx";
@@ -25,7 +25,7 @@ export default function NuView({ items, catMeta, onOpen, onToggleDone, onGaNaar 
   const [zichtbaar, setZichtbaar] = useState(false);
 
   const maand = huidigeMaand();
-  const seizoen = seizoenVanMaand(maand);
+  const thema = themaVanMaand(maand);
 
   const passend = useMemo(() => {
     const toegestaan = BEREIKEN[bereik].toont;
@@ -58,12 +58,17 @@ export default function NuView({ items, catMeta, onOpen, onToggleDone, onGaNaar 
   return (
     <div className="nu">
       <div className="nu-kop">
-        <div className="nu-eye">Wat doen we?</div>
+        <div className="nu-watermerk" aria-hidden="true">
+          {MAAND_LABEL[maand]}
+        </div>
+        <div className="nu-seizoen">
+          {thema.emoji} {thema.naam} — {thema.stemming}
+        </div>
+        <h2 className="nu-eye">Wat doen we?</h2>
         <div className="nu-lead">
-          Het is <strong>{MAAND_LABEL[maand]}</strong> — {seizoen}.{" "}
           {passend.length === 0
             ? "Niets gevonden binnen dit bereik."
-            : `${passend.length} ${passend.length === 1 ? "idee past" : "ideeën passen"} nu.`}
+            : `${passend.length} ${passend.length === 1 ? "idee past" : "ideeën passen"} bij ${MAAND_LABEL[maand]}.`}
         </div>
       </div>
 

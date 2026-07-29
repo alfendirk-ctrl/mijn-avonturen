@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocalStorage } from "./useLocalStorage.js";
 import {
   SEED_ACTIVITIES,
@@ -9,7 +9,7 @@ import {
   sanitizeActivities,
   sanitizeCategories,
 } from "./data/seed.js";
-import { verrijk } from "./lib/afleiden.js";
+import { verrijk, huidigeMaand, themaVanMaand } from "./lib/afleiden.js";
 import Header from "./components/Header.jsx";
 import NuView from "./views/NuView.jsx";
 import LijstView from "./views/LijstView.jsx";
@@ -17,6 +17,19 @@ import DetailModal from "./components/DetailModal.jsx";
 import ConfirmDialog from "./components/ConfirmDialog.jsx";
 import SettingsPanel from "./components/SettingsPanel.jsx";
 import Toast from "./components/Toast.jsx";
+import DeelPaneel from "./components/DeelPaneel.jsx";
+import {
+  SLEUTEL_RUIMTE,
+  SLEUTEL_TOMBS,
+  maakRuimteId,
+  ruimteUitUrl,
+  synchroniseer,
+  syncBeschikbaar,
+} from "./lib/sync.js";
+
+// Elke wijziging krijgt een tijdstempel; daarmee bepaalt de synchronisatie
+// welke versie wint als jullie allebei iets veranderd hebben.
+const stempel = (obj) => ({ ...obj, bijgewerkt: Date.now() });
 
 const TABS = [
   { key: "nu", tab: "Nu", emoji: "✨" },
@@ -43,6 +56,14 @@ export default function App() {
   const [confirmCategory, setConfirmCategory] = useState(null);
   const [moveTarget, setMoveTarget] = useState("");
   const [toasts, setToasts] = useState([]);
+
+  const [ruimte, setRuimte] = useLocalStorage(SLEUTEL_RUIMTE, null);
+  const [tombs, setTombs] = useLocalStorage(SLEUTEL_TOMBS, {});
+  const [deelOpen, setDeelOpen] = useState(false);
+  const [syncStatus, setSyncStatus] = useState("uit");
+  const [laatstGesynct, setLaatstGesynct] = useState(null);
+  const laatsteMomentopname = useRef("");
+  const bezig = useRef(false);
 
   const catMeta = useCallback(
     (naam) => categories[naam] || FALLBACK_CATEGORY,
@@ -94,12 +115,22 @@ export default function App() {
     ];
   }, [tab, items, perSoort]);
 
+  // Het huidige seizoen kleurt de hele app.
+  const thema = useMemo(() => themaVanMaand(huidigeMaand()), []);
+  useEffect(() => {
+    const stijl = document.documentElement.style;
+    stijl.setProperty("--accent", thema.accent);
+    stijl.setProperty("--accent2", thema.accent2);
+    stijl.setProperty("--glow", thema.glow);
+  }, [thema]);
+
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") {
         setModal(null);
         setAdding(null);
         setPanelOpen(false);
+        setDeelOpen(false);
         setConfirmItem(null);
         setConfirmCategory(null);
       }
@@ -129,13 +160,13 @@ export default function App() {
     };
     if (id == null) {
       const nieuweId = Date.now();
-      setActivities((lijst) => [{ id: nieuweId, ...schoon }, ...lijst]);
+      setActivities((lijst) => [stempel({ id: nieuweId, ...schoon }), ...lijst]);
       setAdding(null);
       setTab(soortVanCategorie(schoon.categorie));
       pushToast("Toegevoegd");
     } else {
       setActivities((lijst) =>
-        lijst.map((a) => (a.id === id ? { id, ...schoon } : a)),
+        lijst.map((a) => (a.id === id ? stempel({ id, ...schoon }) : a)),
       );
       setModal(null);
       pushToast("Wijzigingen opgeslagen");
@@ -144,6 +175,9 @@ export default function App() {
 
   const deleteActivity = (id) => {
     setActivities((lijst) => lijst.filter((a) => a.id !== id));
+    // Grafsteen bewaren, anders komt het item bij de volgende synchronisatie
+    // gewoon weer terug van het andere apparaat.
+    setTombs((t) => ({ ...t, [id]: Date.now() }));
     setConfirmItem(null);
     setModal(null);
     pushToast("Verwijderd", "danger");
@@ -151,7 +185,7 @@ export default function App() {
 
   const toggleVeld = (item, veld, melding) => {
     setActivities((lijst) =>
-      lijst.map((a) => (a.id === item.id ? { ...a, [veld]: !a[veld] } : a)),
+      lijst.map((a) => (a.id === item.id ? stempel({ ...a, [veld]: !a[veld] }) : a)),
     );
     pushToast(melding(!item[veld]));
   };
@@ -169,18 +203,18 @@ export default function App() {
   const addCategory = (cat) => {
     setCategories((c) => ({
       ...c,
-      [cat.naam]: {
+      [cat.naam]: stempel({
         emoji: cat.emoji,
         kleur: cat.kleur,
         gradient: cat.gradient,
         soort: cat.soort,
-      },
+      }),
     }));
     pushToast("Categorie aangemaakt");
   };
 
   const setCategorySoort = (naam, soort) => {
-    setCategories((c) => ({ ...c, [naam]: { ...c[naam], soort } }));
+    setCategories((c) => ({ ...c, [naam]: stempel({ ...c[naam], soort }) }));
     pushToast(`${naam} staat nu bij ${SOORTEN[soort].tab}`);
   };
 
@@ -193,10 +227,18 @@ export default function App() {
     setActivities((lijst) =>
       verplaatsNaar
         ? lijst.map((a) =>
-            a.categorie === naam ? { ...a, categorie: verplaatsNaar } : a,
+            a.categorie === naam ? stempel({ ...a, categorie: verplaatsNaar }) : a,
           )
         : lijst.filter((a) => a.categorie !== naam),
     );
+    if (!verplaatsNaar) {
+      const weg = activities.filter((a) => a.categorie === naam);
+      setTombs((t) => {
+        const volgende = { ...t };
+        weg.forEach((a) => (volgende[a.id] = Date.now()));
+        return volgende;
+      });
+    }
     setConfirmCategory(null);
     pushToast("Categorie verwijderd", "danger");
   };
@@ -212,9 +254,95 @@ export default function App() {
 
   const openItem = (item) => setModal({ activity: item, mode: "view" });
 
+  // ---- Delen met je partner ----
+
+  // Een gedeelde link openen zet dit apparaat meteen in die ruimte.
+  useEffect(() => {
+    const uitLink = ruimteUitUrl();
+    if (uitLink) {
+      setRuimte(uitLink);
+      pushToast("Gedeelde lijst gekoppeld");
+    }
+  }, [setRuimte, pushToast]);
+
+  const doeSync = useCallback(async () => {
+    if (!ruimte || !syncBeschikbaar() || bezig.current) return;
+    bezig.current = true;
+    setSyncStatus("bezig");
+    try {
+      const uit = await synchroniseer({
+        ruimte,
+        items: activities,
+        categorieen: categories,
+        tombs,
+      });
+      // Momentopname bijwerken vóór het wegschrijven, zodat het opslaan van
+      // het resultaat niet meteen een nieuwe synchronisatie uitlokt.
+      laatsteMomentopname.current = JSON.stringify([uit.items, uit.categorieen]);
+      setActivities(uit.items);
+      setCategories(uit.categorieen);
+      setTombs(uit.tombs);
+      setLaatstGesynct(Date.now());
+      setSyncStatus("ok");
+    } catch {
+      // Geen verbinding is geen fout: lokaal werkt alles gewoon door.
+      setSyncStatus("fout");
+    } finally {
+      bezig.current = false;
+    }
+  }, [ruimte, activities, categories, tombs, setActivities, setCategories, setTombs]);
+
+  // Synchroniseer kort na een wijziging, en verder bij openen, terugkeren naar
+  // het scherm, en periodiek.
+  useEffect(() => {
+    if (!ruimte || !syncBeschikbaar()) return;
+    const nu = JSON.stringify([activities, categories]);
+    if (nu === laatsteMomentopname.current) return;
+    const timer = setTimeout(doeSync, 1200);
+    return () => clearTimeout(timer);
+  }, [ruimte, activities, categories, doeSync]);
+
+  useEffect(() => {
+    if (!ruimte || !syncBeschikbaar()) return;
+    const bijTerugkeer = () => document.visibilityState === "visible" && doeSync();
+    window.addEventListener("focus", doeSync);
+    document.addEventListener("visibilitychange", bijTerugkeer);
+    const klok = setInterval(doeSync, 30000);
+    return () => {
+      window.removeEventListener("focus", doeSync);
+      document.removeEventListener("visibilitychange", bijTerugkeer);
+      clearInterval(klok);
+    };
+  }, [ruimte, doeSync]);
+
+  const startDelen = () => {
+    setRuimte(maakRuimteId());
+    // Alles krijgt een verse tijdstempel, zodat deze lijst de basis wordt.
+    const nu = Date.now();
+    setActivities((lijst) => lijst.map((a) => ({ ...a, bijgewerkt: nu })));
+    setCategories((c) =>
+      Object.fromEntries(
+        Object.entries(c).map(([naam, meta]) => [naam, { ...meta, bijgewerkt: nu }]),
+      ),
+    );
+    pushToast("Deel-link aangemaakt");
+  };
+
+  const stopDelen = () => {
+    setRuimte(null);
+    setSyncStatus("uit");
+    setDeelOpen(false);
+    pushToast("Delen gestopt op dit apparaat");
+  };
+
   return (
     <div>
-      <Header stats={stats} />
+      <Header
+        stats={stats}
+        gedeeld={!!ruimte}
+        syncStatus={syncStatus}
+        onDelen={() => setDeelOpen(true)}
+      />
 
       <div className="tabs">
         {TABS.map((t) => (
@@ -322,6 +450,18 @@ export default function App() {
           confirmLabel="Verwijder categorie"
           onConfirm={() => removeCategory(confirmCategory, moveTarget || null)}
           onCancel={() => setConfirmCategory(null)}
+        />
+      )}
+
+      {deelOpen && (
+        <DeelPaneel
+          ruimte={ruimte}
+          status={syncStatus}
+          laatstGesynct={laatstGesynct}
+          onStartDelen={startDelen}
+          onStopDelen={stopDelen}
+          onNuSynchroniseren={doeSync}
+          onClose={() => setDeelOpen(false)}
         />
       )}
 
