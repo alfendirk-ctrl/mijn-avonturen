@@ -89,6 +89,47 @@ export function seizoenVanMaand(maand) {
   return "winter";
 }
 
+// Het seizoen kleurt de hele app. Dat is geen versiering: het onderstreept
+// waar de app om draait — wat kan er nú.
+export const SEIZOEN_THEMA = {
+  lente: {
+    naam: "lente",
+    emoji: "🌱",
+    stemming: "alles loopt weer uit",
+    accent: "#4ADE80",
+    accent2: "#BEF264",
+    glow: "rgba(74,222,128,0.13)",
+  },
+  zomer: {
+    naam: "zomer",
+    emoji: "☀️",
+    stemming: "lange dagen, laat licht",
+    accent: "#FFC043",
+    accent2: "#FF7A59",
+    glow: "rgba(255,192,67,0.14)",
+  },
+  herfst: {
+    naam: "herfst",
+    emoji: "🍂",
+    stemming: "gouden licht, lege paden",
+    accent: "#EA7C3C",
+    accent2: "#9A3412",
+    glow: "rgba(234,124,60,0.13)",
+  },
+  winter: {
+    naam: "winter",
+    emoji: "❄️",
+    stemming: "korte dagen, heldere luchten",
+    accent: "#7DD3FC",
+    accent2: "#A78BFA",
+    glow: "rgba(125,211,252,0.13)",
+  },
+};
+
+export function themaVanMaand(maand) {
+  return SEIZOEN_THEMA[seizoenVanMaand(maand)];
+}
+
 // ---- Afstand ----------------------------------------------------------------
 
 const PROVINCIES = [

@@ -117,7 +117,7 @@ export default function LijstView({
               className={`chip${categorie === "Alle" ? " on" : ""}`}
               style={
                 categorie === "Alle"
-                  ? { background: "#6366F1", borderColor: "#6366F1" }
+                  ? { background: "var(--accent)", borderColor: "var(--accent)" }
                   : undefined
               }
               onClick={() => setCategorie("Alle")}
