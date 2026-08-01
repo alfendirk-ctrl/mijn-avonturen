@@ -9,7 +9,7 @@ const URL_BASIS = "https://lnldkebuctpfxlccspga.supabase.co";
 
 // Publieke sleutel van het Supabase-project. Deze mag in de app staan: de
 // toegang tot gegevens loopt via de geheime ruimte-id, niet via deze sleutel.
-const PUBLIEKE_SLEUTEL = "";
+const PUBLIEKE_SLEUTEL = "sb_publishable_1PtrK39gKDUgK9XRvmvkhA_6h8qmHlO";
 
 export const SLEUTEL_RUIMTE = "av_ruimte";
 export const SLEUTEL_TOMBS = "av_verwijderd";
