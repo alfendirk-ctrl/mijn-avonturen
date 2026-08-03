@@ -1,7 +1,10 @@
+import { useFoto } from "../useFoto.js";
+
 // Rijkere kaart voor bewaarde dromen (hikes en reizen): toont het beste
 // seizoen, notities en of er route-info bewaard is.
 export default function WishCard({ item, cat, onClick, onToggleDone, onToggleFav }) {
   const { gedaan, favoriet } = item;
+  const foto = useFoto(item.id, item.foto);
   return (
     <div
       className={`hcard${gedaan ? " done" : ""}`}
@@ -11,6 +14,11 @@ export default function WishCard({ item, cat, onClick, onToggleDone, onToggleFav
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onClick()}
     >
       <div className="hcard-glow" style={{ background: cat.kleur }} />
+      {foto && (
+        <div className="kaart-foto groot">
+          <img src={foto} alt="" loading="lazy" />
+        </div>
+      )}
       <div className="hcard-top">
         <div className="hcard-ico">{cat.emoji}</div>
         <div className="hcard-acties">

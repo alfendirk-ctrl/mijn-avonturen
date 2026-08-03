@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MARKERINGEN, EMPTY_ACTIVITY } from "../data/seed.js";
+import { verkleinAfbeelding } from "../lib/fotos.js";
+import { useFoto } from "../useFoto.js";
 
 // Detail-/bewerkvenster voor één avontuur.
 // mode "view" -> alleen lezen, met knoppen om te bewerken of te verwijderen
@@ -28,12 +30,20 @@ export default function DetailModal({
           gedaan: !!activity.gedaan,
           favoriet: !!activity.favoriet,
           periode: activity.periode || "",
+          foto: !!activity.foto,
         }
       : {
           ...EMPTY_ACTIVITY,
           categorie: initialCategory || categories[0] || EMPTY_ACTIVITY.categorie,
         },
   );
+
+  const [nieuweFoto, setNieuweFoto] = useState(null);
+  const [nieuweFotoUrl, setNieuweFotoUrl] = useState(null);
+  const [bezigMetFoto, setBezigMetFoto] = useState(false);
+
+  // Voorbeeld-URL weer vrijgeven als het venster sluit.
+  useEffect(() => () => nieuweFotoUrl && URL.revokeObjectURL(nieuweFotoUrl), [nieuweFotoUrl]);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -45,6 +55,40 @@ export default function DetailModal({
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
   const toggle = (k) => () => setForm((f) => ({ ...f, [k]: !f[k] }));
   const cat = catMeta(form.categorie);
+
+  // Foto: de al bewaarde versie, of een zojuist gekozen nieuwe.
+  const bewaardeFoto = useFoto(activity?.id, !!activity?.foto && !nieuweFotoUrl);
+  const bestandKiezer = useRef(null);
+  const toonFoto = nieuweFotoUrl || (form.foto ? bewaardeFoto : null);
+
+  const kiesFoto = async (e) => {
+    const bestand = e.target.files?.[0];
+    e.target.value = "";
+    if (!bestand) return;
+    setBezigMetFoto(true);
+    try {
+      const klein = await verkleinAfbeelding(bestand);
+      setNieuweFoto(klein);
+      setNieuweFotoUrl((oud) => {
+        if (oud) URL.revokeObjectURL(oud);
+        return URL.createObjectURL(klein);
+      });
+      setForm((f) => ({ ...f, foto: true }));
+    } catch {
+      // Onleesbare afbeelding: laat het formulier gewoon staan.
+    } finally {
+      setBezigMetFoto(false);
+    }
+  };
+
+  const wisFoto = () => {
+    setNieuweFotoUrl((oud) => {
+      if (oud) URL.revokeObjectURL(oud);
+      return null;
+    });
+    setNieuweFoto(null);
+    setForm((f) => ({ ...f, foto: false }));
+  };
 
   // ---- Bewerken / toevoegen ----
   if (mode === "edit") {
@@ -119,6 +163,39 @@ export default function DetailModal({
               </div>
             </div>
             <div>
+              <label className="lbl">Foto</label>
+              {toonFoto ? (
+                <div className="foto-voorbeeld">
+                  <img src={toonFoto} alt="" />
+                  <button type="button" className="foto-weg" onClick={wisFoto}>
+                    ✕ Verwijder foto
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className="foto-kies"
+                  onClick={() => bestandKiezer.current?.click()}
+                  disabled={bezigMetFoto}
+                >
+                  {bezigMetFoto ? "Bezig…" : "📷 Kies een foto of screenshot"}
+                </button>
+              )}
+              <input
+                ref={bestandKiezer}
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={kiesFoto}
+              />
+              <div className="hint">
+                Handig voor iets dat je op Instagram zag: maak er een
+                schermafdruk van en bewaar die hier. Foto's blijven op dit
+                toestel — ze gaan nog niet mee naar je partner.
+              </div>
+            </div>
+
+            <div>
               <label className="lbl">Markeringen</label>
               <div className="mark-row">
                 <button
@@ -160,7 +237,7 @@ export default function DetailModal({
           <button
             className="ef-save"
             disabled={!kanOpslaan}
-            onClick={() => onSave(form, isNew ? null : activity.id)}
+            onClick={() => onSave(form, isNew ? null : activity.id, nieuweFoto)}
           >
             {isNew ? "Toevoegen" : "Wijzigingen opslaan"}
           </button>
@@ -193,6 +270,11 @@ export default function DetailModal({
         </div>
 
         <div className="m-body">
+          {toonFoto && (
+            <div className="m-foto">
+              <img src={toonFoto} alt={activity.naam} />
+            </div>
+          )}
           <Rij icoon="📍" label="Locatie" waarde={activity.locatie} />
           {activity.type && <Rij icoon="🏷" label="Type" waarde={activity.type} />}
 
