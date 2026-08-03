@@ -88,7 +88,7 @@ export const EMOJI_OPTIONS = [
 ];
 
 // Lege sjablonen voor de formulieren.
-export const EMPTY_ACTIVITY = { naam: "", locatie: "", categorie: "Water", type: "", link: "", notities: "", gedaan: false, favoriet: false, periode: "" };
+export const EMPTY_ACTIVITY = { naam: "", locatie: "", categorie: "Water", type: "", link: "", notities: "", gedaan: false, favoriet: false, periode: "", foto: false };
 export const EMPTY_CATEGORY = { naam: "", emoji: "🌍", kleurIndex: 0, soort: "uitje" };
 
 // Kleine hulp: veilig naar kleine letters (ook bij null/undefined/getallen).
@@ -119,6 +119,8 @@ export function sanitizeActivities(arr) {
         gedaan,
         favoriet,
         periode: String(a.periode ?? ""),
+        // Vlag, niet de afbeelding zelf: die staat in IndexedDB (lib/fotos.js).
+        foto: !!a.foto,
       };
     });
 }

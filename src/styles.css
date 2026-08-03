@@ -365,3 +365,20 @@ html, body { background:#0A0A12; color:#E8E8F0; font-family:system-ui, -apple-sy
   .tab-tekst.lang { display:none; }
   .tab-tekst.kort { display:inline; }
 }
+
+/* ---- Foto's ---- */
+.kaart-foto { margin:-20px -20px 14px; height:120px; overflow:hidden; background:rgba(255,255,255,0.03); }
+.kaart-foto.groot { margin:-20px -20px 14px; height:150px; }
+.kaart-foto img { width:100%; height:100%; object-fit:cover; display:block; }
+.card.af .kaart-foto img { filter:grayscale(0.6); }
+
+.foto-kies { width:100%; padding:22px 14px; border-radius:12px; border:1px dashed var(--accent-40); background:var(--accent-05); font-family:'DM Sans',sans-serif; font-size:14px; color:var(--accent); cursor:pointer; transition:all .18s; }
+.foto-kies:hover { border-color:var(--accent); background:var(--accent-12); }
+.foto-kies:disabled { opacity:.5; cursor:wait; }
+.foto-voorbeeld { border-radius:12px; overflow:hidden; border:1px solid var(--border); }
+.foto-voorbeeld img { width:100%; max-height:230px; object-fit:cover; display:block; }
+.foto-weg { width:100%; padding:10px; border:none; background:rgba(239,68,68,0.12); color:#FCA5A5; font-family:'DM Sans',sans-serif; font-size:13px; cursor:pointer; }
+.foto-weg:hover { background:rgba(239,68,68,0.2); }
+
+.m-foto { margin:6px 0 4px; border-radius:14px; overflow:hidden; border:1px solid var(--border); }
+.m-foto img { width:100%; max-height:300px; object-fit:cover; display:block; }

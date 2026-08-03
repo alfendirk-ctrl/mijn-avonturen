@@ -1,8 +1,10 @@
 import { MARKERINGEN } from "../data/seed.js";
+import { useFoto } from "../useFoto.js";
 
 // Compacte kaart voor uitjes: snel scannen in een raster.
 export default function ActivityCard({ activity, cat, popping, onClick, onToggleDone }) {
   const { gedaan, favoriet } = activity;
+  const foto = useFoto(activity.id, activity.foto);
   return (
     <div
       className={`card${popping ? " pop" : ""}${gedaan ? " af" : ""}`}
@@ -12,6 +14,11 @@ export default function ActivityCard({ activity, cat, popping, onClick, onToggle
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onClick()}
     >
       <div className="card-glow" style={{ background: cat.kleur }} />
+      {foto && (
+        <div className="kaart-foto">
+          <img src={foto} alt="" loading="lazy" />
+        </div>
+      )}
       <div className="card-top">
         <div className="card-ico">{cat.emoji}</div>
         <button

@@ -26,6 +26,7 @@ import {
   synchroniseer,
   syncBeschikbaar,
 } from "./lib/sync.js";
+import { bewaarFoto, verwijderFoto } from "./lib/fotos.js";
 
 // Elke wijziging krijgt een tijdstempel; daarmee bepaalt de synchronisatie
 // welke versie wint als jullie allebei iets veranderd hebben.
@@ -146,7 +147,7 @@ export default function App() {
   }, []);
 
   // ---- Avonturen ----
-  const saveActivity = (form, id) => {
+  const saveActivity = async (form, id, nieuweFoto) => {
     const schoon = {
       naam: form.naam.trim(),
       locatie: form.locatie.trim(),
@@ -157,14 +158,19 @@ export default function App() {
       gedaan: !!form.gedaan,
       favoriet: !!form.favoriet,
       periode: form.periode.trim(),
+      foto: !!form.foto,
     };
     if (id == null) {
       const nieuweId = Date.now();
+      // De afbeelding pas wegschrijven als het item een id heeft.
+      if (nieuweFoto) await bewaarFoto(nieuweId, nieuweFoto);
       setActivities((lijst) => [stempel({ id: nieuweId, ...schoon }), ...lijst]);
       setAdding(null);
       setTab(soortVanCategorie(schoon.categorie));
       pushToast("Toegevoegd");
     } else {
+      if (nieuweFoto) await bewaarFoto(id, nieuweFoto);
+      else if (!schoon.foto) await verwijderFoto(id);
       setActivities((lijst) =>
         lijst.map((a) => (a.id === id ? stempel({ id, ...schoon }) : a)),
       );
@@ -174,6 +180,7 @@ export default function App() {
   };
 
   const deleteActivity = (id) => {
+    verwijderFoto(id);
     setActivities((lijst) => lijst.filter((a) => a.id !== id));
     // Grafsteen bewaren, anders komt het item bij de volgende synchronisatie
     // gewoon weer terug van het andere apparaat.

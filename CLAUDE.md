@@ -74,6 +74,24 @@ through and never cached; Google Fonts are the one cache-first exception.
 
 Bump `VERSIE` in `sw.js` to force old caches to be discarded on activate.
 
+## Foto's
+
+Screenshots (typically of an Instagram find) live in **IndexedDB**, not
+localStorage: localStorage caps out around 5 MB for the whole app, which a
+handful of phone screenshots would fill. `lib/fotos.js` downsizes to 900px and
+JPEG-encodes at 0.72 before storing, taking a 2-3 MB screenshot down to roughly
+100-200 kB.
+
+The activity record carries only a `foto` boolean, so cards can tell there is
+an image without reading a blob per card, and so the flag survives sync. The
+image itself is keyed by activity id and is **not synced** — the partner sees
+the item but not the picture. Syncing images would mean Supabase Storage, or
+only pushing changed rows so a base64 column doesn't re-upload everything each
+time.
+
+`useFoto` revokes its object URL on unmount; without that, scrolling a list of
+photo cards leaks memory.
+
 ## Delen (optional sync)
 
 Two people can share one list. The design is **local-first**: `localStorage`
