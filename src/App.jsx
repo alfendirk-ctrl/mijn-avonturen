@@ -32,8 +32,8 @@ import {
 const stempel = (obj) => ({ ...obj, bijgewerkt: Date.now() });
 
 const TABS = [
-  { key: "nu", tab: "Nu", emoji: "✨" },
-  ...Object.entries(SOORTEN).map(([key, s]) => ({ key, tab: s.tab, emoji: s.emoji })),
+  { key: "nu", tab: "Nu", kort: "Nu", emoji: "✨" },
+  ...Object.entries(SOORTEN).map(([key, s]) => ({ key, tab: s.tab, kort: s.kort, emoji: s.emoji })),
 ];
 
 export default function App() {
@@ -352,7 +352,8 @@ export default function App() {
             onClick={() => setTab(t.key)}
           >
             <span className="tab-emo">{t.emoji}</span>
-            <span className="tab-tekst">{t.tab}</span>
+            <span className="tab-tekst lang">{t.tab}</span>
+            <span className="tab-tekst kort">{t.kort}</span>
             {t.key !== "nu" && (
               <span className="tab-count">{perSoort[t.key].length}</span>
             )}

@@ -337,3 +337,31 @@ html, body { background:#0A0A12; color:#E8E8F0; font-family:system-ui, -apple-sy
 @media (max-width:520px) {
   .hdr-rechts { width:100%; justify-content:space-between; }
 }
+
+/* ---- Afstandsschuif ---- */
+.afstand { max-width:900px; margin:0 auto; padding:0 24px 20px; }
+.afstand-kop { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:9px; }
+.afstand-vraag { font-family:'DM Sans',sans-serif; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:#50506A; }
+.afstand-aantal { font-family:'DM Sans',sans-serif; font-size:12px; font-weight:500; color:var(--accent); }
+.afstand-schuif { -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:100px; outline:none; cursor:pointer; margin:0; background:linear-gradient(to right, var(--accent) 0%, var(--accent) var(--vulling), rgba(255,255,255,0.09) var(--vulling), rgba(255,255,255,0.09) 100%); }
+.afstand-schuif::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:22px; height:22px; border-radius:50%; background:var(--accent); border:3px solid #0A0A12; box-shadow:0 2px 8px rgba(0,0,0,0.5); cursor:grab; }
+.afstand-schuif::-webkit-slider-thumb:active { cursor:grabbing; transform:scale(1.1); }
+.afstand-schuif::-moz-range-thumb { width:22px; height:22px; border-radius:50%; background:var(--accent); border:3px solid #0A0A12; box-shadow:0 2px 8px rgba(0,0,0,0.5); cursor:grab; }
+.afstand-schuif:focus-visible { box-shadow:0 0 0 3px var(--accent-25); }
+.afstand-schaal { display:flex; justify-content:space-between; margin-top:6px; }
+.afstand-stap { background:none; border:none; padding:4px 2px; font-size:15px; line-height:1; cursor:pointer; opacity:.28; transition:opacity .15s, transform .15s; }
+.afstand-stap.aan { opacity:1; }
+.afstand-stap:hover { transform:scale(1.15); opacity:.85; }
+.afstand-bijschrift { font-family:'DM Sans',sans-serif; font-size:12.5px; color:#8888B0; margin-top:5px; }
+.nu .afstand { padding-left:0; padding-right:0; max-width:100%; }
+
+@media (max-width:520px) {
+  .afstand { padding-left:16px; padding-right:16px; }
+}
+
+/* Tabbalk: volledige naam waar het past, korte naam op smalle schermen. */
+.tab-tekst.kort { display:none; }
+@media (max-width:640px) {
+  .tab-tekst.lang { display:none; }
+  .tab-tekst.kort { display:inline; }
+}

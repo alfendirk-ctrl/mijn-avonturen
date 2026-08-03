@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { AFSTANDEN, huidigeMaand, pastInMaand } from "../lib/afleiden.js";
+import AfstandSlider, { AFSTAND_STAPPEN } from "../components/AfstandSlider.jsx";
 import { SOORTEN, lc } from "../data/seed.js";
 import ActivityCard from "../components/ActivityCard.jsx";
 import WishCard from "../components/WishCard.jsx";
@@ -24,10 +25,17 @@ export default function LijstView({
   const [alleenOpen, setAlleenOpen] = useState(false);
   const [alleenFav, setAlleenFav] = useState(false);
   const [alleenNu, setAlleenNu] = useState(false);
+  const [bereik, setBereik] = useState(AFSTAND_STAPPEN.length - 1);
 
   const meta = SOORTEN[soort];
   const rijk = soort !== "uitje";
   const maand = huidigeMaand();
+
+  // De schuif heeft alleen zin als deze lijst meerdere afstanden bevat.
+  const afstandenAanwezig = useMemo(
+    () => new Set(items.map((a) => a.afstand)).size,
+    [items],
+  );
 
   const zichtbaar = useMemo(() => {
     const q = lc(zoek);
@@ -37,6 +45,7 @@ export default function LijstView({
         if (alleenOpen && a.gedaan) return false;
         if (alleenFav && !a.favoriet) return false;
         if (alleenNu && !pastInMaand(a.maanden, maand)) return false;
+        if (AFSTANDEN[a.afstand].volgorde > bereik) return false;
         if (!q) return true;
         return (
           lc(a.naam).includes(q) ||
@@ -50,7 +59,7 @@ export default function LijstView({
         if (a.favoriet !== b.favoriet) return a.favoriet ? -1 : 1;
         return a.naam.localeCompare(b.naam);
       });
-  }, [items, zoek, categorie, alleenOpen, alleenFav, alleenNu, maand]);
+  }, [items, zoek, categorie, alleenOpen, alleenFav, alleenNu, bereik, maand]);
 
   // Voor hikes/reizen: groepeer op afstand, in oplopende volgorde.
   const groepen = useMemo(() => {
@@ -167,6 +176,10 @@ export default function LijstView({
           Kan nu
         </button>
       </div>
+
+      {afstandenAanwezig > 1 && (
+        <AfstandSlider waarde={bereik} onChange={setBereik} aantal={zichtbaar.length} />
+      )}
 
       <div className="teller">
         {zichtbaar.length}{" "}
