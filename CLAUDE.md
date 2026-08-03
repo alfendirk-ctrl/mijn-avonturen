@@ -58,6 +58,22 @@ This repo's GitHub Pages is configured as **"Deploy from a branch" (`main` / roo
 
 Note: `base` is `/mijn-avonturen/` (the Pages sub-path); keep asset URLs prefixed accordingly.
 
+## Offline (PWA)
+
+`public/sw.js` caches the app shell so the app works without a connection.
+It is **network-first**: online you always get the current build, and the cache
+is only a fallback. Cache-first would be faster but risks serving stale code,
+which is how this app once ended up showing a blank page.
+
+The subtlety worth keeping: the service worker refetches with `cache: "no-cache"`.
+Without that, `fetch()` inside the worker can be answered from the browser's own
+HTTP cache, so a freshly deployed build is never seen — verified by deploying a
+change and reloading. `no-cache` still allows a cheap 304, it just forces
+revalidation. Requests to other origins (the shared database) are passed straight
+through and never cached; Google Fonts are the one cache-first exception.
+
+Bump `VERSIE` in `sw.js` to force old caches to be discarded on activate.
+
 ## Delen (optional sync)
 
 Two people can share one list. The design is **local-first**: `localStorage`

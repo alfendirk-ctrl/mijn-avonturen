@@ -11,3 +11,12 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     </ErrorBoundary>
   </React.StrictMode>,
 );
+
+// Maakt de app offline bruikbaar. Mislukt dit, dan werkt alles gewoon door.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("/mijn-avonturen/sw.js", { scope: "/mijn-avonturen/" })
+      .catch(() => {});
+  });
+}
