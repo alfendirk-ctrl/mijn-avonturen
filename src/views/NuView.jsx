@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import {
+  AFSTANDEN,
   huidigeMaand,
   MAAND_LABEL,
   pastInMaand,
@@ -7,20 +8,23 @@ import {
 } from "../lib/afleiden.js";
 import { SOORTEN } from "../data/seed.js";
 import ActivityCard from "../components/ActivityCard.jsx";
+import AfstandSlider from "../components/AfstandSlider.jsx";
 
 // Hoeveel suggesties we tonen voordat we naar de volledige lijst verwijzen.
 const MAX_SUGGESTIES = 8;
 
-const BEREIKEN = {
-  dichtbij: { label: "Dichtbij", toont: ["dichtbij"] },
-  europa: { label: "Ook verder", toont: ["dichtbij", "buurland", "europa"] },
-  alles: { label: "Alles", toont: ["dichtbij", "buurland", "europa", "ver"] },
+// Waar "Verras me" uit put. Standaard alleen uitjes: dat zijn de dingen die je
+// zomaar kunt doen. Hikes en reizen vragen planning en horen in hun eigen tab.
+const BRONNEN = {
+  uitje: { label: "Uitjes", soorten: ["uitje"] },
+  alles: { label: "Alles", soorten: ["uitje", "hike", "reis"] },
 };
 
 // "Wat doen we?" — het startscherm. Laat alleen zien wat nú kan: in dit
 // seizoen, binnen het gekozen bereik, en nog niet gedaan.
 export default function NuView({ items, catMeta, onOpen, onToggleDone, onGaNaar }) {
-  const [bereik, setBereik] = useState("dichtbij");
+  const [bereik, setBereik] = useState(0); // 0 = alleen Nederland
+  const [bron, setBron] = useState("uitje");
   const [verrast, setVerrast] = useState(null);
   const [zichtbaar, setZichtbaar] = useState(false);
 
@@ -28,13 +32,14 @@ export default function NuView({ items, catMeta, onOpen, onToggleDone, onGaNaar 
   const thema = themaVanMaand(maand);
 
   const passend = useMemo(() => {
-    const toegestaan = BEREIKEN[bereik].toont;
+    const soorten = BRONNEN[bron].soorten;
     return items
       .filter(
         (a) =>
           !a.gedaan &&
+          soorten.includes(a.soort) &&
           pastInMaand(a.maanden, maand) &&
-          toegestaan.includes(a.afstand),
+          AFSTANDEN[a.afstand].volgorde <= bereik,
       )
       .sort((a, b) => {
         // Favorieten eerst, dan dingen die júist nu in het seizoen zijn.
@@ -44,7 +49,7 @@ export default function NuView({ items, catMeta, onOpen, onToggleDone, onGaNaar 
         if (aSeizoen !== bSeizoen) return aSeizoen ? -1 : 1;
         return a.naam.localeCompare(b.naam);
       });
-  }, [items, bereik, maand]);
+  }, [items, bron, bereik, maand]);
 
   const verrasMe = () => {
     if (!passend.length) return;
@@ -53,6 +58,11 @@ export default function NuView({ items, catMeta, onOpen, onToggleDone, onGaNaar 
       setVerrast(passend[Math.floor(Math.random() * passend.length)]);
       setZichtbaar(true);
     }, 40);
+  };
+
+  const wissel = (zetter) => (waarde) => {
+    zetter(waarde);
+    setVerrast(null);
   };
 
   return (
@@ -77,20 +87,23 @@ export default function NuView({ items, catMeta, onOpen, onToggleDone, onGaNaar 
           🎲 Verras me
         </button>
         <div className="hfilter">
-          {Object.entries(BEREIKEN).map(([key, b]) => (
+          {Object.entries(BRONNEN).map(([key, b]) => (
             <button
               key={key}
-              className={bereik === key ? "on" : ""}
-              onClick={() => {
-                setBereik(key);
-                setVerrast(null);
-              }}
+              className={bron === key ? "on" : ""}
+              onClick={() => wissel(setBron)(key)}
             >
               {b.label}
             </button>
           ))}
         </div>
       </div>
+
+      <AfstandSlider
+        waarde={bereik}
+        onChange={wissel(setBereik)}
+        aantal={passend.length}
+      />
 
       {verrast && (
         <div className="vcard">
@@ -114,7 +127,7 @@ export default function NuView({ items, catMeta, onOpen, onToggleDone, onGaNaar 
           <span className="empty-ico">🗺️</span>
           <div className="empty-h">Niets binnen dit bereik</div>
           <div className="empty-p">
-            Kies een groter bereik, of voeg een nieuw idee toe.
+            Schuif de afstand verder open, of kies een andere bron.
           </div>
         </div>
       ) : (
@@ -138,7 +151,7 @@ export default function NuView({ items, catMeta, onOpen, onToggleDone, onGaNaar 
               <div className="nu-meer-knoppen">
                 {Object.entries(SOORTEN).map(([key, s]) => (
                   <button key={key} className="btn" onClick={() => onGaNaar(key)}>
-                    {s.emoji} {s.tab}
+                    {s.emoji} {s.kort}
                   </button>
                 ))}
               </div>

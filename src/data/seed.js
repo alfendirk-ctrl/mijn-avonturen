@@ -6,9 +6,16 @@
 // tot welke soort een item hoort — niet de naam van de categorie, zodat
 // hernoemen niets kapotmaakt.
 export const SOORTEN = {
-  uitje: { tab: "Uitjes", emoji: "🗺️", enkelvoud: "uitje", meervoud: "uitjes" },
-  hike: { tab: "Hikes", emoji: "🥾", enkelvoud: "hike", meervoud: "hikes" },
-  reis: { tab: "Reizen", emoji: "✈️", enkelvoud: "reis", meervoud: "reizen" },
+  uitje: { tab: "Uitjes", kort: "Uitjes", emoji: "🗺️", enkelvoud: "uitje", meervoud: "uitjes" },
+  hike: { tab: "Hikes", kort: "Hikes", emoji: "🥾", enkelvoud: "hike", meervoud: "hikes" },
+  reis: {
+    tab: "Reizen & Verblijf",
+    // Op smalle schermen past de volledige naam niet naast de andere tabs.
+    kort: "Reizen",
+    emoji: "✈️",
+    enkelvoud: "reis of verblijf",
+    meervoud: "reizen & verblijven",
+  },
 };
 
 // Waar een categorie standaard bij hoort (gebruikt voor bestaande data en
