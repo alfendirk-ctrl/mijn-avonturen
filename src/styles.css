@@ -380,5 +380,12 @@ html, body { background:#0A0A12; color:#E8E8F0; font-family:system-ui, -apple-sy
 .foto-weg { width:100%; padding:10px; border:none; background:rgba(239,68,68,0.12); color:#FCA5A5; font-family:'DM Sans',sans-serif; font-size:13px; cursor:pointer; }
 .foto-weg:hover { background:rgba(239,68,68,0.2); }
 
+.foto-lees { width:100%; margin-top:8px; padding:12px 14px; border-radius:11px; border:1px solid var(--accent-40); background:var(--accent-12); font-family:'DM Sans',sans-serif; font-size:13.5px; font-weight:500; color:var(--accent); cursor:pointer; transition:all .18s; }
+.foto-lees:hover:not(:disabled) { background:var(--accent); color:#0B0B14; border-color:var(--accent); }
+.foto-lees:disabled { opacity:.7; cursor:wait; }
+.lees-balk { margin-top:8px; height:4px; border-radius:99px; background:rgba(255,255,255,0.07); overflow:hidden; }
+.lees-balk span { display:block; height:100%; border-radius:99px; background:var(--accent); transition:width .25s ease; }
+.lees-bericht { margin-top:8px; padding:10px 12px; border-radius:10px; background:var(--accent-05); border:1px solid var(--accent-40); font-family:'DM Sans',sans-serif; font-size:12.5px; line-height:1.5; color:#C8C8E0; }
+
 .m-foto { margin:6px 0 4px; border-radius:14px; overflow:hidden; border:1px solid var(--border); }
 .m-foto img { width:100%; max-height:300px; object-fit:cover; display:block; }

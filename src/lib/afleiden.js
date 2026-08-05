@@ -132,7 +132,9 @@ export function themaVanMaand(maand) {
 
 // ---- Afstand ----------------------------------------------------------------
 
-const PROVINCIES = [
+// Deze woordenlijsten worden ook door lib/lezen.js gebruikt om een locatie uit
+// een herkende schermafdruk te vissen — vandaar dat ze geëxporteerd zijn.
+export const PROVINCIES = [
   "drenthe", "flevoland", "friesland", "gelderland", "groningen", "limburg",
   "noord-brabant", "noord-holland", "overijssel", "utrecht", "zeeland",
   "zuid-holland",
@@ -147,6 +149,9 @@ const EUROPA = [
   "slovenië", "griekenland", "ierland", "schotland", "engeland", "europa",
   "alpen", "dolomieten", "pyreneeen", "pyreneeën", "corsica", "sardinie",
 ];
+
+// Alle landen en streken die we bij naam kennen, dichtstbij eerst.
+export const LANDEN = ["nederland", ...BUURLANDEN, ...EUROPA];
 
 export const AFSTANDEN = {
   dichtbij: { label: "In Nederland", kort: "NL", emoji: "🇳🇱", volgorde: 0 },

@@ -93,6 +93,36 @@ doesn't re-upload everything on every sync.
 `useFoto` revokes its object URL on unmount; without that, scrolling a list of
 photo cards leaks memory.
 
+### Velden invullen vanaf een screenshot
+
+`lib/lezen.js` reads the text out of a screenshot and derives form fields from
+it, so an Instagram find can be added without retyping it.
+
+- Recognition is **tesseract.js, in the browser**, `await import`ed inside
+  `haalWerker()` so it lands in its own chunk (`assets/tekstherkenning.js` — the
+  name comes from `manualChunks` in `vite.config.js`, because chunk filenames
+  carry no hash and "index.js" would collide with the next chunk). The image
+  never leaves the device; only the recognizer itself is fetched, from a CDN, on
+  first use. A failed start **resets `werkerBelofte`** — a cached rejected
+  promise would make every retry fail instantly, so "probeer opnieuw" would be a
+  lie.
+- The worker is created once, so its `logger` reads a module-level
+  `meldVoortgang` rather than the callback of the first call; otherwise only the
+  first read would report progress.
+- OCR runs on the **original** file, not the 900px version stored for display —
+  small text in a phone screenshot does not survive the downscale.
+- `veldenUitTekst()` holds the heuristics: strip Instagram chrome (like counts,
+  "2 d geleden", the status-bar clock), turn a handle like `strandbad_nuenen`
+  into "Strandbad Nuenen", take a `Plaats, Provincie` tag from the **top** lines
+  only (further down that pattern is just a sentence), and match keywords for
+  category and season. Keyword matching is prefix-anchored, and words of four
+  characters or fewer must stand alone — otherwise "meer" fires on "meerdere"
+  and "sup" on "supermarkt".
+- It only fills fields that are still **empty**, and leaves the category alone
+  once the user has picked one. Recognition guesses; the user knows.
+- The word lists it matches locations against (`PROVINCIES`, `LANDEN`) are
+  exported from `lib/afleiden.js` so the two stay in step.
+
 ## Delen (optional sync)
 
 Two people can share one list. The design is **local-first**: `localStorage`

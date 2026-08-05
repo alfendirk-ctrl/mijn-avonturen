@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MARKERINGEN, EMPTY_ACTIVITY } from "../data/seed.js";
-import { verkleinAfbeelding } from "../lib/fotos.js";
+import { haalFoto, verkleinAfbeelding } from "../lib/fotos.js";
+import { leesTekst, veldenUitTekst } from "../lib/lezen.js";
 import { useFoto } from "../useFoto.js";
 
 // Detail-/bewerkvenster voor één avontuur.
@@ -42,6 +43,15 @@ export default function DetailModal({
   const [nieuweFotoUrl, setNieuweFotoUrl] = useState(null);
   const [bezigMetFoto, setBezigMetFoto] = useState(false);
 
+  // Tekstherkenning: voortgang (0-100, of null als hij niet loopt) en het
+  // bericht dat achteraf vertelt wat er is ingevuld.
+  const [lezen, setLezen] = useState(null);
+  const [leesBericht, setLeesBericht] = useState("");
+  // De onverkleinde afbeelding leest beter dan de opgeslagen 900px-versie.
+  const origineel = useRef(null);
+  // Zodra je zelf een categorie kiest, laat de herkenning die met rust.
+  const categorieGekozen = useRef(false);
+
   // Voorbeeld-URL weer vrijgeven als het venster sluit.
   useEffect(() => () => nieuweFotoUrl && URL.revokeObjectURL(nieuweFotoUrl), [nieuweFotoUrl]);
 
@@ -66,8 +76,10 @@ export default function DetailModal({
     e.target.value = "";
     if (!bestand) return;
     setBezigMetFoto(true);
+    setLeesBericht("");
     try {
       const klein = await verkleinAfbeelding(bestand);
+      origineel.current = bestand;
       setNieuweFoto(klein);
       setNieuweFotoUrl((oud) => {
         if (oud) URL.revokeObjectURL(oud);
@@ -87,7 +99,60 @@ export default function DetailModal({
       return null;
     });
     setNieuweFoto(null);
+    origineel.current = null;
+    setLeesBericht("");
     setForm((f) => ({ ...f, foto: false }));
+  };
+
+  // Leest de tekst uit de screenshot en vult daarmee de velden die nog leeg
+  // zijn. Wat je zelf al hebt ingetypt blijft staan — herkenning raadt, jij weet.
+  const vulInVanafFoto = async () => {
+    if (lezen !== null) return;
+    setLezen(0);
+    setLeesBericht("");
+    try {
+      // Net gekozen foto, anders die van de vorige keer uit IndexedDB.
+      const bron =
+        origineel.current || nieuweFoto || (activity?.id ? await haalFoto(activity.id) : null);
+      if (!bron) {
+        setLeesBericht("Er is geen foto om te lezen.");
+        return;
+      }
+      const tekst = await leesTekst(bron, setLezen);
+      const gevonden = veldenUitTekst(tekst, categories);
+
+      // Buiten setForm uitgerekend: de melding mag niet meetellen hoe vaak
+      // React de bijwerkfunctie toevallig aanroept.
+      const wijziging = {};
+      const ingevuld = [];
+      for (const veld of ["naam", "locatie", "periode"]) {
+        if (gevonden[veld] && !String(form[veld] ?? "").trim()) {
+          wijziging[veld] = gevonden[veld];
+          ingevuld.push(veld);
+        }
+      }
+      if (
+        gevonden.categorie &&
+        !categorieGekozen.current &&
+        gevonden.categorie !== form.categorie
+      ) {
+        wijziging.categorie = gevonden.categorie;
+        ingevuld.push("categorie");
+      }
+      if (ingevuld.length) setForm((f) => ({ ...f, ...wijziging }));
+
+      setLeesBericht(
+        ingevuld.length
+          ? `Ingevuld vanaf de foto: ${ingevuld.join(", ")}. Controleer het even.`
+          : tekst.trim()
+            ? "Tekst gelezen, maar er viel niets bruikbaars uit op te maken."
+            : "Geen tekst gevonden in deze afbeelding.",
+      );
+    } catch {
+      setLeesBericht("Het lezen lukte niet. Probeer het opnieuw met internet aan.");
+    } finally {
+      setLezen(null);
+    }
   };
 
   // ---- Bewerken / toevoegen ----
@@ -132,7 +197,14 @@ export default function DetailModal({
             <div className="ef-g2">
               <div>
                 <label className="lbl">Categorie</label>
-                <select className="fi" value={form.categorie} onChange={set("categorie")}>
+                <select
+                  className="fi"
+                  value={form.categorie}
+                  onChange={(e) => {
+                    categorieGekozen.current = true;
+                    set("categorie")(e);
+                  }}
+                >
                   {categories.map((c) => (
                     <option key={c} value={c}>
                       {c}
@@ -188,9 +260,33 @@ export default function DetailModal({
                 hidden
                 onChange={kiesFoto}
               />
+
+              {toonFoto && (
+                <button
+                  type="button"
+                  className="foto-lees"
+                  onClick={vulInVanafFoto}
+                  disabled={lezen !== null}
+                >
+                  {lezen === null
+                    ? "✨ Vul de velden in vanaf deze foto"
+                    : `Tekst lezen… ${lezen}%`}
+                </button>
+              )}
+              {lezen !== null && (
+                <div className="lees-balk">
+                  <span style={{ width: `${Math.max(4, lezen)}%` }} />
+                </div>
+              )}
+              {leesBericht && <div className="lees-bericht">{leesBericht}</div>}
+
               <div className="hint">
                 Handig voor iets dat je op Instagram zag: maak er een
-                schermafdruk van en bewaar die hier. Foto's blijven op dit
+                schermafdruk van en bewaar die hier. De app kan de tekst uit de
+                schermafdruk lezen en er zelf de lege velden mee invullen. Het
+                lezen gebeurt op je eigen toestel — de foto wordt nergens naartoe
+                gestuurd — maar de eerste keer duurt het wat langer, omdat de
+                tekstherkenning dan nog gedownload wordt. Foto's blijven op dit
                 toestel; je partner ziet het avontuur wel, de foto niet.
               </div>
             </div>
