@@ -191,7 +191,7 @@ export default function DetailModal({
               <div className="hint">
                 Handig voor iets dat je op Instagram zag: maak er een
                 schermafdruk van en bewaar die hier. Foto's blijven op dit
-                toestel — ze gaan nog niet mee naar je partner.
+                toestel; je partner ziet het avontuur wel, de foto niet.
               </div>
             </div>
 

@@ -85,9 +85,10 @@ JPEG-encodes at 0.72 before storing, taking a 2-3 MB screenshot down to roughly
 The activity record carries only a `foto` boolean, so cards can tell there is
 an image without reading a blob per card, and so the flag survives sync. The
 image itself is keyed by activity id and is **not synced** — the partner sees
-the item but not the picture. Syncing images would mean Supabase Storage, or
-only pushing changed rows so a base64 column doesn't re-upload everything each
-time.
+the item but not the picture. That is a deliberate choice, not a gap waiting to
+be filled: the owner confirmed device-only photos are what they want. Changing
+it would mean Supabase Storage, or pushing only changed rows so a base64 column
+doesn't re-upload everything on every sync.
 
 `useFoto` revokes its object URL on unmount; without that, scrolling a list of
 photo cards leaks memory.
