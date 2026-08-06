@@ -16,8 +16,14 @@ export default defineConfig({
       input: "src/main.jsx",
       output: {
         entryFileNames: "assets/main.js",
+        // Ook losse brokken krijgen een vaste naam: er staat geen hash in, dus
+        // ze moeten wél zelf een herkenbare naam hebben (anders heet de
+        // tekstherkenning "index.js" en botst hij met de volgende brok).
         chunkFileNames: "assets/[name].js",
         assetFileNames: "assets/main[extname]",
+        manualChunks(id) {
+          if (id.includes("node_modules/tesseract.js")) return "tekstherkenning";
+        },
       },
     },
   },
