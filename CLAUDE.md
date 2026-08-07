@@ -151,3 +151,16 @@ purely locally and the share panel says so.
 `PUBLIEKE_SLEUTEL` in `sync.js` is the Supabase anon key. It is public by
 design; it grants nothing without a `ruimte_id`. `syncBeschikbaar()` gates the
 whole feature on it being set.
+
+**`supabase/schema.sql` is the source of truth for the database side** — the two
+tables, the `huidige_ruimte()` header reader, the RLS policies and the grants.
+It is idempotent, so it can be pasted into the SQL editor of a fresh (or
+restored) project. Keep it in step with any change made to the live database, so
+that database stays reproducible rather than a thing that was configured once by
+hand and can only be re-derived by guessing.
+
+Supabase pauses a free project after about a week without traffic. Nothing
+breaks when that happens — the app is local-first and keeps working entirely
+offline; only syncing between the two devices stops until the project is resumed
+from the dashboard. If the project is ever gone for good, `schema.sql` rebuilds
+it and the local `localStorage` copies are still the real data.
