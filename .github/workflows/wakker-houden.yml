@@ -1,0 +1,59 @@
+name: Database wakker houden
+
+# Supabase pauzeert een gratis project na ongeveer een week zonder verkeer.
+# Dat breekt de app niet — die is local-first en werkt volledig offline — maar
+# het synchroniseren tussen twee toestellen ligt dan stil tot iemand het project
+# in het dashboard weer aanzet. Deze taak doet elke drie dagen één goedkope
+# leesopdracht, zodat het zover niet komt.
+#
+# Let op: GitHub zet een geplande workflow stil na 60 dagen zonder activiteit in
+# de repo. Als hier lang niets gebeurt, stopt dit dus vanzelf. Dat is geen ramp
+# (zie hierboven), maar het is wel goed om te weten.
+on:
+  schedule:
+    # Om de drie dagen, 's ochtends vroeg (UTC).
+    - cron: "17 6 */3 * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # De URL en de publieke sleutel staan al in de app; die worden hier
+      # uitgelezen in plaats van overgeschreven, zodat er maar één plek is waar
+      # ze staan. De sleutel is publiek van ontwerp: hij geeft niets vrij zonder
+      # een geheime ruimte-id, en dit verzoek stuurt er expres geen mee.
+      - name: Lees adres en sleutel uit de app
+        id: config
+        run: |
+          BASIS=$(grep -oP '(?<=const URL_BASIS = ")[^"]+' src/lib/sync.js)
+          SLEUTEL=$(grep -oP '(?<=const PUBLIEKE_SLEUTEL = ")[^"]+' src/lib/sync.js)
+          if [ -z "$BASIS" ] || [ -z "$SLEUTEL" ]; then
+            echo "::error::Kon URL_BASIS of PUBLIEKE_SLEUTEL niet uit src/lib/sync.js halen."
+            exit 1
+          fi
+          echo "basis=$BASIS" >> "$GITHUB_OUTPUT"
+          echo "::add-mask::$SLEUTEL"
+          echo "sleutel=$SLEUTEL" >> "$GITHUB_OUTPUT"
+
+      # Eén echte query op Postgres. Zonder x-ruimte-header geeft RLS geen
+      # rijen terug — een lege lijst met status 200 is precies wat we
+      # verwachten, en genoeg om het project als "in gebruik" te laten tellen.
+      - name: Wek de database
+        env:
+          BASIS: ${{ steps.config.outputs.basis }}
+          SLEUTEL: ${{ steps.config.outputs.sleutel }}
+        run: |
+          STATUS=$(curl -sS -o /tmp/antwoord.json -w '%{http_code}' \
+            -H "apikey: $SLEUTEL" \
+            -H "Authorization: Bearer $SLEUTEL" \
+            "$BASIS/rest/v1/item?select=ruimte_id&limit=1")
+          echo "status: $STATUS"
+          echo "antwoord: $(cat /tmp/antwoord.json)"
+          if [ "$STATUS" != "200" ]; then
+            echo "::error::De database antwoordde niet zoals verwacht (status $STATUS). Staat het project misschien op pauze, of is de sleutel vervangen?"
+            exit 1
+          fi
+          echo "Database is wakker."

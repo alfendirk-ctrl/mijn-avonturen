@@ -164,3 +164,11 @@ breaks when that happens — the app is local-first and keeps working entirely
 offline; only syncing between the two devices stops until the project is resumed
 from the dashboard. If the project is ever gone for good, `schema.sql` rebuilds
 it and the local `localStorage` copies are still the real data.
+
+`.github/workflows/wakker-houden.yml` prevents the pause: every three days it
+runs one anonymous `select` against `item`. It reads the URL and the anon key
+out of `src/lib/sync.js` rather than duplicating them, and deliberately sends no
+`x-ruimte` header — RLS then returns an empty list with status 200, which is
+both the expected result and enough traffic to count. Anything other than 200
+fails the job loudly. Note GitHub disables scheduled workflows after 60 days of
+repo inactivity, so this is a convenience, not a guarantee.
