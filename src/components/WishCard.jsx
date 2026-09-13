@@ -59,13 +59,16 @@ export default function WishCard({ item, cat, onClick, onToggleDone, onToggleFav
 
       <div className="hcard-tags">
         {item.periode && <span className="htag season">🗓 {item.periode}</span>}
-        {item.type && <span className="htag">{item.type}</span>}
-        {item.tags?.map((tag) => (
+        {/* Zelfde reden als bij ActivityCard: niet alles even zwaar tonen.
+            Hier is meer ruimte, dus er passen er drie. */}
+        {item.tags?.slice(0, 3).map((tag) => (
           <span key={tag} className="htag tag">
             {tag}
           </span>
         ))}
-        {item.link && <span className="htag">🔗 info</span>}
+        {item.tags?.length > 3 && (
+          <span className="htag tag">+{item.tags.length - 3}</span>
+        )}
       </div>
     </div>
   );

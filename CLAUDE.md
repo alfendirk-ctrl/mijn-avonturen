@@ -206,6 +206,36 @@ image `main.png` and have them overwrite each other.
 Tiles come from OpenStreetMap and need a connection; the rest of the app keeps
 working offline.
 
+## Layout en dichtheid
+
+The list view puts **one row of controls** above the results: search, category
+chips, and a single **Filters** button. Status, tags and the distance slider
+live in the panel behind it, with a badge counting what is active — without
+that badge a filtered list looks like missing data.
+
+That is a correction, not a preference. All three used to sit expanded above
+the list, which on a 360px phone meant roughly **600px of controls before the
+first adventure**, and the tag bar grew with every tag the user invented.
+
+Related rules, each paid for once:
+
+- **The tab bar scrolls itself** (`overflow-x:auto`). With five tabs it is
+  428px wide at 360px, and without its own scroll container the *whole
+  document* shifted sideways when a tab scrolled into view — the header slid
+  off the left edge. Check `document.scrollWidth - clientWidth` on every tab,
+  not just the first, after any change to the tab bar.
+- **Cards show a maximum of two tags** (three on the roomier `WishCard`), the
+  rest as `+n`, and the `type` field is not on the card at all. Everything
+  used to render as identically-weighted pills — type, every tag, the period —
+  so the eye had nothing to hold on to. Only the **period** carries accent
+  colour, because it is the one field that answers "can we do this now?".
+- **Tap targets are at least 44px.** Where something must stay visually small
+  (the tick on a card is 32px, and larger would dominate the card), the hit
+  area is stretched with a transparent `::after` instead.
+- On phones the header stats and the season watermark are hidden: the counts
+  already sit in the tab bar, and the watermark was clipped at the right edge
+  in a way that read as a rendering fault rather than decoration.
+
 ## Delen (optional sync)
 
 Two people can share one list. The design is **local-first**: `localStorage`
