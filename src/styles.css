@@ -418,3 +418,39 @@ html, body { background:#0A0A12; color:#E8E8F0; font-family:system-ui, -apple-sy
 
 .m-foto { margin:6px 0 4px; border-radius:14px; overflow:hidden; border:1px solid var(--border); }
 .m-foto img { width:100%; max-height:300px; object-fit:cover; display:block; }
+
+/* ---- Kaart ---- */
+.kaart-wrap { max-width:900px; margin:0 auto; padding:0 24px 120px; }
+.kaart-balk { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding-bottom:14px; }
+.kaart-telling { margin-left:auto; font-family:'DM Sans',sans-serif; font-size:12.5px; color:var(--muted); }
+.kaart-doos { position:relative; border-radius:18px; overflow:hidden; border:1px solid var(--border); }
+.kaart { height:min(62vh,560px); width:100%; background:#12121E; }
+.kaart-melding { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:24px; text-align:center; font-family:'DM Sans',sans-serif; font-size:13.5px; color:#9090B0; background:var(--surface); }
+
+/* De speld draagt de kleur van zijn categorie, zodat je op de kaart in één
+   oogopslag ziet wat voor soort plek het is. */
+.speld { width:30px; height:30px; border-radius:50% 50% 50% 6px; transform:rotate(-45deg); background:var(--speld); border:2px solid rgba(255,255,255,0.85); box-shadow:0 3px 10px rgba(0,0,0,0.45); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform .15s; }
+.speld:hover { transform:rotate(-45deg) scale(1.15); }
+.speld span { transform:rotate(45deg); font-size:14px; line-height:1; }
+.speld.af { opacity:.45; }
+
+/* Leaflet gaat uit van een lichte pagina; hier moet het bij de rest passen. */
+.leaflet-container { font-family:'DM Sans',sans-serif; background:#12121E; }
+.leaflet-control-attribution { background:rgba(10,10,18,0.75) !important; color:#707090 !important; font-size:10px; }
+.leaflet-control-attribution a { color:#9090B0 !important; }
+.leaflet-bar a { background:#1a1a2e !important; color:#C0C0D8 !important; border-color:var(--border) !important; }
+.leaflet-bar a:hover { background:#26263e !important; }
+
+.kaart-rest { margin-top:18px; padding:16px 18px; border-radius:14px; border:1px solid var(--border); background:rgba(255,255,255,0.025); }
+.kaart-rest-kop { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:#E0E0F0; }
+.kaart-rest-uitleg { font-family:'DM Sans',sans-serif; font-size:12.5px; color:var(--muted); margin:5px 0 12px; line-height:1.5; }
+.kaart-rest-lijst { display:flex; flex-wrap:wrap; gap:7px; }
+.kaart-rest-item { display:flex; align-items:center; gap:7px; padding:7px 12px; border-radius:99px; border:1px solid var(--border); background:rgba(255,255,255,0.03); font-family:'DM Sans',sans-serif; font-size:12.5px; color:#C0C0D8; cursor:pointer; transition:all .15s; }
+.kaart-rest-item:hover { border-color:var(--accent-40); color:#F0F0FF; }
+.kaart-rest-item span { color:var(--muted); font-size:11.5px; }
+
+@media (max-width:520px) {
+  .kaart-wrap { padding-left:16px; padding-right:16px; }
+  .kaart-telling { margin-left:0; width:100%; }
+}
+.kaart-hint { margin-bottom:10px; padding:9px 13px; border-radius:10px; background:var(--accent-05); border:1px solid var(--accent-40); font-family:'DM Sans',sans-serif; font-size:12.5px; color:#C8C8E0; }

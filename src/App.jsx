@@ -14,6 +14,7 @@ import { verrijk, huidigeMaand, themaVanMaand } from "./lib/afleiden.js";
 import Header from "./components/Header.jsx";
 import NuView from "./views/NuView.jsx";
 import LijstView from "./views/LijstView.jsx";
+import KaartView from "./views/KaartView.jsx";
 import DetailModal from "./components/DetailModal.jsx";
 import ConfirmDialog from "./components/ConfirmDialog.jsx";
 import SettingsPanel from "./components/SettingsPanel.jsx";
@@ -30,8 +31,10 @@ import {
 import { bewaarFoto, verwijderFoto } from "./lib/fotos.js";
 import {
   SLEUTEL_GEMIGREERD,
+  SLEUTEL_BUNDEL_SEPT26,
   migreerAvonturen,
   migreerCategorieen,
+  vulAanMetBundel,
 } from "./lib/migratie.js";
 
 // Elke wijziging krijgt een tijdstempel; daarmee bepaalt de synchronisatie
@@ -41,6 +44,7 @@ const stempel = (obj) => ({ ...obj, bijgewerkt: Date.now() });
 const TABS = [
   { key: "nu", tab: "Nu", kort: "Nu", emoji: "✨" },
   ...Object.entries(SOORTEN).map(([key, s]) => ({ key, tab: s.tab, kort: s.kort, emoji: s.emoji })),
+  { key: "kaart", tab: "Kaart", kort: "Kaart", emoji: "📍" },
 ];
 
 export default function App() {
@@ -131,9 +135,10 @@ export default function App() {
   }, [activities]);
 
   const stats = useMemo(() => {
-    const bron = tab === "nu" ? items : perSoort[tab] || items;
+    // "nu" en "kaart" gaan over alles; alleen de drie soort-tabbladen knijpen.
+    const bron = perSoort[tab] || items;
     return [
-      { value: bron.length, label: tab === "nu" ? "avonturen" : SOORTEN[tab].meervoud, color: "#6366F1" },
+      { value: bron.length, label: SOORTEN[tab]?.meervoud || "avonturen", color: "#6366F1" },
       { value: bron.filter((a) => a.favoriet).length, label: "favoriet", color: "#F5A623" },
       { value: bron.filter((a) => a.gedaan).length, label: "gedaan", color: "#3DBE8A" },
     ];
@@ -178,6 +183,29 @@ export default function App() {
       /* niets te doen */
     }
     // Bewust alleen bij het opstarten; de markering voorkomt herhaling.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Nieuwe vondsten eenmalig bijzetten. Nodig omdat de standaardlijst alleen
+  // gelezen wordt op een toestel waar nog niets staat.
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(SLEUTEL_BUNDEL_SEPT26)) return;
+    } catch {
+      return;
+    }
+    // Functioneel bijwerken, niet vanuit `activities`: het effect hierboven
+    // heeft in dezelfde ronde misschien al een nieuwe lijst gezet, en die zou
+    // anders overschreven worden met de versie van vóór de omzetting.
+    setActivities((lijst) => {
+      const aangevuld = vulAanMetBundel(lijst);
+      return aangevuld ? aangevuld.map(stempel) : lijst;
+    });
+    try {
+      localStorage.setItem(SLEUTEL_BUNDEL_SEPT26, "1");
+    } catch {
+      /* niets te doen */
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -418,7 +446,9 @@ export default function App() {
             <span className="tab-emo">{t.emoji}</span>
             <span className="tab-tekst lang">{t.tab}</span>
             <span className="tab-tekst kort">{t.kort}</span>
-            {t.key !== "nu" && (
+            {/* Alleen de drie soort-tabbladen hebben een eigen aantal; "Nu" en
+                "Kaart" gaan over alles en krijgen er dus geen. */}
+            {perSoort[t.key] && (
               <span className="tab-count">{perSoort[t.key].length}</span>
             )}
           </button>
@@ -433,6 +463,8 @@ export default function App() {
           onToggleDone={toggleGedaan}
           onGaNaar={setTab}
         />
+      ) : tab === "kaart" ? (
+        <KaartView items={items} catMeta={catMeta} onOpen={openItem} />
       ) : (
         <LijstView
           key={tab}
