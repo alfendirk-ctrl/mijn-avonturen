@@ -28,6 +28,11 @@ import {
   syncBeschikbaar,
 } from "./lib/sync.js";
 import { bewaarFoto, verwijderFoto } from "./lib/fotos.js";
+import {
+  SLEUTEL_GEMIGREERD,
+  migreerAvonturen,
+  migreerCategorieen,
+} from "./lib/migratie.js";
 
 // Elke wijziging krijgt een tijdstempel; daarmee bepaalt de synchronisatie
 // welke versie wint als jullie allebei iets veranderd hebben.
@@ -142,6 +147,39 @@ export default function App() {
     stijl.setProperty("--accent2", thema.accent2);
     stijl.setProperty("--glow", thema.glow);
   }, [thema]);
+
+  // Eenmalige omzetting naar categorieën op één as (zie lib/migratie.js).
+  // Draait bij het opstarten over de al opgeschoonde opgeslagen data en zet
+  // daarna een markering, zodat hij nooit een tweede keer iets verplaatst.
+  useEffect(() => {
+    let gedaan = false;
+    try {
+      gedaan = !!localStorage.getItem(SLEUTEL_GEMIGREERD);
+    } catch {
+      // Geen opslag beschikbaar: dan ook niet migreren, want we kunnen niet
+      // onthouden dat het gebeurd is.
+      return;
+    }
+    if (gedaan) return;
+
+    const { avonturen, nogInGebruik } = migreerAvonturen(activities);
+    if (JSON.stringify(avonturen) !== JSON.stringify(activities)) {
+      // Stempelen, zodat de omzetting bij het synchroniseren wint van een
+      // toestel dat nog de oude indeling heeft.
+      setActivities(avonturen.map(stempel));
+    }
+    const nieuweCats = migreerCategorieen(categories, nogInGebruik);
+    if (JSON.stringify(nieuweCats) !== JSON.stringify(categories)) {
+      setCategories(nieuweCats);
+    }
+    try {
+      localStorage.setItem(SLEUTEL_GEMIGREERD, "1");
+    } catch {
+      /* niets te doen */
+    }
+    // Bewust alleen bij het opstarten; de markering voorkomt herhaling.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const onKey = (e) => {
