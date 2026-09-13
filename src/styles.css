@@ -454,3 +454,90 @@ html, body { background:#0A0A12; color:#E8E8F0; font-family:system-ui, -apple-sy
   .kaart-telling { margin-left:0; width:100%; }
 }
 .kaart-hint { margin-bottom:10px; padding:9px 13px; border-radius:10px; background:var(--accent-05); border:1px solid var(--accent-40); font-family:'DM Sans',sans-serif; font-size:12.5px; color:#C8C8E0; }
+
+/* ---- Opgeruimd: filterbalk, kaarthiërarchie, raakdoelen ---- */
+
+/* Eén rij bediening in plaats van drie. */
+.filterbalk { display:flex; align-items:center; gap:8px; max-width:900px; margin:0 auto; padding:0 24px 14px; }
+.filterknop { display:flex; align-items:center; gap:7px; min-height:44px; padding:0 16px; border-radius:100px; border:1px solid var(--border); background:rgba(255,255,255,0.04); font-family:'DM Sans',sans-serif; font-size:13.5px; color:#C0C0D8; cursor:pointer; transition:all .18s; }
+.filterknop:hover { border-color:rgba(255,255,255,0.2); color:#F0F0FF; }
+.filterknop.actief { border-color:var(--accent); color:var(--accent); background:var(--accent-05); }
+.filterknop.wis { color:#9090B0; border-style:dashed; }
+.filter-bolletje { min-width:20px; height:20px; padding:0 6px; border-radius:99px; background:var(--accent); color:var(--op-accent); font-size:11px; font-weight:600; display:flex; align-items:center; justify-content:center; }
+.filter-pijl { font-size:8px; opacity:.55; }
+.filter-telling { margin-left:auto; font-family:'DM Sans',sans-serif; font-size:12px; color:var(--muted); text-align:right; }
+
+.filterpaneel { max-width:900px; margin:0 auto 18px; padding:16px 18px; border-radius:14px; border:1px solid var(--border); background:rgba(255,255,255,0.02); display:flex; flex-direction:column; gap:16px; }
+.filterpaneel { margin-left:24px; margin-right:24px; }
+.filtergroep { display:flex; flex-direction:column; gap:9px; }
+.filterkop { font-family:'DM Sans',sans-serif; font-size:11px; letter-spacing:1.6px; text-transform:uppercase; color:var(--muted); }
+.filterpaneel .filters, .filterpaneel .tag-balk { padding:0; margin:0; max-width:none; }
+.filterpaneel .afstand { padding-left:0; padding-right:0; max-width:none; }
+
+/* Raakdoelen: alles waar je op tikt minstens 44px hoog. */
+.pil { min-height:44px; }
+.tag-knop { min-height:40px; }
+.kaart-rest-item { min-height:44px; }
+.deel-knop { min-width:44px; min-height:44px; }
+.leaflet-bar a { width:36px !important; height:36px !important; line-height:36px !important; }
+
+/* Kaarthiërarchie: de periode is het enige dat beslist of iets NU kan, dus die
+   krijgt kleur. Tags blijven fluisteren. Type is van de kaart verdwenen. */
+.card-onder { margin-top:10px; gap:5px; }
+.card-per { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:99px; background:var(--accent-12); color:var(--accent); font-family:'DM Sans',sans-serif; font-size:11px; font-weight:500; margin-top:0 !important; }
+.card-per::before { content:"🗓"; font-size:10px; }
+.card-tag { padding:3px 8px; border:none; background:rgba(255,255,255,0.055); color:#7C7C9C; font-size:11px; }
+.card-tag.meer { color:var(--muted); }
+
+/* De categorierij scrolt; een afgesneden chip moet er niet kapot uitzien. */
+.cats { position:relative; }
+.cats::after { content:""; position:absolute; top:0; right:0; width:36px; height:100%; pointer-events:none; background:linear-gradient(90deg,transparent,#0A0A12 88%); }
+
+@media (max-width:520px) {
+  .filterbalk { padding-left:16px; padding-right:16px; }
+  .filterpaneel { margin-left:16px; margin-right:16px; }
+  /* Drie statistiekpillen naast de titel zijn op een telefoon vooral ruis;
+     het aantal per tabblad staat al in de tabbalk. */
+  .hdr-stats { display:none; }
+  /* Het seizoenswoord op de achtergrond liep over de koptekst heen. */
+  .nu-watermerk { opacity:.16; font-size:clamp(54px,13vw,78px); }
+}
+
+@media (max-width:520px) {
+  /* Met de statistieken weg bleef er een lege regel over met alleen de
+     deelknop erin. Die hoort gewoon naast de titel. */
+  .hdr-rechts { width:auto; }
+  .hdr-top { flex-wrap:nowrap; }
+  .hdr { padding:16px 16px 14px; }
+  .hdr-h1 { font-size:20px; }
+}
+
+/* De tabbalk had geen eigen scrollgebied. Met vijf tabbladen is hij 428px
+   breed op een scherm van 360, waardoor het HELE DOCUMENT zijwaarts schoof:
+   tik op "Kaart" en de koptekst verdween links buiten beeld. Nu scrolt de balk
+   zelf en blijft de pagina staan waar hij staat. */
+.tabs { overflow-x:auto; scrollbar-width:none; scroll-snap-type:x proximity; }
+.tabs::-webkit-scrollbar { display:none; }
+.tab { flex:0 0 auto; scroll-snap-align:start; }
+
+@media (min-width:760px) {
+  /* Genoeg ruimte: dan mogen ze de breedte weer netjes verdelen. */
+  .tab { flex:1 1 0; }
+}
+
+@media (max-width:520px) {
+  .tabs { padding-left:16px; padding-right:16px; padding-bottom:16px; }
+  /* De aantallen kosten breedte die op een telefoon beter naar de labels gaat;
+     het aantal staat toch al in de filterbalk van het tabblad zelf. */
+  .tab-count { display:none; }
+}
+
+/* Het seizoenswoord op de achtergrond liep half buiten beeld en las als een
+   weergavefout in plaats van als versiering. Alleen tonen waar het past. */
+@media (max-width:720px) { .nu-watermerk { display:none; } }
+
+/* Het vinkje op een kaart is 32px en moet dat visueel blijven — groter en het
+   gaat de kaart domineren. Het RAAKGEBIED rekken we wel op tot 44px met een
+   onzichtbare rand, zodat je er met een duim bij kunt zonder mis te tikken. */
+.vink, .rond { position:relative; }
+.vink::after, .rond::after { content:""; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:44px; height:44px; }

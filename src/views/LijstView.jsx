@@ -30,6 +30,25 @@ export default function LijstView({
   // niet "een van deze": zo kun je juist naar de kruising zoeken — het is
   // tenslotte bedoeld voor dingen die twee dingen tegelijk zijn.
   const [tags, setTags] = useState([]);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
+  // Hoeveel filters staan er aan? Bepaalt het bolletje op de knop, zodat je
+  // ook met het paneel dicht ziet dat je lijst geknepen is — anders zoek je je
+  // suf naar een avontuur dat er wel is maar wegvalt.
+  const actieveFilters =
+    (alleenOpen ? 1 : 0) +
+    (alleenFav ? 1 : 0) +
+    (alleenNu ? 1 : 0) +
+    tags.length +
+    (bereik < AFSTAND_STAPPEN.length - 1 ? 1 : 0);
+
+  const wisFilters = () => {
+    setAlleenOpen(false);
+    setAlleenFav(false);
+    setAlleenNu(false);
+    setTags([]);
+    setBereik(AFSTAND_STAPPEN.length - 1);
+  };
 
   const wisselTag = (tag) =>
     setTags((huidig) =>
@@ -185,56 +204,86 @@ export default function LijstView({
         </div>
       )}
 
-      {tagTelling.length > 0 && (
-        <div className="tag-balk">
-          <span className="tag-balk-kop">#</span>
-          {tagTelling.map(({ sleutel, tag, aantal }) => (
-            <button
-              key={sleutel}
-              className={`tag-knop${tags.includes(sleutel) ? " on" : ""}`}
-              onClick={() => wisselTag(sleutel)}
-            >
-              {tag} <span className="chip-count">{aantal}</span>
-            </button>
-          ))}
-          {tags.length > 0 && (
-            <button className="tag-knop wis" onClick={() => setTags([])}>
-              ✕ wis
-            </button>
+      {/* Eén knop in plaats van drie rijen filters. Tags, status en afstand
+          stonden alle drie uitgeklapt boven de lijst; op een telefoon was dat
+          zeshonderd pixels bediening voordat je het eerste avontuur zag, en de
+          tagbalk groeide mee met elke tag die erbij kwam. */}
+      <div className="filterbalk">
+        <button
+          className={`filterknop${filtersOpen ? " open" : ""}${actieveFilters ? " actief" : ""}`}
+          onClick={() => setFiltersOpen((v) => !v)}
+          aria-expanded={filtersOpen}
+        >
+          Filters
+          {actieveFilters > 0 && <span className="filter-bolletje">{actieveFilters}</span>}
+          <span className="filter-pijl">{filtersOpen ? "▲" : "▼"}</span>
+        </button>
+        {actieveFilters > 0 && (
+          <button className="filterknop wis" onClick={wisFilters}>
+            Wis alles
+          </button>
+        )}
+        <span className="filter-telling">
+          {zichtbaar.length}{" "}
+          {zichtbaar.length === 1 ? meta.enkelvoud : meta.meervoud}
+          {gedaanAantal > 0 && ` · ${gedaanAantal} gedaan`}
+        </span>
+      </div>
+
+      {filtersOpen && (
+        <div className="filterpaneel">
+          <div className="filtergroep">
+            <div className="filterkop">Status</div>
+            <div className="filters">
+              <button
+                className={`pil${alleenOpen ? " on" : ""}`}
+                onClick={() => setAlleenOpen((v) => !v)}
+              >
+                Nog te doen
+              </button>
+              <button
+                className={`pil${alleenFav ? " on" : ""}`}
+                onClick={() => setAlleenFav((v) => !v)}
+              >
+                ★ Favoriet
+              </button>
+              <button
+                className={`pil${alleenNu ? " on" : ""}`}
+                onClick={() => setAlleenNu((v) => !v)}
+              >
+                Kan nu
+              </button>
+            </div>
+          </div>
+
+          {tagTelling.length > 0 && (
+            <div className="filtergroep">
+              <div className="filterkop">Tags</div>
+              <div className="tag-balk">
+                {tagTelling.map(({ sleutel, tag, aantal }) => (
+                  <button
+                    key={sleutel}
+                    className={`tag-knop${tags.includes(sleutel) ? " on" : ""}`}
+                    onClick={() => wisselTag(sleutel)}
+                  >
+                    {tag} <span className="chip-count">{aantal}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {afstandenAanwezig > 1 && (
+            <div className="filtergroep">
+              <AfstandSlider
+                waarde={bereik}
+                onChange={setBereik}
+                aantal={zichtbaar.length}
+              />
+            </div>
           )}
         </div>
       )}
-
-      <div className="filters">
-        <button
-          className={`pil${alleenOpen ? " on" : ""}`}
-          onClick={() => setAlleenOpen((v) => !v)}
-        >
-          Nog te doen
-        </button>
-        <button
-          className={`pil${alleenFav ? " on" : ""}`}
-          onClick={() => setAlleenFav((v) => !v)}
-        >
-          ★ Favoriet
-        </button>
-        <button
-          className={`pil${alleenNu ? " on" : ""}`}
-          onClick={() => setAlleenNu((v) => !v)}
-        >
-          Kan nu
-        </button>
-      </div>
-
-      {afstandenAanwezig > 1 && (
-        <AfstandSlider waarde={bereik} onChange={setBereik} aantal={zichtbaar.length} />
-      )}
-
-      <div className="teller">
-        {zichtbaar.length}{" "}
-        {zichtbaar.length === 1 ? meta.enkelvoud : meta.meervoud}
-        {gedaanAantal > 0 && ` · ${gedaanAantal} gedaan`}
-      </div>
 
       {zichtbaar.length === 0 ? (
         <div className="empty los">

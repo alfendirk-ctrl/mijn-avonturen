@@ -6,7 +6,7 @@
 // cache-first, maar voorkomt het ergste scenario — een oude versie die blijft
 // hangen en een leeg scherm oplevert.
 
-const VERSIE = "v3";
+const VERSIE = "v4";
 const CACHE = `avonturen-${VERSIE}`;
 const BASIS = "/mijn-avonturen/";
 

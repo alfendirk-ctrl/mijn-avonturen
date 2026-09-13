@@ -70,7 +70,7 @@ export default function DetailModal({
   // Tags die elders al gebruikt worden en hier nog niet staan.
   const tagSuggesties = bekendeTags
     .filter((t) => !(form.tags || []).some((e) => e.toLowerCase() === t.toLowerCase()))
-    .slice(0, 8);
+    .slice(0, 5);
 
   const [nieuweFoto, setNieuweFoto] = useState(null);
   const [nieuweFotoUrl, setNieuweFotoUrl] = useState(null);
@@ -299,10 +299,8 @@ export default function DetailModal({
                 </div>
               )}
               <div className="hint">
-                Losse labels naast de categorie. Een avontuur staat in één
-                categorie — die bepaalt het tabblad — maar mag zoveel tags
-                hebben als je wilt. Handig voor iets dat tegelijk water én kids
-                is. Je kunt er in de lijst op filteren.
+                Losse labels om op te filteren. Eén categorie per avontuur,
+                zoveel tags als je wilt.
               </div>
             </div>
             <div>
@@ -365,12 +363,11 @@ export default function DetailModal({
 
               <div className="hint">
                 Handig voor iets dat je op Instagram zag: maak er een
-                schermafdruk van en bewaar die hier. De app kan de tekst uit de
-                schermafdruk lezen en er zelf de lege velden mee invullen. Het
-                lezen gebeurt op je eigen toestel — de foto wordt nergens naartoe
-                gestuurd — maar de eerste keer duurt het wat langer, omdat de
-                tekstherkenning dan nog gedownload wordt. Foto's blijven op dit
-                toestel; je partner ziet het avontuur wel, de foto niet.
+                schermafdruk van en bewaar die hier. De app leest de tekst
+                eruit en vult er de lege velden mee in — op je eigen toestel, de
+                foto gaat nergens heen. De eerste keer duurt het wat langer.
+                Foto's blijven op dit toestel; je partner ziet het avontuur wel,
+                de foto niet.
               </div>
             </div>
 
