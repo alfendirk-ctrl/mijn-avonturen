@@ -26,6 +26,30 @@ export default function LijstView({
   const [alleenFav, setAlleenFav] = useState(false);
   const [alleenNu, setAlleenNu] = useState(false);
   const [bereik, setBereik] = useState(AFSTAND_STAPPEN.length - 1);
+  // Gekozen tags, kleine letters. Meerdere tags betekent "alle van deze",
+  // niet "een van deze": zo kun je juist naar de kruising zoeken — het is
+  // tenslotte bedoeld voor dingen die twee dingen tegelijk zijn.
+  const [tags, setTags] = useState([]);
+
+  const wisselTag = (tag) =>
+    setTags((huidig) =>
+      huidig.includes(tag) ? huidig.filter((t) => t !== tag) : [...huidig, tag],
+    );
+
+  // Welke tags komen in deze lijst voor, en hoe vaak.
+  const tagTelling = useMemo(() => {
+    const m = new Map();
+    items.forEach((a) =>
+      (a.tags || []).forEach((t) => {
+        const sleutel = t.toLowerCase();
+        const vorig = m.get(sleutel);
+        m.set(sleutel, { tag: vorig?.tag ?? t, aantal: (vorig?.aantal ?? 0) + 1 });
+      }),
+    );
+    return [...m.entries()]
+      .map(([sleutel, v]) => ({ sleutel, ...v }))
+      .sort((a, b) => b.aantal - a.aantal || a.tag.localeCompare(b.tag));
+  }, [items]);
 
   const meta = SOORTEN[soort];
   const rijk = soort !== "uitje";
@@ -42,6 +66,10 @@ export default function LijstView({
     return items
       .filter((a) => {
         if (categorie !== "Alle" && a.categorie !== categorie) return false;
+        if (tags.length) {
+          const eigen = (a.tags || []).map((t) => t.toLowerCase());
+          if (!tags.every((t) => eigen.includes(t))) return false;
+        }
         if (alleenOpen && a.gedaan) return false;
         if (alleenFav && !a.favoriet) return false;
         if (alleenNu && !pastInMaand(a.maanden, maand)) return false;
@@ -51,7 +79,8 @@ export default function LijstView({
           lc(a.naam).includes(q) ||
           lc(a.locatie).includes(q) ||
           lc(a.type).includes(q) ||
-          lc(a.notities).includes(q)
+          lc(a.notities).includes(q) ||
+          (a.tags || []).some((t) => lc(t).includes(q))
         );
       })
       .sort((a, b) => {
@@ -59,7 +88,7 @@ export default function LijstView({
         if (a.favoriet !== b.favoriet) return a.favoriet ? -1 : 1;
         return a.naam.localeCompare(b.naam);
       });
-  }, [items, zoek, categorie, alleenOpen, alleenFav, alleenNu, bereik, maand]);
+  }, [items, zoek, categorie, tags, alleenOpen, alleenFav, alleenNu, bereik, maand]);
 
   // Voor hikes/reizen: groepeer op afstand, in oplopende volgorde.
   const groepen = useMemo(() => {
@@ -153,6 +182,26 @@ export default function LijstView({
               );
             })}
           </div>
+        </div>
+      )}
+
+      {tagTelling.length > 0 && (
+        <div className="tag-balk">
+          <span className="tag-balk-kop">#</span>
+          {tagTelling.map(({ sleutel, tag, aantal }) => (
+            <button
+              key={sleutel}
+              className={`tag-knop${tags.includes(sleutel) ? " on" : ""}`}
+              onClick={() => wisselTag(sleutel)}
+            >
+              {tag} <span className="chip-count">{aantal}</span>
+            </button>
+          ))}
+          {tags.length > 0 && (
+            <button className="tag-knop wis" onClick={() => setTags([])}>
+              ✕ wis
+            </button>
+          )}
         </div>
       )}
 

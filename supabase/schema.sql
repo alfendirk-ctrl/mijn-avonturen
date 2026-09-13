@@ -57,10 +57,16 @@ create table if not exists public.item (
   gedaan     boolean not null,
   favoriet   boolean not null,
   periode    text    not null,
+  -- Vrije labels naast de categorie. Not null met een lege lijst als standaard,
+  -- zodat de app nooit hoeft te raden of null "geen tags" of "onbekend" betekent.
+  tags       text[]  not null default '{}',
   verwijderd boolean not null,
   bijgewerkt bigint  not null,
   primary key (ruimte_id, id)
 );
+
+-- Voor een database die al bestond vóór de tags.
+alter table public.item add column if not exists tags text[] not null default '{}';
 
 -- Categorieën horen bij een ruimte, niet bij de app: wie een categorie hernoemt
 -- of naar een ander tabblad verplaatst, doet dat voor allebei.

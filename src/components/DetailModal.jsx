@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { MARKERINGEN, EMPTY_ACTIVITY } from "../data/seed.js";
+import { MARKERINGEN, EMPTY_ACTIVITY, MAX_TAGS, schoonTags } from "../data/seed.js";
 import { haalFoto, verkleinAfbeelding } from "../lib/fotos.js";
 import { leesTekst, veldenUitTekst } from "../lib/lezen.js";
 import { useFoto } from "../useFoto.js";
@@ -12,6 +12,7 @@ export default function DetailModal({
   mode,
   categories,
   catMeta,
+  bekendeTags = [],
   initialCategory,
   onClose,
   onEdit,
@@ -31,6 +32,7 @@ export default function DetailModal({
           gedaan: !!activity.gedaan,
           favoriet: !!activity.favoriet,
           periode: activity.periode || "",
+          tags: activity.tags || [],
           foto: !!activity.foto,
         }
       : {
@@ -38,6 +40,37 @@ export default function DetailModal({
           categorie: initialCategory || categories[0] || EMPTY_ACTIVITY.categorie,
         },
   );
+
+  // Tags: wat er in het invoervak staat te wachten om toegevoegd te worden.
+  const [tagInvoer, setTagInvoer] = useState("");
+
+  const voegTagToe = (ruw) => {
+    // schoonTags doet het echte werk: trimmen, dubbele eruit, maximum bewaken.
+    setForm((f) => ({ ...f, tags: schoonTags([...(f.tags || []), ruw]) }));
+    setTagInvoer("");
+  };
+
+  const wisTag = (tag) =>
+    setForm((f) => ({ ...f, tags: (f.tags || []).filter((t) => t !== tag) }));
+
+  const tagToets = (e) => {
+    // Enter én komma sluiten een tag af; een komma typen is voor veel mensen
+    // de natuurlijke reflex bij een lijstje.
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      if (tagInvoer.trim()) voegTagToe(tagInvoer);
+      return;
+    }
+    // Backspace in een leeg vak haalt de laatste tag weg.
+    if (e.key === "Backspace" && !tagInvoer && form.tags?.length) {
+      wisTag(form.tags[form.tags.length - 1]);
+    }
+  };
+
+  // Tags die elders al gebruikt worden en hier nog niet staan.
+  const tagSuggesties = bekendeTags
+    .filter((t) => !(form.tags || []).some((e) => e.toLowerCase() === t.toLowerCase()))
+    .slice(0, 8);
 
   const [nieuweFoto, setNieuweFoto] = useState(null);
   const [nieuweFotoUrl, setNieuweFotoUrl] = useState(null);
@@ -223,6 +256,56 @@ export default function DetailModal({
               </div>
             </div>
             <div>
+              <label className="lbl">Tags</label>
+              <div className="tag-vak">
+                {(form.tags || []).map((tag) => (
+                  <span key={tag} className="tag-chip">
+                    {tag}
+                    <button
+                      type="button"
+                      onClick={() => wisTag(tag)}
+                      aria-label={`Tag ${tag} verwijderen`}
+                    >
+                      ✕
+                    </button>
+                  </span>
+                ))}
+                {(form.tags || []).length < MAX_TAGS && (
+                  <input
+                    className="tag-invoer"
+                    value={tagInvoer}
+                    onChange={(e) => setTagInvoer(e.target.value)}
+                    onKeyDown={tagToets}
+                    // Wie wegklikt zonder Enter verwacht ook dat het blijft staan.
+                    onBlur={() => tagInvoer.trim() && voegTagToe(tagInvoer)}
+                    placeholder={
+                      (form.tags || []).length ? "nog een…" : "bijv. kids, zwemmen, regendag"
+                    }
+                  />
+                )}
+              </div>
+              {tagSuggesties.length > 0 && (
+                <div className="tag-suggesties">
+                  {tagSuggesties.map((tag) => (
+                    <button
+                      key={tag}
+                      type="button"
+                      className="tag-sug"
+                      onClick={() => voegTagToe(tag)}
+                    >
+                      + {tag}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="hint">
+                Losse labels naast de categorie. Een avontuur staat in één
+                categorie — die bepaalt het tabblad — maar mag zoveel tags
+                hebben als je wilt. Handig voor iets dat tegelijk water én kids
+                is. Je kunt er in de lijst op filteren.
+              </div>
+            </div>
+            <div>
               <label className="lbl">Beste periode</label>
               <input
                 className="fi"
@@ -373,6 +456,21 @@ export default function DetailModal({
           )}
           <Rij icoon="📍" label="Locatie" waarde={activity.locatie} />
           {activity.type && <Rij icoon="🏷" label="Type" waarde={activity.type} />}
+          {activity.tags?.length > 0 && (
+            <div className="m-row">
+              <div className="m-ico">#</div>
+              <div className="m-info">
+                <div className="m-lbl">Tags</div>
+                <div className="tag-rij">
+                  {activity.tags.map((tag) => (
+                    <span key={tag} className="tag-chip stil">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="m-row">
             <div className="m-ico">

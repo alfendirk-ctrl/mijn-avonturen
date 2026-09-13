@@ -88,11 +88,41 @@ export const EMOJI_OPTIONS = [
 ];
 
 // Lege sjablonen voor de formulieren.
-export const EMPTY_ACTIVITY = { naam: "", locatie: "", categorie: "Water", type: "", link: "", notities: "", gedaan: false, favoriet: false, periode: "", foto: false };
+export const EMPTY_ACTIVITY = { naam: "", locatie: "", categorie: "Water", type: "", link: "", notities: "", gedaan: false, favoriet: false, periode: "", tags: [], foto: false };
 export const EMPTY_CATEGORY = { naam: "", emoji: "🌍", kleurIndex: 0, soort: "uitje" };
 
 // Kleine hulp: veilig naar kleine letters (ook bij null/undefined/getallen).
 export const lc = (v) => String(v ?? "").toLowerCase();
+
+// Hoeveel tags er maximaal op één avontuur passen. Geen technische grens maar
+// een leesbaarheidsgrens: meer dan dit en de kaart wordt een lappendeken.
+export const MAX_TAGS = 8;
+
+// Tags zijn vrije labels náást de categorie. De categorie bepaalt het tabblad
+// en kan er daarom maar één zijn; tags mogen vrij gecombineerd worden, zodat
+// iets dat zowel water als kids is niet in één hokje geperst hoeft te worden.
+//
+// Accepteert ook een komma-gescheiden string, want zo typt een mens ze in.
+export function schoonTags(waarde) {
+  const ruw = Array.isArray(waarde)
+    ? waarde
+    : typeof waarde === "string"
+      ? waarde.split(",")
+      : [];
+  const gezien = new Set();
+  const uit = [];
+  for (const stuk of ruw) {
+    const tag = String(stuk ?? "").replace(/\s+/g, " ").trim().slice(0, 24);
+    if (!tag) continue;
+    // "Kids" en "kids" zijn dezelfde tag; de eerste schrijfwijze wint.
+    const sleutel = tag.toLowerCase();
+    if (gezien.has(sleutel)) continue;
+    gezien.add(sleutel);
+    uit.push(tag);
+    if (uit.length >= MAX_TAGS) break;
+  }
+  return uit;
+}
 
 // Schoont een opgeslagen activiteitenlijst op zodat elk item de verwachte
 // velden heeft. Voorkomt crashes door onvolledige/oude data. Geeft null bij
@@ -119,6 +149,7 @@ export function sanitizeActivities(arr) {
         gedaan,
         favoriet,
         periode: String(a.periode ?? ""),
+        tags: schoonTags(a.tags),
         // Vlag, niet de afbeelding zelf: die staat in IndexedDB (lib/fotos.js).
         foto: !!a.foto,
       };
