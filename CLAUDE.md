@@ -231,10 +231,45 @@ Related rules, each paid for once:
   colour, because it is the one field that answers "can we do this now?".
 - **Tap targets are at least 44px.** Where something must stay visually small
   (the tick on a card is 32px, and larger would dominate the card), the hit
-  area is stretched with a transparent `::after` instead.
+  area is stretched with a transparent `::after` instead. Two conditions make
+  that shim silently useless, so **measure it, don't assume it**: an ancestor
+  that clips (`.cats-row` has `overflow-x:auto`, and CSS then computes the
+  other axis to `auto` too, so it clipped the chips' shim top and bottom —
+  fixed with 3px of vertical padding on the row), and a container that
+  **wraps**, where a 44px shim on a 28px button reaches 8px into the line below
+  and swallows taps there. The tag bar wraps, so those buttons get real height
+  instead. Test by hit-testing `document.elementFromPoint` at the centre ±20px
+  and checking it returns the button itself — and skip elements whose test
+  point falls outside the viewport or outside a horizontally scrolled row,
+  because `elementFromPoint` returns `null` there and every off-screen card
+  looks like a failure.
+- **A confirmation always sits on top.** `.ov.ov-boven` is z-index 400 against
+  the settings panel's 300. Without it "Verwijder categorie?" opened *behind*
+  the panel: dimmed but visible through the overlay, and completely untappable,
+  because every tap landed on the panel underneath.
+- **The settings panel does not scroll as a whole.** Header and footer are
+  fixed flex items and only `.p-body` scrolls. It used to scroll as one piece
+  with a `position:sticky` footer — and a sticky element keeps its place in
+  flow *and* covers whatever is at the bottom of the viewport, so any category
+  row scrolled to there became unclickable. Padding underneath does not fix
+  this; it only helps the last row.
+- **The panel opens on the existing categories**, not on the new-category form.
+  Forty emoji and a colour picker above the fold buried the thing you actually
+  came for, and pushed the list behind that sticky footer.
 - On phones the header stats and the season watermark are hidden: the counts
   already sit in the tab bar, and the watermark was clipped at the right edge
-  in a way that read as a rendering fault rather than decoration.
+  in a way that read as a rendering fault rather than decoration. The tab
+  counts are hidden below 520px as well — accepted, because each tab already
+  states its own count (the filter bar in a list, `.teller` on "Wat doen we?",
+  the line above the map); what is lost on a phone is only comparing tabs at a
+  glance.
+- **Never retype the accent as a hex code.** `--accent` shifts with the season
+  (autumn is `#EA7C3C`), so a copied `#6366F1` stays winter-indigo while
+  everything around it turns orange. Two places had done exactly that. Mix
+  against the token instead: `color-mix(in srgb, var(--accent) 45%, #FFFFFF)`.
+  Note Chromium reports such a value from `getComputedStyle` as
+  `color(srgb 0.96 0.77 0.66)` — channels 0–1, not 0–255 — so a contrast
+  checker that assumes `rgb()` will read every mixed colour as near-black.
 
 ## Delen (optional sync)
 
