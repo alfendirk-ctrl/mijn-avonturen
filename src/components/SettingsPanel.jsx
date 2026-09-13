@@ -44,6 +44,47 @@ export default function SettingsPanel({
         </div>
 
         <div className="p-body">
+          {/* De lijst staat boven het formulier. Andersom stond veertig emoji
+              en een kleurenkiezer in de weg voor het enige wat je hier meestal
+              komt doen: een categorie verplaatsen of weggooien. */}
+          <div className="sec-h">Bestaande categorieën</div>
+          <div className="hint">
+            Verplaats een categorie naar een andere tab met de knopjes rechts.
+          </div>
+          <div className="cat-list">
+            {namen.map((c) => (
+              <div className="cat-row" key={c}>
+                <div className="cat-row-e">{categories[c].emoji}</div>
+                <div className="cat-row-n">
+                  {c}
+                  <span className="cat-row-c"> · {counts[c] || 0}</span>
+                </div>
+                <div className="soort-kies">
+                  {Object.entries(SOORTEN).map(([key, s]) => (
+                    <button
+                      key={key}
+                      className={categories[c].soort === key ? "on" : ""}
+                      title={s.tab}
+                      aria-label={`Zet ${c} bij ${s.tab}`}
+                      onClick={() => onSetCategorySoort(c, key)}
+                    >
+                      {s.emoji}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  className="cat-row-x"
+                  onClick={() => onDeleteCategory(c)}
+                  aria-label={`Verwijder ${c}`}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className="divider" />
+
           <div className="sec-h">Nieuwe categorie</div>
 
           <div className="pf">
@@ -107,46 +148,6 @@ export default function SettingsPanel({
             </span>
           </div>
 
-          <div className="divider" />
-
-          <div className="sec-h">Bestaande categorieën</div>
-          <div className="hint">
-            Verplaats een categorie naar een andere tab met de knopjes rechts.
-          </div>
-          <div className="cat-list">
-            {namen.map((c) => (
-              <div className="cat-row" key={c}>
-                <div className="cat-row-e">{categories[c].emoji}</div>
-                <div className="cat-row-n">
-                  {c}
-                  <span className="cat-row-c"> · {counts[c] || 0}</span>
-                </div>
-                <div className="soort-kies">
-                  {Object.entries(SOORTEN).map(([key, s]) => (
-                    <button
-                      key={key}
-                      className={categories[c].soort === key ? "on" : ""}
-                      title={s.tab}
-                      aria-label={`Zet ${c} bij ${s.tab}`}
-                      onClick={() => onSetCategorySoort(c, key)}
-                    >
-                      {s.emoji}
-                    </button>
-                  ))}
-                </div>
-                <button
-                  className="cat-row-x"
-                  onClick={() => onDeleteCategory(c)}
-                  aria-label={`Verwijder ${c}`}
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="p-foot">
           <button className="save-btn" disabled={!kanToevoegen} onClick={voegToe}>
             Categorie toevoegen
           </button>

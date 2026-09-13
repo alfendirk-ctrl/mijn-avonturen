@@ -41,6 +41,13 @@ export default function DetailModal({
         },
   );
 
+  // De beginwaarde, om te kunnen zien of er iets veranderd is. Een mistik op
+  // de donkere rand naast het venster gooide anders een half ingevuld avontuur
+  // weg - inclusief een net uitgelezen screenshot - zonder één woord.
+  const beginWaarde = useRef(null);
+  if (beginWaarde.current === null) beginWaarde.current = JSON.stringify(form);
+  const [wilSluiten, setWilSluiten] = useState(false);
+
   // Tags: wat er in het invoervak staat te wachten om toegevoegd te worden.
   const [tagInvoer, setTagInvoer] = useState("");
 
@@ -120,7 +127,10 @@ export default function DetailModal({
       });
       setForm((f) => ({ ...f, foto: true }));
     } catch {
-      // Onleesbare afbeelding: laat het formulier gewoon staan.
+      // Stil falen betekende: je kiest een foto en er gebeurt niets, zonder dat
+      // ergens staat waarom. Hetzelfde berichtveld als de tekstherkenning doet
+      // hier prima dienst.
+      setLeesBericht("Deze afbeelding kon niet gelezen worden. Probeer een andere.");
     } finally {
       setBezigMetFoto(false);
     }
@@ -191,12 +201,16 @@ export default function DetailModal({
   // ---- Bewerken / toevoegen ----
   if (mode === "edit") {
     const kanOpslaan = form.naam.trim().length > 0;
+    const veranderd =
+      JSON.stringify(form) !== beginWaarde.current || nieuweFoto !== null;
+    // Alleen vragen als er iets te verliezen valt; anders gewoon sluiten.
+    const probeerSluiten = () => (veranderd ? setWilSluiten(true) : onClose());
     return (
-      <Overlay onClose={onClose}>
+      <Overlay onClose={probeerSluiten}>
         <div className="modal" onClick={(e) => e.stopPropagation()}>
           <div className="m-hero" style={{ background: cat.gradient }}>
             <div className="m-hero-bg" />
-            <button className="m-close" onClick={onClose} aria-label="Sluiten">
+            <button className="m-close" onClick={probeerSluiten} aria-label="Sluiten">
               ✕
             </button>
             <div className="m-cat">
@@ -418,6 +432,23 @@ export default function DetailModal({
             {isNew ? "Toevoegen" : "Wijzigingen opslaan"}
           </button>
         </div>
+
+        {wilSluiten && (
+          <div className="weggooi" onClick={(e) => e.stopPropagation()}>
+            <div className="weggooi-h">Weggooien?</div>
+            <div className="weggooi-p">
+              Je wijzigingen zijn nog niet opgeslagen.
+            </div>
+            <div className="weggooi-row">
+              <button className="cfm-no" onClick={() => setWilSluiten(false)}>
+                Blijf bewerken
+              </button>
+              <button className="cfm-yes" onClick={onClose}>
+                Gooi weg
+              </button>
+            </div>
+          </div>
+        )}
       </Overlay>
     );
   }
@@ -507,9 +538,12 @@ export default function DetailModal({
           {activity.periode && (
             <Rij icoon="🗓" label="Beste periode" waarde={activity.periode} />
           )}
-          {activity.regio && (
-            <Rij icoon="🧭" label="Regio" waarde={activity.regio} />
-          )}
+          {/* Alleen als de afgeleide regio iets toevoegt. Bij "Drenthe" stond
+              er anders twee keer achter elkaar LOCATIE Drenthe / REGIO Drenthe. */}
+          {activity.regio &&
+            activity.regio.toLowerCase() !== activity.locatie.trim().toLowerCase() && (
+              <Rij icoon="🧭" label="Regio" waarde={activity.regio} />
+            )}
           {activity.notities && (
             <Rij icoon="📝" label="Notities" waarde={activity.notities} />
           )}

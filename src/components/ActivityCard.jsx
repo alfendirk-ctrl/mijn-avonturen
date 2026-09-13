@@ -6,12 +6,12 @@ import { useFoto } from "../useFoto.js";
 const MAX_KAART_TAGS = 2;
 
 // Compacte kaart voor uitjes: snel scannen in een raster.
-export default function ActivityCard({ activity, cat, popping, onClick, onToggleDone }) {
+export default function ActivityCard({ activity, cat, onClick, onToggleDone, onToggleFav }) {
   const { gedaan, favoriet } = activity;
   const foto = useFoto(activity.id, activity.foto);
   return (
     <div
-      className={`card${popping ? " pop" : ""}${gedaan ? " af" : ""}`}
+      className={`card${gedaan ? " af" : ""}`}
       onClick={onClick}
       role="button"
       tabIndex={0}
@@ -25,6 +25,24 @@ export default function ActivityCard({ activity, cat, popping, onClick, onToggle
       )}
       <div className="card-top">
         <div className="card-ico">{cat.emoji}</div>
+        <div className="card-acties">
+          {/* Favoriet stuurt de volgorde op "Wat doen we?" en de trekking van
+              "Verras me". Op een hike zat die knop al op de kaart; op een uitje
+              kostte hij vier tikken en een formulier - juist op de soort waar
+              het het meest uitmaakt. */}
+          {onToggleFav && (
+            <button
+              className={`vink${favoriet ? " fav" : ""}`}
+              title={favoriet ? "Uit favorieten" : "Als favoriet markeren"}
+              aria-label={favoriet ? "Uit favorieten" : "Als favoriet markeren"}
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleFav();
+              }}
+            >
+              ★
+            </button>
+          )}
         <button
           className={`vink${gedaan ? " on" : ""}`}
           title={gedaan ? "Toch nog niet gedaan" : "Markeer als gedaan"}
@@ -36,11 +54,9 @@ export default function ActivityCard({ activity, cat, popping, onClick, onToggle
         >
           ✓
         </button>
+        </div>
       </div>
-      <div className="card-name">
-        {favoriet && <span className="ster">★</span>}
-        {activity.naam}
-      </div>
+      <div className="card-name">{activity.naam}</div>
       <div className="card-loc">{activity.locatie}</div>
       {/* Eén rustige regel in plaats van drie rijen identieke pillen. Type,
           alle tags én de periode stonden hier als even zware badges onder
