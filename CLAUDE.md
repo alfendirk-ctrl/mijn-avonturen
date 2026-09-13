@@ -37,6 +37,28 @@ would mean two possible tabs for one item, with no rule to pick between them.
 Tags carry no soort, so they can be combined freely — which is what you want for
 something that is both "water" and "kids".
 
+Categories therefore name a **kind of thing** (Water, Eten & drinken, Cultuur,
+Dieren, Speelpark, Hike…), never an audience or a mood. An earlier set mixed the
+two axes — `Kids`, `Ontspanning` and `Leisure` sat next to `Water` and
+`Pretpark` — which forced two restaurants into two different categories purely
+because one of them had a playground. `lib/migratie.js` holds the one-time
+conversion away from that, and is the place to look before adding a category.
+
+That migration is worth understanding before touching it:
+
+- It runs **once**, guarded by `av_assen_gemigreerd` in localStorage. Without
+  that marker it would re-run on every load and drag an item back the moment
+  the user moved it somewhere else by hand. There is a regression test for
+  exactly that.
+- An item whose name it does not recognise **stays where it is**, and a retired
+  category is only deleted once nothing points at it any more. So a
+  self-added adventure in `Ontspanning` keeps both the item and the category
+  alive, rather than being dumped into an arbitrary bucket.
+- Migrated items are `stempel()`ed so the new layout wins over a device that
+  still has the old one.
+- The same map builds the seed, so a fresh install and a migrated phone end up
+  identical rather than drifting apart.
+
 `schoonTags()` in `data/seed.js` is the single normaliser (trim, collapse
 whitespace, cap at `MAX_TAGS`, drop case-insensitive duplicates so "Kids" and
 "kids" never coexist). It is used by `sanitizeActivities`, by `saveActivity`,
