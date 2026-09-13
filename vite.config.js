@@ -20,7 +20,14 @@ export default defineConfig({
         // ze moeten wél zelf een herkenbare naam hebben (anders heet de
         // tekstherkenning "index.js" en botst hij met de volgende brok).
         chunkFileNames: "assets/[name].js",
-        assetFileNames: "assets/main[extname]",
+        // De stylesheet houdt een vaste naam, want index.html verwijst er
+        // rechtstreeks naar. Andere bestanden (de afbeeldingen uit Leaflets
+        // eigen CSS) krijgen hun eigen naam: met één vaste naam zouden ze
+        // allemaal "assets/main.png" heten en elkaar overschrijven.
+        assetFileNames: (info) =>
+          (info.names?.[0] || info.name || "").endsWith(".css")
+            ? "assets/main[extname]"
+            : "assets/[name][extname]",
         manualChunks(id) {
           if (id.includes("node_modules/tesseract.js")) return "tekstherkenning";
         },

@@ -44,6 +44,12 @@ two axes — `Kids`, `Ontspanning` and `Leisure` sat next to `Water` and
 because one of them had a playground. `lib/migratie.js` holds the one-time
 conversion away from that, and is the place to look before adding a category.
 
+The same file also carries `vulAanMetBundel()`: new finds added to
+`EXTRA_SEPT_2026` in the seed would otherwise never reach a phone that already
+has stored data, because the seed is only read when `av_db` is empty. It adds
+by id, once, guarded by `av_bundel_sept26` — delete one afterwards and it stays
+deleted.
+
 That migration is worth understanding before touching it:
 
 - It runs **once**, guarded by `av_assen_gemigreerd` in localStorage. Without
@@ -164,6 +170,41 @@ it, so an Instagram find can be added without retyping it.
   once the user has picked one. Recognition guesses; the user knows.
 - The word lists it matches locations against (`PROVINCIES`, `LANDEN`) are
   exported from `lib/afleiden.js` so the two stay in step.
+
+## Kaart
+
+`src/views/KaartView.jsx` plots everything on one map (a fourth tab). Leaflet is
+`await import`ed, like tesseract, so it only downloads when the tab is opened.
+
+**Coordinates are derived, never stored.** `lib/kaart.js` holds a small
+gazetteer of the places that actually occur in the data and matches the earliest
+one named in the free-text `locatie` — locations are written specific-to-general
+("Culemborg, Gelderland"), so the leftmost match is the most precise. This keeps
+the rule the rest of the app follows: the free text is the truth, nothing extra
+to store, sync or migrate, and no geocoding service to depend on.
+
+Two traps already paid for:
+
+- Place names must match on a **word boundary**. `"Nederland"` contains the
+  letters of `"ede"`, so plain `includes` silently pinned every
+  location-less adventure on a village in Gelderland.
+- `"Nederland"` and `"Europa"` are deliberately **absent** from the gazetteer.
+  Twenty pins stacked on the centre of the country say nothing; those
+  adventures are listed under the map instead, with a nudge to add a town.
+
+The map opens fitted to the **nearby** adventures (`afstand === "dichtbij"`),
+not to all of them. Fitting Thailand and the Pacific Crest Trail turns Europe
+into one heap of overlapping 30px pins — on a phone that already happens at
+Europe scale. Nothing is hidden: a line above the map counts what lies further
+out, and zooming out reveals it.
+
+Pins are `divIcon`s carrying the category emoji and colour — no image assets, so
+nothing to bundle or break. Note `vite.config.js` gives non-CSS assets their own
+filename: the single stable `assets/main[extname]` pattern would name every
+image `main.png` and have them overwrite each other.
+
+Tiles come from OpenStreetMap and need a connection; the rest of the app keeps
+working offline.
 
 ## Delen (optional sync)
 

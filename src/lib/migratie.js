@@ -12,7 +12,7 @@
 // in te delen, en om bestaande opgeslagen data om te zetten. Eén bron, zodat
 // een verse installatie en een bestaande telefoon niet uit elkaar lopen.
 
-import { schoonTags } from "../data/seed.js";
+import { schoonTags, EXTRA_SEPT_2026 } from "../data/seed.js";
 
 // Onder welke sleutel onthouden wordt dat de omzetting gedraaid heeft. Zonder
 // die markering zou hij bij elke keer laden opnieuw draaien, en een avontuur
@@ -128,4 +128,22 @@ export function migreerCategorieen(categorieen, nogInGebruik) {
     if (uit[naam] && !nogInGebruik.has(naam)) delete uit[naam];
   }
   return uit;
+}
+
+// ---- Nieuwe avonturen bijzetten ---------------------------------------------
+
+// De standaardlijst wordt alleen gelezen op een toestel waar nog niets staat.
+// Wie de app al gebruikt, zou nieuwe vondsten dus nooit te zien krijgen. Deze
+// stap zet ze er eenmalig bij.
+export const SLEUTEL_BUNDEL_SEPT26 = "av_bundel_sept26";
+
+// Vult de lijst aan met avonturen die er nog niet in zitten, herkend op id.
+// Verwijder je er later een, dan komt hij niet terug: de markering is dan al
+// gezet. Dat is met opzet - jouw beslissing hoort te blijven staan.
+export function vulAanMetBundel(avonturen, bundel = EXTRA_SEPT_2026) {
+  const bestaandeIds = new Set(avonturen.map((a) => a.id));
+  const ontbreekt = bundel.filter((a) => !bestaandeIds.has(a.id));
+  if (!ontbreekt.length) return null;
+  // Vooraan, zodat je ze meteen ziet.
+  return [...ontbreekt, ...avonturen];
 }
