@@ -138,6 +138,7 @@ export default function LijstView({
         cat={catMeta(a.categorie)}
         onClick={() => onOpen(a)}
         onToggleDone={() => onToggleDone(a)}
+        onToggleFav={() => onToggleFav(a)}
       />
     );
 
@@ -159,10 +160,17 @@ export default function LijstView({
             </button>
           )}
         </div>
-        <button className="btn" onClick={onOpenSettings}>
+        {/* Onder 520px valt het woord weg en blijft alleen het teken over.
+            Een ⊞ of een + zegt een schermlezer niets, dus het label staat er
+            hoe dan ook - zichtbaar of niet. */}
+        <button className="btn" onClick={onOpenSettings} aria-label="Categorieën beheren">
           ⊞ <span>Categorieën</span>
         </button>
-        <button className="btn acc" onClick={() => onAdd(soort)}>
+        <button
+          className="btn acc"
+          onClick={() => onAdd(soort)}
+          aria-label={`${meta.enkelvoud.charAt(0).toUpperCase()}${meta.enkelvoud.slice(1)} toevoegen`}
+        >
           + <span>Toevoegen</span>
         </button>
       </div>

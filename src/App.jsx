@@ -41,6 +41,12 @@ import {
 // welke versie wint als jullie allebei iets veranderd hebben.
 const stempel = (obj) => ({ ...obj, bijgewerkt: Date.now() });
 
+const normaliseerLink = (ruw) => {
+  const t = String(ruw ?? "").trim();
+  if (!t) return null;
+  return /^[a-z][a-z0-9+.-]*:/i.test(t) ? t : `https://${t}`;
+};
+
 const TABS = [
   { key: "nu", tab: "Nu", kort: "Nu", emoji: "✨" },
   ...Object.entries(SOORTEN).map(([key, s]) => ({ key, tab: s.tab, kort: s.kort, emoji: s.emoji })),
@@ -138,7 +144,9 @@ export default function App() {
     // "nu" en "kaart" gaan over alles; alleen de drie soort-tabbladen knijpen.
     const bron = perSoort[tab] || items;
     return [
-      { value: bron.length, label: SOORTEN[tab]?.meervoud || "avonturen", color: "#6366F1" },
+      // Niet de hexcode van het accent overtypen: dat accent verschuift met het
+      // seizoen, en dit bolletje bleef dan achter op de indigo van de winter.
+      { value: bron.length, label: SOORTEN[tab]?.meervoud || "avonturen", color: "var(--accent)" },
       { value: bron.filter((a) => a.favoriet).length, label: "favoriet", color: "#F5A623" },
       { value: bron.filter((a) => a.gedaan).length, label: "gedaan", color: "#3DBE8A" },
     ];
@@ -237,7 +245,10 @@ export default function App() {
       locatie: form.locatie.trim(),
       categorie: form.categorie,
       type: form.type.trim(),
-      link: form.link.trim() || null,
+      // Zonder schema maakt de browser er een relatief pad van, dat onder
+      // /mijn-avonturen/ een 404 oplevert. "www.foo.nl" hoort een echte link
+      // te worden, geen kapotte.
+      link: normaliseerLink(form.link),
       notities: form.notities,
       gedaan: !!form.gedaan,
       favoriet: !!form.favoriet,
@@ -337,7 +348,11 @@ export default function App() {
 
   const requestDeleteCategory = (naam) => {
     if ((counts[naam] || 0) > 0) {
-      setMoveTarget(catNamen.find((c) => c !== naam) || "");
+      // Leeg: de standaard is nu "verwijder de items mee", wat het dialoog
+      // ook zegt. Stond hier de eerste andere categorie voorgeselecteerd, dan
+      // verplaatste een argeloze tik de items naar een willekeurig ander
+      // tabblad - en dat is niet terug te draaien.
+      setMoveTarget("");
       setConfirmCategory(naam);
     } else {
       removeCategory(naam, null);
@@ -461,6 +476,7 @@ export default function App() {
           catMeta={catMeta}
           onOpen={openItem}
           onToggleDone={toggleGedaan}
+          onToggleFav={toggleFavoriet}
           onGaNaar={setTab}
         />
       ) : tab === "kaart" ? (
@@ -539,8 +555,9 @@ export default function App() {
           message={
             <>
               <strong>{confirmCategory}</strong> heeft{" "}
-              {counts[confirmCategory] || 0} items. Verplaats ze of verwijder ze
-              mee.
+              {counts[confirmCategory] || 0} items. Kies of ze mee verdwijnen of
+              naar een andere categorie gaan — verplaatsen kan ze in een ander
+              tabblad zetten.
             </>
           }
           moveOptions={catNamen.filter((c) => c !== confirmCategory)}

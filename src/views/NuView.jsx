@@ -22,7 +22,7 @@ const BRONNEN = {
 
 // "Wat doen we?" — het startscherm. Laat alleen zien wat nú kan: in dit
 // seizoen, binnen het gekozen bereik, en nog niet gedaan.
-export default function NuView({ items, catMeta, onOpen, onToggleDone, onGaNaar }) {
+export default function NuView({ items, catMeta, onOpen, onToggleDone, onToggleFav, onGaNaar }) {
   const [bereik, setBereik] = useState(0); // 0 = alleen Nederland
   const [bron, setBron] = useState("uitje");
   const [verrast, setVerrast] = useState(null);
@@ -53,9 +53,15 @@ export default function NuView({ items, catMeta, onOpen, onToggleDone, onGaNaar 
 
   const verrasMe = () => {
     if (!passend.length) return;
+    // Nogmaals dobbelen en hetzelfde uitje terugkrijgen leest als een kapotte
+    // knop. Zolang er iets anders te kiezen valt, sluiten we de huidige uit.
+    const keuze =
+      passend.length > 1 && verrast
+        ? passend.filter((a) => a.id !== verrast.id)
+        : passend;
     setZichtbaar(false);
     setTimeout(() => {
-      setVerrast(passend[Math.floor(Math.random() * passend.length)]);
+      setVerrast(keuze[Math.floor(Math.random() * keuze.length)]);
       setZichtbaar(true);
     }, 40);
   };
@@ -107,11 +113,19 @@ export default function NuView({ items, catMeta, onOpen, onToggleDone, onGaNaar 
 
       {verrast && (
         <div className="vcard">
+          {/* Was een kale div met een onClick: met een toetsenbord of
+              schermlezer was de uitkomst van de dobbelsteen niet te openen,
+              terwijl elke gewone kaart dat wel is. */}
           <div
             className={`vcard-in${zichtbaar ? " on" : ""}`}
             onClick={() => onOpen(verrast)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) =>
+              (e.key === "Enter" || e.key === " ") && onOpen(verrast)
+            }
           >
-            <div className="vcard-eye">Doe dit — tik voor details</div>
+            <div className="vcard-eye">Doe dit</div>
             <div className="vcard-naam">{verrast.naam}</div>
             <div className="vcard-meta">
               {catMeta(verrast.categorie).emoji} {verrast.categorie} ·{" "}
@@ -140,6 +154,7 @@ export default function NuView({ items, catMeta, onOpen, onToggleDone, onGaNaar 
                 cat={catMeta(a.categorie)}
                 onClick={() => onOpen(a)}
                 onToggleDone={() => onToggleDone(a)}
+                onToggleFav={onToggleFav ? () => onToggleFav(a) : undefined}
               />
             ))}
           </div>

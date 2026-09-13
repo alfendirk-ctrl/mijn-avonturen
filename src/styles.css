@@ -3,7 +3,14 @@
 :root {
   --accent:#6366F1; --accent2:#8B5CF6; --op-accent:#0A0A12;
   --glow:rgba(99,102,241,0.14);
-  --surface:#12121E; --border:rgba(255,255,255,0.08); --text:#E8E8F0; --muted:#50506A;
+  --surface:#12121E; --border:rgba(255,255,255,0.08); --text:#E8E8F0;
+  /* Drie leesbare lagen. De onderste haalde 2,4:1 op de kaartachtergrond en
+     was daarmee geen "rustig" maar "onleesbaar" - juist voor de locatie, het
+     veld waar deze hele app om draait. Hierarchie komt nu van grootte, gewicht
+     en spatiering, niet van tekst wegdraaien tot hij verdwijnt. */
+  --zacht:#B6B6D0;   /* secundaire tekst: notities, hints */
+  --muted:#8A8AA8;   /* tertiair: locatie, tellingen, labels - >=4.9:1 overal */
+  --label:#8A8AA8;
   --accent-05: color-mix(in srgb, var(--accent) 6%, transparent);
   --accent-12: color-mix(in srgb, var(--accent) 13%, transparent);
   --accent-25: color-mix(in srgb, var(--accent) 26%, transparent);
@@ -21,7 +28,7 @@
 .hdr-h1 { font-family:'Syne',sans-serif; font-size:clamp(21px,4.6vw,27px); font-weight:800; line-height:1; letter-spacing:-0.8px; color:#F0F0FF; }
 .hdr-h1 em { color:var(--accent); font-style:normal; }
 .hdr-stats { display:flex; gap:7px; flex-wrap:wrap; }
-.stat { display:flex; align-items:center; gap:6px; padding:5px 11px; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:100px; font-family:'DM Sans',sans-serif; font-size:12px; color:#9090B0; }
+.stat { display:flex; align-items:center; gap:6px; padding:5px 11px; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:100px; font-family:'DM Sans',sans-serif; font-size:12px; color:var(--zacht); }
 .stat strong { color:#F0F0FF; font-weight:500; }
 .dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
 
@@ -31,18 +38,22 @@
 .srch input:focus { border-color:var(--accent); background:var(--accent-05); }
 .srch input::placeholder { color:var(--muted); }
 .srch-ico { position:absolute; left:15px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:17px; pointer-events:none; }
-.srch-clr { position:absolute; right:12px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.08); border:none; border-radius:50%; width:22px; height:22px; color:#9090B0; font-size:11px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-.btn { flex-shrink:0; padding:13px 18px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:12px; font-family:'DM Sans',sans-serif; font-size:14px; color:#C0C0D8; cursor:pointer; transition:all .18s; white-space:nowrap; display:flex; align-items:center; gap:6px; min-height:46px; }
+.srch-clr { position:absolute; right:12px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.08); border:none; border-radius:50%; width:22px; height:22px; color:var(--zacht); font-size:11px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.btn { flex-shrink:0; padding:13px 18px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:12px; font-family:'DM Sans',sans-serif; font-size:14px; color:var(--zacht); cursor:pointer; transition:all .18s; white-space:nowrap; display:flex; align-items:center; gap:6px; min-height:46px; }
 .btn:hover { background:rgba(255,255,255,0.1); color:#F0F0FF; }
 .btn:active { transform:scale(0.97); }
 .btn.acc { background:var(--accent); border-color:var(--accent); color:var(--op-accent); font-weight:600; }
 .btn.acc:hover { filter:brightness(1.12); }
 
 .cats { max-width:900px; margin:0 auto; padding:0 24px 24px; }
-.cats-row { display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; padding-bottom:4px; }
+/* De 3px boven en onder zijn er voor het opgerekte raakgebied van de chips.
+   overflow-x:auto laat de andere as op `auto` uitkomen, dus deze rij knipt ook
+   verticaal - zonder die marge viel de onzichtbare rand van 44px er gewoon af
+   en bleef de chip in de praktijk 38px. */
+.cats-row { display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; padding:3px 0 4px; }
 .cats-row::-webkit-scrollbar { display:none; }
-.chip { flex-shrink:0; display:flex; align-items:center; gap:5px; padding:9px 16px; border-radius:100px; border:1px solid var(--border); background:rgba(255,255,255,0.03); font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; color:#6060A0; cursor:pointer; transition:all .18s; white-space:nowrap; min-height:38px; }
-.chip:hover { border-color:rgba(255,255,255,0.18); color:#C0C0D8; }
+.chip { flex-shrink:0; display:flex; align-items:center; gap:5px; padding:9px 16px; border-radius:100px; border:1px solid var(--border); background:rgba(255,255,255,0.03); font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; color:#9090B8; cursor:pointer; transition:all .18s; white-space:nowrap; min-height:38px; }
+.chip:hover { border-color:rgba(255,255,255,0.18); color:var(--zacht); }
 .chip:active { transform:scale(0.96); }
 .chip.on { color:#0A0A12; font-weight:600; border-color:transparent; }
 .chip-count { font-size:11px; opacity:.65; }
@@ -50,53 +61,51 @@
 .chip-add:hover { border-color:var(--accent); background:var(--accent-12); }
 
 .vbar { max-width:900px; margin:0 auto; padding:0 24px 24px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-.vbtn { padding:12px 22px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border:none; border-radius:12px; font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:var(--op-accent); cursor:pointer; transition:opacity .18s,transform .1s; min-height:46px; }
+.vbtn { padding:12px 22px; background:var(--accent); border:none; border-radius:12px; font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:var(--op-accent); cursor:pointer; transition:opacity .18s,transform .1s; min-height:46px; }
 .vbtn:hover { opacity:.88; transform:translateY(-1px); }
-.vsel { padding:12px 14px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:12px; font-family:'DM Sans',sans-serif; font-size:13px; color:#A0A0B8; outline:none; cursor:pointer; min-height:46px; }
+.vsel { padding:12px 14px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:12px; font-family:'DM Sans',sans-serif; font-size:13px; color:var(--zacht); outline:none; cursor:pointer; min-height:46px; }
 .vsel option { background:#1a1a2e; }
 .vcard { max-width:900px; margin:0 auto 24px; padding:0 24px; }
 .vcard-in { position:relative; overflow:hidden; padding:22px 24px; background:linear-gradient(135deg,var(--accent-12),color-mix(in srgb, var(--accent2) 9%, transparent)); border:1px solid var(--accent-25); border-radius:18px; cursor:pointer; opacity:0; }
-.vcard-in.on { opacity:1; animation:deal .55s cubic-bezier(0.2,1.25,0.4,1); }
+.vcard-in.on { opacity:1; animation:deal .55s cubic-bezier(0.16,1,0.3,1); }
 @keyframes deal { from { transform:translateY(28px) rotate(-2.2deg) scale(0.93); opacity:0; } to { transform:none; opacity:1; } }
 .vcard-in::after { content:""; position:absolute; inset:0; background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.09) 50%,transparent 60%); transform:translateX(-100%); pointer-events:none; }
 .vcard-in.on::after { animation:glans .8s ease-out .12s; }
 @keyframes glans { to { transform:translateX(100%); } }
 .vcard-in:hover { border-color:var(--accent-40); }
-.vcard-eye { font-family:'DM Sans',sans-serif; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:6px; }
+.vcard-eye { font-family:'DM Sans',sans-serif; font-size:12px; font-weight:500; letter-spacing:.4px; color:var(--accent); margin-bottom:6px; }
 .vcard-naam { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; color:#F0F0FF; line-height:1.15; }
 .vcard-meta { font-family:'DM Sans',sans-serif; font-size:13px; color:var(--muted); margin-top:6px; }
 
-.teller { max-width:900px; margin:0 auto; padding:0 24px 14px; font-family:'DM Sans',sans-serif; font-size:11px; color:#30304A; letter-spacing:1.5px; text-transform:uppercase; }
+.teller { max-width:900px; margin:0 auto; padding:0 24px 14px; font-family:'DM Sans',sans-serif; font-size:11px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; }
 
 .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:14px; max-width:900px; margin:0 auto; padding:0 24px 120px; }
-.card { position:relative; border-radius:16px; padding:20px; cursor:pointer; border:1px solid var(--border); background:rgba(255,255,255,0.025); transition:transform .22s cubic-bezier(0.34,1.56,0.64,1),box-shadow .22s,border-color .2s,opacity .3s; overflow:hidden; }
+.card { position:relative; border-radius:16px; padding:20px; cursor:pointer; border:1px solid var(--border); background:rgba(255,255,255,0.025); transition:transform .22s cubic-bezier(0.16,1,0.3,1),box-shadow .22s,border-color .2s,opacity .3s; overflow:hidden; }
 .card.dim { opacity:.42; }
 .card:hover { transform:translateY(-4px) scale(1.015); border-color:rgba(255,255,255,0.13); box-shadow:0 12px 40px rgba(0,0,0,0.4); }
 .card:active { transform:scale(0.98); }
-.card.pop { animation:cardPop .45s cubic-bezier(0.34,1.56,0.64,1); }
-@keyframes cardPop { from{transform:scale(0.82);opacity:0;} to{transform:scale(1);opacity:1;} }
 .card-glow { position:absolute; top:-24px; right:-24px; width:96px; height:96px; border-radius:50%; opacity:.12; filter:blur(24px); pointer-events:none; }
 .card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; }
 .card-ico { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; background:rgba(255,255,255,0.06); flex-shrink:0; }
 .card-badge { font-size:11px; font-weight:600; padding:4px 9px; border-radius:100px; font-family:'DM Sans',sans-serif; white-space:nowrap; }
 .card-name { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; color:#E8E8F8; line-height:1.3; margin-bottom:5px; }
 .card-loc { font-family:'DM Sans',sans-serif; font-size:12px; color:var(--muted); margin-bottom:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.card-type { display:inline-block; font-family:'DM Sans',sans-serif; font-size:11px; font-weight:500; padding:3px 10px; border-radius:100px; border:1px solid rgba(255,255,255,0.09); color:#6060A0; }
-.card-per { font-family:'DM Sans',sans-serif; font-size:11px; color:#30304A; margin-top:8px; }
+.card-type { display:inline-block; font-family:'DM Sans',sans-serif; font-size:11px; font-weight:500; padding:3px 10px; border-radius:100px; border:1px solid rgba(255,255,255,0.09); color:#9090B8; }
+.card-per { font-family:'DM Sans',sans-serif; font-size:11px; color:var(--muted); margin-top:8px; }
 
 .empty { grid-column:1/-1; text-align:center; padding:80px 20px 60px; }
 .empty-ico { font-size:52px; display:block; margin-bottom:16px; }
-.empty-h { font-family:'Syne',sans-serif; font-size:20px; font-weight:700; color:#2A2A40; margin-bottom:8px; }
-.empty-p { font-family:'DM Sans',sans-serif; font-size:14px; color:#20203A; }
+.empty-h { font-family:'Syne',sans-serif; font-size:20px; font-weight:700; color:#C6C6DC; margin-bottom:8px; }
+.empty-p { font-family:'DM Sans',sans-serif; font-size:14px; color:var(--muted); }
 
 .ov { position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(10px); z-index:200; display:flex; align-items:center; justify-content:center; padding:20px; animation:fadeIn .2s ease; }
 @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
 
-.modal { background:var(--surface); border:1px solid rgba(255,255,255,0.09); border-radius:22px; width:100%; max-width:500px; max-height:90vh; overflow-y:auto; animation:modalIn .28s cubic-bezier(0.34,1.4,0.64,1); }
+.modal { background:var(--surface); border:1px solid rgba(255,255,255,0.09); border-radius:22px; width:100%; max-width:500px; max-height:90vh; overflow-y:auto; animation:modalIn .28s cubic-bezier(0.16,1,0.3,1); }
 @keyframes modalIn { from{transform:translateY(24px) scale(0.96);opacity:0;} to{transform:none;opacity:1;} }
 .m-hero { padding:32px 28px 22px; position:relative; border-radius:22px 22px 0 0; overflow:hidden; }
 .m-hero-bg { position:absolute; inset:0; opacity:.22; }
-.m-close { position:absolute; top:16px; right:16px; background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:34px; height:34px; color:#A0A0B8; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .15s; z-index:2; }
+.m-close { position:absolute; top:16px; right:16px; background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:34px; height:34px; color:var(--zacht); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .15s; z-index:2; }
 .m-close:hover { background:rgba(255,255,255,0.2); color:#fff; }
 .m-cat { position:relative; z-index:1; display:inline-flex; align-items:center; gap:6px; padding:4px 12px; background:rgba(255,255,255,0.1); border-radius:100px; font-family:'DM Sans',sans-serif; font-size:12px; color:rgba(255,255,255,0.65); margin-bottom:10px; }
 .m-title { position:relative; z-index:1; font-family:'Syne',sans-serif; font-size:clamp(22px,5vw,34px); font-weight:800; color:#fff; line-height:1.1; letter-spacing:-.5px; }
@@ -112,40 +121,53 @@
 .m-row:last-child { border-bottom:none; }
 .m-ico { width:34px; height:34px; border-radius:8px; background:rgba(255,255,255,0.04); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
 .m-info { flex:1; min-width:0; }
-.m-lbl { font-family:'DM Sans',sans-serif; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:#2A2A4A; margin-bottom:3px; }
+.m-lbl { font-family:'DM Sans',sans-serif; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--label); margin-bottom:3px; }
 .m-val { font-family:'DM Sans',sans-serif; font-size:15px; color:#B0B0D0; line-height:1.5; word-break:break-word; }
 .m-badge { display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:100px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; }
 .m-link { display:inline-flex; align-items:center; gap:8px; padding:10px 18px; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600; color:var(--op-accent); text-decoration:none; background:var(--accent); }
 
 .ef { padding:20px 28px 0; display:flex; flex-direction:column; gap:16px; }
 .ef-g2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-.lbl { font-family:'DM Sans',sans-serif; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:#30305A; margin-bottom:5px; display:block; }
+.lbl { font-family:'DM Sans',sans-serif; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--label); margin-bottom:5px; display:block; }
 .fi { width:100%; padding:11px 13px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:10px; font-family:'DM Sans',sans-serif; font-size:14px; color:#E0E0F0; outline:none; transition:border-color .2s; }
 .fi:focus { border-color:var(--accent); background:var(--accent-05); }
-.fi::placeholder { color:#20203A; }
+.fi::placeholder { color:var(--muted); }
 .fi option { background:#12121E; }
 textarea.fi { resize:vertical; min-height:72px; line-height:1.6; }
-.ef-save { margin:20px 28px 28px; padding:14px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border:none; border-radius:12px; font-family:'Syne',sans-serif; font-size:16px; font-weight:700; color:var(--op-accent); cursor:pointer; width:calc(100% - 56px); }
+.ef-save { margin:20px 28px 28px; padding:14px; background:var(--accent); border:none; border-radius:12px; font-family:'Syne',sans-serif; font-size:16px; font-weight:700; color:var(--op-accent); cursor:pointer; width:calc(100% - 56px); }
 .ef-save:disabled { opacity:.3; cursor:not-allowed; }
 
-.cfm { background:var(--surface); border:1px solid rgba(255,255,255,0.09); border-radius:20px; width:100%; max-width:400px; padding:32px 28px; animation:modalIn .25s cubic-bezier(0.34,1.4,0.64,1); }
+/* Een bevestiging ligt altijd bovenop. Zonder dit stond .ov op 200 en het
+   categoriepaneel (.pov) op 300: "Verwijder categorie?" opende dan ACHTER het
+   paneel - zichtbaar gedimd door de donkere laag erboven, maar niet aan te
+   tikken, want elke tik landde op het paneel eronder. Geen testkwestie: op een
+   telefoon is de knop "Annuleer" daar net zo onbereikbaar. */
+.ov.ov-boven { z-index:400; }
+.cfm { background:var(--surface); border:1px solid rgba(255,255,255,0.09); border-radius:20px; width:100%; max-width:400px; padding:32px 28px; animation:modalIn .25s cubic-bezier(0.16,1,0.3,1); }
 .cfm-ico { font-size:40px; display:block; margin-bottom:16px; }
 .cfm-h { font-family:'Syne',sans-serif; font-size:20px; font-weight:800; color:#F0F0FF; margin-bottom:8px; }
-.cfm-p { font-family:'DM Sans',sans-serif; font-size:14px; color:#5050A0; line-height:1.6; margin-bottom:20px; }
+.cfm-p { font-family:'DM Sans',sans-serif; font-size:14px; color:#B0B0D0; line-height:1.6; margin-bottom:20px; }
 .cfm-p strong { color:#9090C0; }
-.cfm-sel { width:100%; padding:11px 13px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:10px; font-family:'DM Sans',sans-serif; font-size:14px; color:#C0C0D8; outline:none; margin-bottom:20px; }
+.cfm-sel { width:100%; padding:11px 13px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:10px; font-family:'DM Sans',sans-serif; font-size:14px; color:var(--zacht); outline:none; margin-bottom:20px; }
 .cfm-sel option { background:#12121E; }
 .cfm-row { display:flex; gap:10px; }
-.cfm-no { flex:1; padding:13px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:10px; font-family:'DM Sans',sans-serif; font-size:14px; color:#9090B0; cursor:pointer; }
+.cfm-no { flex:1; padding:13px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:10px; font-family:'DM Sans',sans-serif; font-size:14px; color:var(--zacht); cursor:pointer; }
 .cfm-yes { flex:1; padding:13px; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.28); border-radius:10px; font-family:'DM Sans',sans-serif; font-size:14px; color:#FCA5A5; cursor:pointer; font-weight:500; }
 
 .pov { position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(7px); z-index:300; display:flex; justify-content:flex-end; animation:fadeIn .2s ease; }
-.panel { width:100%; max-width:420px; height:100%; background:var(--surface); border-left:1px solid var(--border); overflow-y:auto; animation:slideIn .28s cubic-bezier(0.34,1.2,0.64,1); display:flex; flex-direction:column; }
+/* Het paneel scrollt zelf niet: kop en voet staan vast, en alleen .p-body
+   schuift ertussen. Eerder scrollde het paneel als geheel met een
+   position:sticky voettekst - en een sticky element houdt zijn plek in de
+   stroom én ligt over de inhoud die op dat moment onderaan het venster staat.
+   Elke categorierij die daar langskwam ving zo een tik op de uitgeschakelde
+   "Categorie toevoegen"-knop op. Ruimte eronder loste dat niet op: dat hielp
+   alleen de laatste rij, niet de rij die je net naar beneden had gescrold. */
+.panel { width:100%; max-width:420px; height:100%; background:var(--surface); border-left:1px solid var(--border); overflow:hidden; animation:slideIn .28s cubic-bezier(0.16,1,0.3,1); display:flex; flex-direction:column; }
 @keyframes slideIn { from{transform:translateX(44px);opacity:0;} to{transform:none;opacity:1;} }
-.p-hdr { padding:28px 24px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; background:var(--surface); z-index:1; }
+.p-hdr { padding:28px 24px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex:0 0 auto; background:var(--surface); }
 .p-title { font-family:'Syne',sans-serif; font-size:20px; font-weight:800; color:#F0F0FF; }
-.p-x { background:rgba(255,255,255,0.07); border:none; border-radius:8px; width:34px; height:34px; color:#9090B0; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-.p-body { padding:22px 24px; flex:1; display:flex; flex-direction:column; gap:16px; }
+.p-x { background:rgba(255,255,255,0.07); border:none; border-radius:8px; width:34px; height:34px; color:var(--zacht); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.p-body { padding:22px 24px; flex:1 1 auto; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:16px; }
 .pf { display:flex; flex-direction:column; gap:5px; }
 .pg2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 .egrid { display:flex; flex-wrap:wrap; gap:6px; }
@@ -159,18 +181,22 @@ textarea.fi { resize:vertical; min-height:72px; line-height:1.6; }
 .cat-row { display:flex; align-items:center; gap:10px; padding:11px 13px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; }
 .cat-row-e { font-size:20px; width:30px; text-align:center; }
 .cat-row-n { font-family:'DM Sans',sans-serif; font-size:14px; color:#B0B0D0; flex:1; }
-.cat-row-c { font-family:'DM Sans',sans-serif; font-size:12px; color:#30304A; }
+.cat-row-c { font-family:'DM Sans',sans-serif; font-size:12px; color:var(--muted); }
 .cat-row-x { background:rgba(239,68,68,0.09); border:1px solid rgba(239,68,68,0.18); border-radius:7px; width:30px; height:30px; color:#FCA5A5; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
 .divider { height:1px; background:var(--border); }
-.sec-h { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:#5050A0; text-transform:uppercase; letter-spacing:1px; }
-.p-foot { padding:18px 24px; border-top:1px solid var(--border); position:sticky; bottom:0; background:var(--surface); }
-.save-btn { width:100%; padding:14px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border:none; border-radius:12px; font-family:'Syne',sans-serif; font-size:16px; font-weight:700; color:var(--op-accent); cursor:pointer; }
+.sec-h { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:#B0B0D0; text-transform:uppercase; letter-spacing:1px; }
+/* De knop staat nu onderaan het formulier waar hij bij hoort, niet meer in een
+   vastgezette voettekst. Die voettekst nam op elke telefoon 80px in beslag voor
+   een knop die meestal uitgeschakeld was, en lag bovendien over de rijen die je
+   wél wilde aantikken. */
+.p-body > .save-btn { margin-top:4px; }
+.save-btn { width:100%; padding:14px; background:var(--accent); border:none; border-radius:12px; font-family:'Syne',sans-serif; font-size:16px; font-weight:700; color:var(--op-accent); cursor:pointer; }
 .save-btn:disabled { opacity:.28; cursor:not-allowed; }
 .prev-tag { display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:100px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; color:#0A0A12; }
 
 .toast-wrap { position:fixed; bottom:28px; left:50%; transform:translateX(-50%); z-index:600; display:flex; flex-direction:column; align-items:center; gap:8px; pointer-events:none; }
-.toast { padding:12px 22px; border-radius:100px; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:500; color:#fff; white-space:nowrap; animation:toastIn .35s cubic-bezier(0.34,1.56,0.64,1); box-shadow:0 8px 32px rgba(0,0,0,0.4); }
-.toast.s { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:var(--op-accent); }
+.toast { padding:12px 22px; border-radius:100px; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:500; color:#fff; white-space:nowrap; animation:toastIn .35s cubic-bezier(0.16,1,0.3,1); box-shadow:0 8px 32px rgba(0,0,0,0.4); }
+.toast.s { background:var(--accent); color:var(--op-accent); }
 .toast.d { background:linear-gradient(135deg,#b91c1c,#dc2626); }
 @keyframes toastIn { from{transform:translateY(20px) scale(0.9);opacity:0;} to{transform:none;opacity:1;} }
 
@@ -192,27 +218,27 @@ html, body { background:#0A0A12; color:#E8E8F0; font-family:system-ui, -apple-sy
 
 /* ---- Tab-schakelaar: Activiteiten / Hikes ---- */
 .tabs { max-width:900px; margin:0 auto; padding:0 24px 22px; display:flex; gap:5px; }
-.tab { flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:11px 8px; border-radius:14px; border:1px solid var(--border); background:rgba(255,255,255,0.03); font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:#6060A0; cursor:pointer; transition:all .18s; min-height:48px; white-space:nowrap; }
-.tab:hover { color:#C0C0D8; border-color:rgba(255,255,255,0.16); }
+.tab { flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:11px 8px; border-radius:14px; border:1px solid var(--border); background:rgba(255,255,255,0.03); font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:#9090B8; cursor:pointer; transition:all .18s; min-height:48px; white-space:nowrap; }
+.tab:hover { color:var(--zacht); border-color:rgba(255,255,255,0.16); }
 .tab:active { transform:scale(0.98); }
 .tab.on { color:#F0F0FF; border-color:transparent; background:linear-gradient(135deg,var(--accent-25),color-mix(in srgb, var(--accent2) 17%, transparent)); box-shadow:inset 0 0 0 1px var(--accent-40); }
 .tab-count { font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600; padding:1px 8px; border-radius:100px; background:rgba(255,255,255,0.08); color:inherit; opacity:.85; }
 
 /* ---- Hikes-sectie ---- */
 .hfilter { display:flex; gap:4px; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:12px; padding:4px; }
-.hfilter button { padding:8px 14px; border-radius:9px; border:none; background:transparent; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; color:#6060A0; cursor:pointer; transition:all .15s; white-space:nowrap; }
-.hfilter button:hover { color:#C0C0D8; }
+.hfilter button { padding:8px 14px; border-radius:9px; border:none; background:transparent; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; color:#9090B8; cursor:pointer; transition:all .15s; white-space:nowrap; }
+.hfilter button:hover { color:var(--zacht); }
 .hfilter button.on { background:var(--accent); color:var(--op-accent); font-weight:600; }
 
 .hgroup { max-width:900px; margin:28px auto 0; padding:0 24px; }
 .hgroup:last-child { padding-bottom:120px; }
 .hgroup-h { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
 .hgroup-t { font-family:'Syne',sans-serif; font-size:16px; font-weight:800; color:#E8E8F8; }
-.hgroup-c { font-family:'DM Sans',sans-serif; font-size:12px; color:#40406A; }
+.hgroup-c { font-family:'DM Sans',sans-serif; font-size:12px; color:var(--muted); }
 .hgroup-line { flex:1; height:1px; background:var(--border); }
 
 .hgrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; }
-.hcard { position:relative; display:flex; flex-direction:column; border-radius:18px; padding:20px; cursor:pointer; border:1px solid var(--border); background:rgba(255,255,255,0.025); overflow:hidden; transition:transform .22s cubic-bezier(0.34,1.56,0.64,1),border-color .2s,box-shadow .22s,opacity .3s; }
+.hcard { position:relative; display:flex; flex-direction:column; border-radius:18px; padding:20px; cursor:pointer; border:1px solid var(--border); background:rgba(255,255,255,0.025); overflow:hidden; transition:transform .22s cubic-bezier(0.16,1,0.3,1),border-color .2s,box-shadow .22s,opacity .3s; }
 .hcard:hover { transform:translateY(-4px); border-color:rgba(255,255,255,0.14); box-shadow:0 12px 40px rgba(0,0,0,0.4); }
 .hcard:active { transform:scale(0.985); }
 .hcard-glow { position:absolute; top:-30px; left:-30px; width:120px; height:120px; border-radius:50%; opacity:.14; filter:blur(28px); pointer-events:none; }
@@ -220,16 +246,19 @@ html, body { background:#0A0A12; color:#E8E8F0; font-family:system-ui, -apple-sy
 .hcard.done .hcard-name { text-decoration:line-through; text-decoration-color:rgba(255,255,255,0.25); }
 .hcard-top { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:12px; }
 .hcard-ico { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; background:rgba(255,255,255,0.06); flex-shrink:0; }
-.hcard-check { flex-shrink:0; width:34px; height:34px; border-radius:50%; border:1.5px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.03); color:#50506A; font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .16s; }
+.hcard-check { flex-shrink:0; width:34px; height:34px; border-radius:50%; border:1.5px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.03); color:var(--muted); font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .16s; }
 .hcard-check:hover { border-color:rgba(61,190,138,0.6); color:#3DBE8A; }
 .hcard-check.on { background:#3DBE8A; border-color:#3DBE8A; color:#0A0A12; }
 .hcard-name { font-family:'Syne',sans-serif; font-size:17px; font-weight:700; color:#E8E8F8; line-height:1.25; margin-bottom:5px; }
 .hcard-loc { font-family:'DM Sans',sans-serif; font-size:12.5px; color:var(--muted); margin-bottom:12px; }
 .hcard-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:auto; }
 .htag { display:inline-flex; align-items:center; gap:5px; font-family:'DM Sans',sans-serif; font-size:11px; font-weight:500; padding:4px 10px; border-radius:100px; border:1px solid rgba(255,255,255,0.09); color:#8888B0; }
-.htag.season { border-color:var(--accent-40); color:#9DA0F0; background:var(--accent-05); }
+/* Rand, vlak en tekst komen alle drie uit hetzelfde accent. Stond hier een
+   vaste #9DA0F0, dan bleef de tekst indigo terwijl de rand eromheen met het
+   seizoen meekleurde. Opgemengd met wit tot het op --surface boven 4,5:1 komt. */
+.htag.season { border-color:var(--accent-40); color:color-mix(in srgb, var(--accent) 45%, #FFFFFF); background:var(--accent-05); }
 .htag.fav { border-color:rgba(245,166,35,0.35); color:#F5A623; background:rgba(245,166,35,0.1); }
-.hcard-note { font-family:'DM Sans',sans-serif; font-size:12.5px; color:#7070A0; line-height:1.5; margin:2px 0 12px; display:flex; gap:6px; }
+.hcard-note { font-family:'DM Sans',sans-serif; font-size:12.5px; color:var(--zacht); line-height:1.5; margin:2px 0 12px; display:flex; gap:6px; }
 .hcard-note span { flex-shrink:0; opacity:.7; }
 
 
@@ -246,9 +275,18 @@ html, body { background:#0A0A12; color:#E8E8F0; font-family:system-ui, -apple-sy
 /* ---- "Wat doen we?" startscherm ---- */
 .nu { max-width:900px; margin:0 auto; padding:0 24px 120px; }
 .nu-kop { position:relative; margin-bottom:20px; padding-top:26px; }
-.nu-watermerk { position:absolute; top:-16px; left:-4px; font-family:'Syne',sans-serif; font-weight:800; font-size:clamp(68px,16vw,120px); line-height:1; letter-spacing:-5px; background:linear-gradient(168deg,var(--accent) 0%,color-mix(in srgb, var(--accent2) 70%, transparent) 55%,transparent 94%); -webkit-background-clip:text; background-clip:text; color:transparent; opacity:.30; pointer-events:none; user-select:none; white-space:nowrap; }
+/* Het seizoenswatermerk is één vlakke kleur, geen verlooptekst. Een verloop
+   over letters leest als versiering die betekenis suggereert, en dit woord
+   staat er alleen als achtergrond - het seizoen zelf zegt de kop eronder al. */
+.nu-watermerk { position:absolute; top:-16px; left:-4px; font-family:'Syne',sans-serif; font-weight:800; font-size:clamp(68px,16vw,120px); line-height:1; letter-spacing:-5px; color:var(--accent); opacity:.13; pointer-events:none; user-select:none; white-space:nowrap; }
+/* Onder 900px viel het watermerk rechts buiten beeld; afgekapt las het als een
+   weergavefout in plaats van als versiering. */
+@media (max-width:900px) { .nu-watermerk { display:none; } }
 .nu-seizoen, .nu-eye, .nu-lead { position:relative; z-index:1; }
-.nu-seizoen { font-family:'DM Sans',sans-serif; font-size:12px; letter-spacing:1.6px; text-transform:uppercase; color:var(--accent); margin-bottom:6px; }
+/* Geen kapitalen met wijde spatiering meer: dit is een zin over het seizoen,
+   geen rubriekje. Zo gezet las het als een label boven de kop, en las het
+   slechter dan het is. */
+.nu-seizoen { font-family:'DM Sans',sans-serif; font-size:13px; color:var(--accent); margin-bottom:6px; }
 .nu-eye { font-family:'Syne',sans-serif; font-size:clamp(26px,6vw,38px); font-weight:800; letter-spacing:-1px; color:#F0F0FF; line-height:1.05; }
 .nu-lead { font-family:'DM Sans',sans-serif; font-size:14.5px; color:#8888B0; margin-top:8px; line-height:1.5; }
 .nu-lead strong { color:#C0C0E0; font-weight:500; }
@@ -259,20 +297,20 @@ html, body { background:#0A0A12; color:#E8E8F0; font-family:system-ui, -apple-sy
 .nu-grid { padding-bottom:24px !important; }
 .nu-leeg { text-align:center; padding:60px 20px; }
 .nu-meer { display:flex; flex-direction:column; gap:12px; align-items:flex-start; padding-top:4px; }
-.nu-meer > span { font-family:'DM Sans',sans-serif; font-size:13px; color:#50506A; }
+.nu-meer > span { font-family:'DM Sans',sans-serif; font-size:13px; color:var(--muted); }
 .nu-meer-knoppen { display:flex; gap:8px; flex-wrap:wrap; }
 
 /* ---- Filterpillen ---- */
 .filters { max-width:900px; margin:0 auto; padding:0 24px 18px; display:flex; gap:8px; flex-wrap:wrap; }
-.pil { padding:9px 16px; border-radius:100px; border:1px solid var(--border); background:rgba(255,255,255,0.03); font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; color:#6060A0; cursor:pointer; transition:all .16s; min-height:38px; }
-.pil:hover { color:#C0C0D8; border-color:rgba(255,255,255,0.18); }
+.pil { padding:9px 16px; border-radius:100px; border:1px solid var(--border); background:rgba(255,255,255,0.03); font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; color:#9090B8; cursor:pointer; transition:all .16s; min-height:38px; }
+.pil:hover { color:var(--zacht); border-color:rgba(255,255,255,0.18); }
 .pil:active { transform:scale(0.96); }
 .pil.on { background:var(--accent); border-color:transparent; color:var(--op-accent); font-weight:600; }
 .pil.on.fav { background:#F5A623; color:#0A0A12; }
 .pil.on.ok { background:#3DBE8A; color:#0A0A12; }
 
 /* ---- Ronde actieknoppen op kaarten ---- */
-.vink, .rond { flex-shrink:0; width:32px; height:32px; border-radius:50%; border:1.5px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.03); color:#50506A; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .16s; }
+.vink, .rond { flex-shrink:0; width:32px; height:32px; border-radius:50%; border:1.5px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.03); color:var(--muted); font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .16s; }
 .vink:hover, .rond:hover { border-color:rgba(61,190,138,0.6); color:#3DBE8A; }
 .vink.on, .rond.on { background:#3DBE8A; border-color:#3DBE8A; color:#0A0A12; }
 .rond.fav { background:#F5A623; border-color:#F5A623; color:#0A0A12; }
@@ -289,7 +327,7 @@ html, body { background:#0A0A12; color:#E8E8F0; font-family:system-ui, -apple-sy
 .card-per { margin-top:0 !important; }
 
 /* ---- Formulier & paneel ---- */
-.hint { font-family:'DM Sans',sans-serif; font-size:12px; color:#50506A; margin-top:6px; line-height:1.45; }
+.hint { font-family:'DM Sans',sans-serif; font-size:12px; color:var(--muted); margin-top:6px; line-height:1.45; }
 .mark-row { display:flex; gap:8px; flex-wrap:wrap; }
 .hfilter.breed { width:100%; }
 .hfilter.breed button { flex:1; }
@@ -297,7 +335,7 @@ html, body { background:#0A0A12; color:#E8E8F0; font-family:system-ui, -apple-sy
 .soort-kies button { width:28px; height:26px; border:none; background:transparent; border-radius:6px; font-size:13px; cursor:pointer; opacity:.4; transition:all .15s; display:flex; align-items:center; justify-content:center; }
 .soort-kies button:hover { opacity:.8; }
 .soort-kies button.on { background:var(--accent); opacity:1; }
-.cat-row-c { font-size:12px; color:#30304A; }
+.cat-row-c { font-size:12px; color:var(--muted); }
 .empty.los { max-width:900px; margin:0 auto; padding:70px 24px; }
 
 @media (max-width:520px) {
@@ -315,7 +353,7 @@ html, body { background:#0A0A12; color:#E8E8F0; font-family:system-ui, -apple-sy
 .deel-knop { position:relative; flex-shrink:0; width:40px; height:34px; border-radius:100px; border:1px solid var(--border); background:rgba(255,255,255,0.04); font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .16s; }
 .deel-knop:hover { border-color:var(--accent-40); background:var(--accent-05); }
 .deel-knop.aan { border-color:var(--accent-40); background:var(--accent-12); }
-.sync-stip { position:absolute; right:3px; bottom:2px; width:7px; height:7px; border-radius:50%; background:#50506A; border:1.5px solid #0A0A12; }
+.sync-stip { position:absolute; right:3px; bottom:2px; width:7px; height:7px; border-radius:50%; background:var(--muted); border:1.5px solid #0A0A12; }
 .sync-stip.ok { background:#3DBE8A; }
 .sync-stip.bezig { background:var(--accent); animation:pols 1s ease-in-out infinite; }
 .sync-stip.fout { background:#EF6B6B; }
@@ -323,11 +361,11 @@ html, body { background:#0A0A12; color:#E8E8F0; font-family:system-ui, -apple-sy
 
 .deel-uit { text-align:center; padding:18px 4px 10px; }
 .deel-ico { font-size:38px; display:block; margin-bottom:12px; }
-.deel-uit .empty-h { color:#C0C0D8; margin-bottom:8px; }
+.deel-uit .empty-h { color:var(--zacht); margin-bottom:8px; }
 .deel-uit .hint { text-align:left; }
 .waarschuwing { padding:12px 14px; border-radius:10px; background:rgba(245,166,35,0.09); border:1px solid rgba(245,166,35,0.22); font-family:'DM Sans',sans-serif; font-size:12.5px; line-height:1.5; color:#D8B878; }
-.link-doos { padding:12px 14px; border-radius:10px; background:rgba(255,255,255,0.04); border:1px solid var(--border); font-family:'DM Sans',sans-serif; font-size:12px; color:#9090B0; word-break:break-all; line-height:1.5; }
-.sync-status { display:flex; align-items:center; gap:9px; font-family:'DM Sans',sans-serif; font-size:13.5px; color:#9090B0; }
+.link-doos { padding:12px 14px; border-radius:10px; background:rgba(255,255,255,0.04); border:1px solid var(--border); font-family:'DM Sans',sans-serif; font-size:12px; color:var(--zacht); word-break:break-all; line-height:1.5; }
+.sync-status { display:flex; align-items:center; gap:9px; font-family:'DM Sans',sans-serif; font-size:13.5px; color:var(--zacht); }
 .sync-status .sync-stip { position:static; width:8px; height:8px; border:none; }
 .sync-status.ok .sync-stip { background:#3DBE8A; }
 .sync-status.bezig .sync-stip { background:var(--accent); animation:pols 1s ease-in-out infinite; }
@@ -341,7 +379,7 @@ html, body { background:#0A0A12; color:#E8E8F0; font-family:system-ui, -apple-sy
 /* ---- Afstandsschuif ---- */
 .afstand { max-width:900px; margin:0 auto; padding:0 24px 20px; }
 .afstand-kop { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:9px; }
-.afstand-vraag { font-family:'DM Sans',sans-serif; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:#50506A; }
+.afstand-vraag { font-family:'DM Sans',sans-serif; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); }
 .afstand-aantal { font-family:'DM Sans',sans-serif; font-size:12px; font-weight:500; color:var(--accent); }
 .afstand-schuif { -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:100px; outline:none; cursor:pointer; margin:0; background:linear-gradient(to right, var(--accent) 0%, var(--accent) var(--vulling), rgba(255,255,255,0.09) var(--vulling), rgba(255,255,255,0.09) 100%); }
 .afstand-schuif::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:22px; height:22px; border-radius:50%; background:var(--accent); border:3px solid #0A0A12; box-shadow:0 2px 8px rgba(0,0,0,0.5); cursor:grab; }
@@ -384,8 +422,12 @@ html, body { background:#0A0A12; color:#E8E8F0; font-family:system-ui, -apple-sy
 .foto-lees:hover:not(:disabled) { background:var(--accent); color:#0B0B14; border-color:var(--accent); }
 .foto-lees:disabled { opacity:.7; cursor:wait; }
 .lees-balk { margin-top:8px; height:4px; border-radius:99px; background:rgba(255,255,255,0.07); overflow:hidden; }
+/* Hier is `width` bewust gekozen boven `transform:scaleX`. Het is één balkje
+   van 4px dat tijdens één tekstherkenning van 0 naar 100 loopt, dus van
+   layoutdruk is geen sprake; scaleX zou de afgeronde uiteinden uitrekken tot
+   ovalen. */
 .lees-balk span { display:block; height:100%; border-radius:99px; background:var(--accent); transition:width .25s ease; }
-.lees-bericht { margin-top:8px; padding:10px 12px; border-radius:10px; background:var(--accent-05); border:1px solid var(--accent-40); font-family:'DM Sans',sans-serif; font-size:12.5px; line-height:1.5; color:#C8C8E0; }
+.lees-bericht { margin-top:8px; padding:10px 12px; border-radius:10px; background:var(--accent-05); border:1px solid var(--accent-40); font-family:'DM Sans',sans-serif; font-size:12.5px; line-height:1.5; color:var(--zacht); }
 
 /* ---- Tags ---- */
 /* Vrije labels naast de categorie. Bewust rustiger dan de categoriechips:
@@ -394,7 +436,7 @@ html, body { background:#0A0A12; color:#E8E8F0; font-family:system-ui, -apple-sy
 .tag-chip { display:inline-flex; align-items:center; gap:5px; padding:5px 8px 5px 10px; border-radius:99px; background:var(--accent-12); border:1px solid var(--accent-40); font-family:'DM Sans',sans-serif; font-size:12.5px; color:var(--accent); }
 .tag-chip button { border:none; background:transparent; color:inherit; cursor:pointer; font-size:11px; line-height:1; padding:2px; opacity:.65; }
 .tag-chip button:hover { opacity:1; }
-.tag-chip.stil { background:rgba(255,255,255,0.05); border-color:var(--border); color:#C8C8E0; padding:5px 10px; }
+.tag-chip.stil { background:rgba(255,255,255,0.05); border-color:var(--border); color:var(--zacht); padding:5px 10px; }
 .tag-invoer { flex:1; min-width:120px; border:none; background:transparent; outline:none; font-family:'DM Sans',sans-serif; font-size:13.5px; color:var(--text); padding:4px 2px; }
 .tag-invoer::placeholder { color:var(--muted); }
 .tag-suggesties { display:flex; flex-wrap:wrap; gap:6px; margin-top:7px; }
@@ -404,12 +446,12 @@ html, body { background:#0A0A12; color:#E8E8F0; font-family:system-ui, -apple-sy
 
 .tag-balk { display:flex; flex-wrap:wrap; align-items:center; gap:6px; max-width:900px; margin:0 auto; padding:0 24px 12px; }
 .tag-balk-kop { font-family:'DM Sans',sans-serif; font-size:13px; color:var(--muted); margin-right:2px; }
-.tag-knop { padding:5px 10px; border-radius:99px; border:1px solid var(--border); background:rgba(255,255,255,0.03); font-family:'DM Sans',sans-serif; font-size:12.5px; color:#9090B0; cursor:pointer; transition:all .15s; }
+.tag-knop { padding:5px 10px; border-radius:99px; border:1px solid var(--border); background:rgba(255,255,255,0.03); font-family:'DM Sans',sans-serif; font-size:12.5px; color:var(--zacht); cursor:pointer; transition:all .15s; }
 .tag-knop:hover { color:var(--text); border-color:var(--accent-40); }
 .tag-knop.on { background:var(--accent-12); border-color:var(--accent); color:var(--accent); }
 .tag-knop.wis { color:#EF6B6B; border-style:dashed; }
 
-.card-tag { padding:2px 7px; border-radius:99px; background:rgba(255,255,255,0.05); border:1px solid var(--border); font-size:11px; color:#9090B0; }
+.card-tag { padding:2px 7px; border-radius:99px; background:rgba(255,255,255,0.05); border:1px solid var(--border); font-size:11px; color:var(--zacht); }
 .htag.tag { background:rgba(255,255,255,0.05); }
 
 @media (max-width:520px) {
@@ -425,7 +467,7 @@ html, body { background:#0A0A12; color:#E8E8F0; font-family:system-ui, -apple-sy
 .kaart-telling { margin-left:auto; font-family:'DM Sans',sans-serif; font-size:12.5px; color:var(--muted); }
 .kaart-doos { position:relative; border-radius:18px; overflow:hidden; border:1px solid var(--border); }
 .kaart { height:min(62vh,560px); width:100%; background:#12121E; }
-.kaart-melding { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:24px; text-align:center; font-family:'DM Sans',sans-serif; font-size:13.5px; color:#9090B0; background:var(--surface); }
+.kaart-melding { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:24px; text-align:center; font-family:'DM Sans',sans-serif; font-size:13.5px; color:var(--zacht); background:var(--surface); }
 
 /* De speld draagt de kleur van zijn categorie, zodat je op de kaart in één
    oogopslag ziet wat voor soort plek het is. */
@@ -437,15 +479,15 @@ html, body { background:#0A0A12; color:#E8E8F0; font-family:system-ui, -apple-sy
 /* Leaflet gaat uit van een lichte pagina; hier moet het bij de rest passen. */
 .leaflet-container { font-family:'DM Sans',sans-serif; background:#12121E; }
 .leaflet-control-attribution { background:rgba(10,10,18,0.75) !important; color:#707090 !important; font-size:10px; }
-.leaflet-control-attribution a { color:#9090B0 !important; }
-.leaflet-bar a { background:#1a1a2e !important; color:#C0C0D8 !important; border-color:var(--border) !important; }
+.leaflet-control-attribution a { color:var(--zacht) !important; }
+.leaflet-bar a { background:#1a1a2e !important; color:var(--zacht) !important; border-color:var(--border) !important; }
 .leaflet-bar a:hover { background:#26263e !important; }
 
 .kaart-rest { margin-top:18px; padding:16px 18px; border-radius:14px; border:1px solid var(--border); background:rgba(255,255,255,0.025); }
 .kaart-rest-kop { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:#E0E0F0; }
 .kaart-rest-uitleg { font-family:'DM Sans',sans-serif; font-size:12.5px; color:var(--muted); margin:5px 0 12px; line-height:1.5; }
 .kaart-rest-lijst { display:flex; flex-wrap:wrap; gap:7px; }
-.kaart-rest-item { display:flex; align-items:center; gap:7px; padding:7px 12px; border-radius:99px; border:1px solid var(--border); background:rgba(255,255,255,0.03); font-family:'DM Sans',sans-serif; font-size:12.5px; color:#C0C0D8; cursor:pointer; transition:all .15s; }
+.kaart-rest-item { display:flex; align-items:center; gap:7px; padding:7px 12px; border-radius:99px; border:1px solid var(--border); background:rgba(255,255,255,0.03); font-family:'DM Sans',sans-serif; font-size:12.5px; color:var(--zacht); cursor:pointer; transition:all .15s; }
 .kaart-rest-item:hover { border-color:var(--accent-40); color:#F0F0FF; }
 .kaart-rest-item span { color:var(--muted); font-size:11.5px; }
 
@@ -453,16 +495,16 @@ html, body { background:#0A0A12; color:#E8E8F0; font-family:system-ui, -apple-sy
   .kaart-wrap { padding-left:16px; padding-right:16px; }
   .kaart-telling { margin-left:0; width:100%; }
 }
-.kaart-hint { margin-bottom:10px; padding:9px 13px; border-radius:10px; background:var(--accent-05); border:1px solid var(--accent-40); font-family:'DM Sans',sans-serif; font-size:12.5px; color:#C8C8E0; }
+.kaart-hint { margin-bottom:10px; padding:9px 13px; border-radius:10px; background:var(--accent-05); border:1px solid var(--accent-40); font-family:'DM Sans',sans-serif; font-size:12.5px; color:var(--zacht); }
 
 /* ---- Opgeruimd: filterbalk, kaarthiërarchie, raakdoelen ---- */
 
 /* Eén rij bediening in plaats van drie. */
 .filterbalk { display:flex; align-items:center; gap:8px; max-width:900px; margin:0 auto; padding:0 24px 14px; }
-.filterknop { display:flex; align-items:center; gap:7px; min-height:44px; padding:0 16px; border-radius:100px; border:1px solid var(--border); background:rgba(255,255,255,0.04); font-family:'DM Sans',sans-serif; font-size:13.5px; color:#C0C0D8; cursor:pointer; transition:all .18s; }
+.filterknop { display:flex; align-items:center; gap:7px; min-height:44px; padding:0 16px; border-radius:100px; border:1px solid var(--border); background:rgba(255,255,255,0.04); font-family:'DM Sans',sans-serif; font-size:13.5px; color:var(--zacht); cursor:pointer; transition:all .18s; }
 .filterknop:hover { border-color:rgba(255,255,255,0.2); color:#F0F0FF; }
 .filterknop.actief { border-color:var(--accent); color:var(--accent); background:var(--accent-05); }
-.filterknop.wis { color:#9090B0; border-style:dashed; }
+.filterknop.wis { color:var(--zacht); border-style:dashed; }
 .filter-bolletje { min-width:20px; height:20px; padding:0 6px; border-radius:99px; background:var(--accent); color:var(--op-accent); font-size:11px; font-weight:600; display:flex; align-items:center; justify-content:center; }
 .filter-pijl { font-size:8px; opacity:.55; }
 .filter-telling { margin-left:auto; font-family:'DM Sans',sans-serif; font-size:12px; color:var(--muted); text-align:right; }
@@ -486,7 +528,7 @@ html, body { background:#0A0A12; color:#E8E8F0; font-family:system-ui, -apple-sy
 .card-onder { margin-top:10px; gap:5px; }
 .card-per { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:99px; background:var(--accent-12); color:var(--accent); font-family:'DM Sans',sans-serif; font-size:11px; font-weight:500; margin-top:0 !important; }
 .card-per::before { content:"🗓"; font-size:10px; }
-.card-tag { padding:3px 8px; border:none; background:rgba(255,255,255,0.055); color:#7C7C9C; font-size:11px; }
+.card-tag { padding:3px 8px; border:none; background:rgba(255,255,255,0.055); color:var(--muted); font-size:11px; }
 .card-tag.meer { color:var(--muted); }
 
 /* De categorierij scrolt; een afgesneden chip moet er niet kapot uitzien. */
@@ -499,8 +541,6 @@ html, body { background:#0A0A12; color:#E8E8F0; font-family:system-ui, -apple-sy
   /* Drie statistiekpillen naast de titel zijn op een telefoon vooral ruis;
      het aantal per tabblad staat al in de tabbalk. */
   .hdr-stats { display:none; }
-  /* Het seizoenswoord op de achtergrond liep over de koptekst heen. */
-  .nu-watermerk { opacity:.16; font-size:clamp(54px,13vw,78px); }
 }
 
 @media (max-width:520px) {
@@ -532,12 +572,85 @@ html, body { background:#0A0A12; color:#E8E8F0; font-family:system-ui, -apple-sy
   .tab-count { display:none; }
 }
 
-/* Het seizoenswoord op de achtergrond liep half buiten beeld en las als een
-   weergavefout in plaats van als versiering. Alleen tonen waar het past. */
-@media (max-width:720px) { .nu-watermerk { display:none; } }
-
 /* Het vinkje op een kaart is 32px en moet dat visueel blijven — groter en het
    gaat de kaart domineren. Het RAAKGEBIED rekken we wel op tot 44px met een
    onzichtbare rand, zodat je er met een duim bij kunt zonder mis te tikken. */
 .vink, .rond { position:relative; }
 .vink::after, .rond::after { content:""; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:44px; height:44px; }
+
+
+/* ---- Leesbaarheid, focus en de vlakken die de browser zelf tekent ---- */
+
+/* De onderdelen die je niet zelf tekent dragen ook het ontwerp. Selectie, de
+   cursor en de focusring kwamen hier nog uit de browser en hoorden bij geen
+   enkel ontwerp. */
+::selection { background:var(--accent-40); color:#F0F0FF; }
+input, textarea, select { caret-color:var(--accent); }
+input[type="range"], input[type="checkbox"] { accent-color:var(--accent); }
+
+/* Er was precies EEN focusregel in de hele app, op de afstandsschuif. Wie met
+   een toetsenbord werkt kon nergens zien waar hij stond - en op drie velden
+   was de standaardring ook nog weggehaald zonder vervanging. */
+:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
+.card:focus-visible, .hcard:focus-visible { outline-offset:3px; }
+.vsel:focus-visible, .cfm-sel:focus-visible, .tag-invoer:focus-visible,
+.srch input:focus-visible, .fi:focus-visible { outline:2px solid var(--accent); outline-offset:1px; }
+
+/* Elf animaties, waaronder een oneindige puls, zonder enige uitweg. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration:.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:.01ms !important; scroll-behavior:auto !important;
+  }
+}
+
+/* Raakdoelen die nog onder de maat waren. De kruisjes op tags waren 13x15. */
+.tag-chip button { position:relative; }
+.tag-chip button::after { content:""; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:44px; height:44px; }
+.tag-invoer { min-height:36px; }
+.tag-sug { min-height:36px; }
+.m-close { width:40px; height:40px; }
+.afstand-stap { position:relative; }
+.afstand-stap::after { content:""; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:44px; height:44px; }
+/* De knoppen in een segmentbalk zitten in een omhulsel met 4px binnenruimte;
+   44px hoog maken zou dat omhulsel op 52px brengen en de balk laten domineren.
+   Het raakgebied rekken we daarom op met een onzichtbare rand, net als bij het
+   vinkje op een kaart. */
+/* De schuifbalk is zes pixels hoog en dat moet hij blijven - een dikke balk
+   trekt alle aandacht naar de bediening. Met verticale binnenruimte en
+   background-clip:content-box blijft de streep zes pixels, terwijl het element
+   zelf 44px hoog is en dus met een duim te pakken. */
+.afstand-schuif { box-sizing:content-box; padding:19px 0; background-clip:content-box; }
+
+.hfilter > button { min-height:40px; position:relative; }
+.hfilter > button::after { content:""; position:absolute; left:0; right:0; top:50%; transform:translateY(-50%); height:44px; }
+
+/* Categoriechips zijn 38px: hoger maakt de rij te zwaar boven een lijst die
+   het eigenlijke onderwerp is. Zelfde oplossing, zelfde reden. Dit kan hier
+   omdat de chiprij niet afbreekt maar zijwaarts scrollt - er ligt dus niets
+   binnen die opgerekte rand. */
+.chip, .chip-add { position:relative; }
+.chip::after, .chip-add::after { content:""; position:absolute; left:0; right:0; top:50%; transform:translateY(-50%); height:44px; }
+
+/* De tagbalk breekt wél af over meerdere regels. Een onzichtbare rand van 44px
+   om een knop van 28px steekt dan 8px in de regel eronder en vangt daar de
+   tikken af. Hier dus echte hoogte; het zit toch achter de Filters-knop, waar
+   ruimte minder kost. */
+.tag-knop { min-height:44px; display:inline-flex; align-items:center; gap:5px; }
+.fi { min-height:44px; }
+
+/* Een lange naam werd midden in een letter afgekapt zonder beletselteken. */
+.card-name, .hcard-name { overflow-wrap:anywhere; hyphens:auto; }
+
+/* Bevestiging bij het weggooien van onopgeslagen werk. Zit binnen het venster
+   zelf, niet als tweede overlay eroverheen: die zou de eerste kunnen sluiten. */
+.weggooi { position:absolute; inset:0; z-index:5; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; padding:28px; text-align:center; background:rgba(10,10,18,0.92); backdrop-filter:blur(6px); border-radius:inherit; }
+.weggooi-h { font-family:'Syne',sans-serif; font-size:19px; font-weight:800; color:#F0F0FF; }
+.weggooi-p { font-family:'DM Sans',sans-serif; font-size:14px; color:var(--zacht); margin-bottom:14px; }
+.weggooi-row { display:flex; gap:10px; width:100%; max-width:320px; }
+.weggooi-row button { flex:1; min-height:48px; }
+.modal { position:relative; }
+
+/* Twee knoppen rechtsboven op de compacte kaart in plaats van één. */
+.card-acties { display:flex; gap:4px; }
+.vink.fav { color:#F5A623; border-color:rgba(245,166,35,0.45); background:rgba(245,166,35,0.14); }

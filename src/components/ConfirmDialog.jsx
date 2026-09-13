@@ -12,7 +12,7 @@ export default function ConfirmDialog({
   onCancel,
 }) {
   return (
-    <div className="ov" onClick={onCancel}>
+    <div className="ov ov-boven" onClick={onCancel}>
       <div className="cfm" onClick={(e) => e.stopPropagation()}>
         <span className="cfm-ico">{icon}</span>
         <div className="cfm-h">{title}</div>
@@ -23,6 +23,12 @@ export default function ConfirmDialog({
             value={moveValue}
             onChange={(e) => onMoveChange(e.target.value)}
           >
+            {/* De lege keuze hoort er expliciet in EN als standaard. Zonder
+                haar beloofde de tekst "verplaats ze of verwijder ze mee" iets
+                wat je niet kon kiezen, en stond er alvast een categorie
+                voorgeselecteerd - de eerste uit de lijst. Eén tik verplaatste
+                dan dertien hikes naar Water, en dus naar een ander tabblad. */}
+            <option value="">Verwijder de items mee</option>
             {moveOptions.map((c) => (
               <option key={c} value={c}>
                 Verplaats naar: {c}

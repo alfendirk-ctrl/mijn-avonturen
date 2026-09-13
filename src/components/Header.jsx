@@ -1,6 +1,18 @@
 // Compacte kop: merknaam links, tellers rechts, en een knop om samen bij te
 // houden. Bewust klein zodat de inhoud van de actieve tab meteen in beeld staat.
+// Wat het bolletje op de deelknop betekent, in woorden. Een kleurverschil van
+// zeven pixels is het enige signaal dat synchroniseren mislukt is - onzichtbaar
+// als je kleuren slecht onderscheidt, en al helemaal voor een schermlezer.
+const SYNC_TEKST = {
+  ok: "Samen bijhouden — bijgewerkt",
+  bezig: "Samen bijhouden — bezig met bijwerken",
+  fout: "Samen bijhouden — bijwerken mislukt",
+};
+
 export default function Header({ stats, gedeeld, syncStatus, onDelen }) {
+  const deelLabel = gedeeld
+    ? SYNC_TEKST[syncStatus] || "Samen bijhouden"
+    : "Deel met je partner";
   return (
     <header className="hdr">
       <div className="hdr-glow" />
@@ -22,11 +34,13 @@ export default function Header({ stats, gedeeld, syncStatus, onDelen }) {
             <button
               className={`deel-knop${gedeeld ? " aan" : ""}`}
               onClick={onDelen}
-              title={gedeeld ? "Samen bijhouden" : "Deel met je partner"}
-              aria-label={gedeeld ? "Samen bijhouden" : "Deel met je partner"}
+              title={deelLabel}
+              aria-label={deelLabel}
             >
               {gedeeld ? "👥" : "＋👤"}
-              {gedeeld && <span className={`sync-stip ${syncStatus}`} />}
+              {gedeeld && (
+                <span className={`sync-stip ${syncStatus}`} aria-hidden="true" />
+              )}
             </button>
           </div>
         </div>
