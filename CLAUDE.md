@@ -28,6 +28,26 @@ There is no linter or test runner configured.
 - **`src/views/LijstView.jsx`** — one list view reused by all three soorten. Uitjes render as compact `ActivityCard`s in a flat grid; hikes and reizen are "saved for later" and render as richer `WishCard`s grouped by distance.
 - **`src/data/seed.js`** — default data and fixed lists: `SEED_ACTIVITIES`, `SEED_CATEGORIES`, `SOORTEN`, `MARKERINGEN`, `COLOR_PALETTE`, `EMOJI_OPTIONS`, plus the `sanitize*` functions. Edit here to change starter content.
 
+### Categorie versus tags
+
+An activity has **exactly one `categorie`** and **any number of `tags`**. That
+split is deliberate and load-bearing: the category decides the `soort`, and the
+soort decides which of the three tabs the activity lives in. Two categories
+would mean two possible tabs for one item, with no rule to pick between them.
+Tags carry no soort, so they can be combined freely — which is what you want for
+something that is both "water" and "kids".
+
+`schoonTags()` in `data/seed.js` is the single normaliser (trim, collapse
+whitespace, cap at `MAX_TAGS`, drop case-insensitive duplicates so "Kids" and
+"kids" never coexist). It is used by `sanitizeActivities`, by `saveActivity`,
+**and by both directions of sync** — one definition, so stored, typed and
+synced tags always have the same shape.
+
+`tags` is handled separately from `ITEM_VELDEN` in `sync.js`: that loop falls
+back to `""` for missing values, which would turn a missing array into an empty
+string. Filtering by several tags is an **intersection**, not a union — the
+point of tags here is finding the overlap.
+
 ### Soorten (the three tabs)
 
 Every category carries a `soort` (`uitje` | `hike` | `reis`) which decides the tab its activities appear in. **Do not key this off category names** — an earlier version hardcoded `["Hike NL", "Hike"]`, which silently emptied the Hikes tab if a category was renamed. `soortVoorNaam()` only supplies the default for pre-existing data; after that the stored `soort` wins, and the settings panel lets the user move a category between tabs.
@@ -40,7 +60,7 @@ Every category carries a `soort` (`uitje` | `hike` | `reis`) which decides the t
 
 Two `localStorage` keys, **which must not be renamed** or existing users lose their data:
 
-- **`av_db`** — array of activities: `{ id, naam, locatie, categorie, type, link, notities, gedaan, favoriet, periode }`. `gedaan` and `favoriet` are **independent booleans** — an older single `status` field conflated them, so ticking a favourite as done wiped its favourite mark. `sanitizeActivities` migrates the old `status` field on read.
+- **`av_db`** — array of activities: `{ id, naam, locatie, categorie, type, link, notities, gedaan, favoriet, periode, tags, foto }`. `gedaan` and `favoriet` are **independent booleans** — an older single `status` field conflated them, so ticking a favourite as done wiped its favourite mark. `sanitizeActivities` migrates the old `status` field on read.
 - **`av_cats`** — object mapping a category name → `{ emoji, kleur, gradient, soort }`.
 
 Both `sanitize*` functions also run over the seed defaults (see `useLocalStorage`), so stored and default data always have the exact same shape.
@@ -165,10 +185,26 @@ offline; only syncing between the two devices stops until the project is resumed
 from the dashboard. If the project is ever gone for good, `schema.sql` rebuilds
 it and the local `localStorage` copies are still the real data.
 
-`.github/workflows/wakker-houden.yml` prevents the pause: every three days it
-runs one anonymous `select` against `item`. It reads the URL and the anon key
-out of `src/lib/sync.js` rather than duplicating them, and deliberately sends no
-`x-ruimte` header — RLS then returns an empty list with status 200, which is
-both the expected result and enough traffic to count. Anything other than 200
-fails the job loudly. Note GitHub disables scheduled workflows after 60 days of
-repo inactivity, so this is a convenience, not a guarantee.
+`.github/workflows/wakker-houden.yml` tries to prevent the pause, every three
+days. It reads the URL and the anon key out of `src/lib/sync.js` rather than
+duplicating them.
+
+**The first version of this did not work, and the evidence is worth keeping.**
+It did an anonymous `select` with no `x-ruimte` header, so RLS returned an empty
+list with status 200. The scheduled runs of 7, 10 and 13 August 2026 all
+reported 200 — and the project was paused anyway, somewhere between 13 and 16
+August. An empty read does not count as usage. Every run from 16 August on
+failed with `curl: (6) Could not resolve host`, because a paused project loses
+its DNS record.
+
+So it now does a **write**: an upsert of one fixed row in a dedicated heartbeat
+ruimte, which keeps exactly one row rather than growing a list. Whether that is
+enough is unproven — if the project pauses again despite this, the honest
+conclusion is that a free project cannot be kept awake from outside, and the
+answer is to resume it from the dashboard when sharing is actually wanted.
+
+Two details worth not re-learning: `curl` runs with `set +e` around it, because
+under `bash -e` a DNS failure kills the step before the explanatory message and
+all you see is "exit code 6"; and a successful upsert answers 201 or 204, not
+only 200. Note GitHub also disables scheduled workflows after 60 days of repo
+inactivity.

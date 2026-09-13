@@ -40,6 +40,11 @@ export default function ActivityCard({ activity, cat, popping, onClick, onToggle
       <div className="card-loc">{activity.locatie}</div>
       <div className="card-onder">
         {activity.type && <span className="card-type">{activity.type}</span>}
+        {activity.tags?.map((tag) => (
+          <span key={tag} className="card-tag">
+            {tag}
+          </span>
+        ))}
         {activity.periode && <span className="card-per">🗓 {activity.periode}</span>}
       </div>
       {gedaan && (

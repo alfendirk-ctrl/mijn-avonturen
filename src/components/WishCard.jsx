@@ -60,6 +60,11 @@ export default function WishCard({ item, cat, onClick, onToggleDone, onToggleFav
       <div className="hcard-tags">
         {item.periode && <span className="htag season">🗓 {item.periode}</span>}
         {item.type && <span className="htag">{item.type}</span>}
+        {item.tags?.map((tag) => (
+          <span key={tag} className="htag tag">
+            {tag}
+          </span>
+        ))}
         {item.link && <span className="htag">🔗 info</span>}
       </div>
     </div>

@@ -38,22 +38,61 @@ jobs:
           echo "::add-mask::$SLEUTEL"
           echo "sleutel=$SLEUTEL" >> "$GITHUB_OUTPUT"
 
-      # Eén echte query op Postgres. Zonder x-ruimte-header geeft RLS geen
-      # rijen terug — een lege lijst met status 200 is precies wat we
-      # verwachten, en genoeg om het project als "in gebruik" te laten tellen.
+      # Een échte schrijfactie, geen leesactie.
+      #
+      # De eerste versie hiervan deed een anonieme select die door RLS nul rijen
+      # opleverde. Die gaf keurig 200 — en het project is tussen 13 en 16
+      # augustus 2026 alsnog gepauzeerd. Zo'n lege lees telt dus niet als
+      # gebruik. Daarom nu een upsert: één vaste rij in een ruimte die verder
+      # nergens voor gebruikt wordt, zodat er precies één regel bestaat die
+      # telkens overschreven wordt in plaats van een lijst die aangroeit.
+      #
+      # De ruimte-uuid staat hier gewoon in het zicht. Dat mag: het is niet de
+      # ruimte van de gebruikers, er staat niets in behalve deze hartslag, en
+      # wie hem misbruikt kan alleen die ene regel overschrijven.
       - name: Wek de database
         env:
           BASIS: ${{ steps.config.outputs.basis }}
           SLEUTEL: ${{ steps.config.outputs.sleutel }}
+          HARTSLAG_RUIMTE: "00000000-0000-4000-8000-000000000001"
         run: |
+          NU=$(date +%s000)
+          # curl mag hier niet de hele stap afbreken: bij een DNS-fout (precies
+          # wat er gebeurt als het project gepauzeerd is) stopt "bash -e" anders
+          # vóór de uitleg hieronder, en zie je alleen "exit code 6".
+          set +e
           STATUS=$(curl -sS -o /tmp/antwoord.json -w '%{http_code}' \
+            -X POST \
             -H "apikey: $SLEUTEL" \
             -H "Authorization: Bearer $SLEUTEL" \
-            "$BASIS/rest/v1/item?select=ruimte_id&limit=1")
-          echo "status: $STATUS"
-          echo "antwoord: $(cat /tmp/antwoord.json)"
-          if [ "$STATUS" != "200" ]; then
-            echo "::error::De database antwoordde niet zoals verwacht (status $STATUS). Staat het project misschien op pauze, of is de sleutel vervangen?"
+            -H "x-ruimte: $HARTSLAG_RUIMTE" \
+            -H "Content-Type: application/json" \
+            -H "Prefer: resolution=merge-duplicates" \
+            -d "{\"ruimte_id\":\"$HARTSLAG_RUIMTE\",\"id\":1,\"naam\":\"hartslag\",
+                 \"locatie\":\"\",\"categorie\":\"Water\",\"type\":\"\",\"link\":null,
+                 \"notities\":\"Houdt het project wakker, zie wakker-houden.yml\",
+                 \"gedaan\":false,\"favoriet\":false,\"periode\":\"\",\"tags\":[],
+                 \"verwijderd\":false,\"bijgewerkt\":$NU}" \
+            "$BASIS/rest/v1/item?on_conflict=ruimte_id,id")
+          CURL_CODE=$?
+          set -e
+
+          if [ "$CURL_CODE" = "6" ]; then
+            echo "::error::De naam $BASIS bestaat niet meer in DNS. Dat is precies wat er gebeurt als Supabase het project gepauzeerd heeft; zet het weer aan in het dashboard."
             exit 1
           fi
-          echo "Database is wakker."
+          if [ "$CURL_CODE" != "0" ]; then
+            echo "::error::curl kwam er niet doorheen (exitcode $CURL_CODE). Netwerkprobleem of het project is onbereikbaar."
+            exit 1
+          fi
+
+          echo "status: $STATUS"
+          echo "antwoord: $(cat /tmp/antwoord.json)"
+          # Een geslaagde upsert geeft 201 of, zonder teruggevraagde rij, 204.
+          case "$STATUS" in
+            200|201|204) echo "Database is wakker (hartslag weggeschreven)." ;;
+            *)
+              echo "::error::De database antwoordde niet zoals verwacht (status $STATUS). Is de sleutel vervangen, of ontbreekt de kolom tags?"
+              exit 1
+              ;;
+          esac

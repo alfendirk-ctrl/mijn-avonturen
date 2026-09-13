@@ -8,6 +8,7 @@ import {
   soortVoorNaam,
   sanitizeActivities,
   sanitizeCategories,
+  schoonTags,
 } from "./data/seed.js";
 import { verrijk, huidigeMaand, themaVanMaand } from "./lib/afleiden.js";
 import Header from "./components/Header.jsx";
@@ -107,6 +108,23 @@ export default function App() {
     return m;
   }, [activities]);
 
+  // Alle tags die ergens al in gebruik zijn, van vaak naar zelden. Het
+  // bewerkvenster biedt ze aan om uit te kiezen, zodat "kids" en "Kids" en
+  // "kinderen" niet naast elkaar ontstaan.
+  const bekendeTags = useMemo(() => {
+    const telling = new Map();
+    activities.forEach((a) =>
+      (a.tags || []).forEach((t) => {
+        const sleutel = t.toLowerCase();
+        const vorig = telling.get(sleutel);
+        telling.set(sleutel, { tag: vorig?.tag ?? t, aantal: (vorig?.aantal ?? 0) + 1 });
+      }),
+    );
+    return [...telling.values()]
+      .sort((a, b) => b.aantal - a.aantal || a.tag.localeCompare(b.tag))
+      .map((v) => v.tag);
+  }, [activities]);
+
   const stats = useMemo(() => {
     const bron = tab === "nu" ? items : perSoort[tab] || items;
     return [
@@ -158,6 +176,7 @@ export default function App() {
       gedaan: !!form.gedaan,
       favoriet: !!form.favoriet,
       periode: form.periode.trim(),
+      tags: schoonTags(form.tags),
       foto: !!form.foto,
     };
     if (id == null) {
@@ -398,6 +417,7 @@ export default function App() {
           mode={modal.mode}
           categories={catNamen}
           catMeta={catMeta}
+          bekendeTags={bekendeTags}
           onClose={() => setModal(null)}
           onEdit={() => setModal({ ...modal, mode: "edit" })}
           onDelete={() => setConfirmItem(modal.activity)}
@@ -412,6 +432,7 @@ export default function App() {
           categories={catNamen}
           initialCategory={catNamenPerSoort[adding]?.[0]}
           catMeta={catMeta}
+          bekendeTags={bekendeTags}
           onClose={() => setAdding(null)}
           onSave={saveActivity}
         />

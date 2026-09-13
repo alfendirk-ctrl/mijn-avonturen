@@ -5,6 +5,8 @@
 // wordt er samengevoegd: bij een conflict wint de versie die het laatst is
 // bijgewerkt. De ruimte-id is het geheim — wie die niet heeft, ziet niets.
 
+import { schoonTags } from "../data/seed.js";
+
 const URL_BASIS = "https://lnldkebuctpfxlccspga.supabase.co";
 
 // Publieke sleutel van het Supabase-project. Deze mag in de app staan: de
@@ -50,6 +52,11 @@ const ITEM_VELDEN = [
   "gedaan", "favoriet", "periode",
 ];
 
+// `tags` staat bewust niet in die lijst: het is een array en geen tekst, dus
+// de terugvalwaarde "" zou er een lege string van maken in plaats van een lege
+// lijst. Hij wordt hieronder apart behandeld, met dezelfde opschoning als de
+// rest van de app gebruikt.
+
 // ---- Samenvoegen (pure functies, los te testen) -----------------------------
 
 // Voegt externe rijen samen met de lokale lijst. Nieuwer wint; een rij met
@@ -73,6 +80,9 @@ export function voegItemsSamen(lokaal, extern) {
       for (const v of ITEM_VELDEN) schoon[v] = rij[v] ?? (v === "link" ? null : "");
       schoon.gedaan = !!rij.gedaan;
       schoon.favoriet = !!rij.favoriet;
+      // Een rij die nog van vóór de tags komt heeft hier null staan; dat moet
+      // een lege lijst worden en geen ontbrekend veld.
+      schoon.tags = schoonTags(rij.tags);
       perId.set(sleutel, schoon);
     }
   }
@@ -144,6 +154,7 @@ export async function synchroniseer({ ruimte, items, categorieen, tombs }) {
   const itemRijen = samen.items.map((a) => {
     const rij = { ruimte_id: ruimte, id: a.id, verwijderd: false, bijgewerkt: a.bijgewerkt || nu };
     for (const v of ITEM_VELDEN) rij[v] = a[v] ?? (v === "link" ? null : "");
+    rij.tags = schoonTags(a.tags);
     return rij;
   });
   const tombRijen = Object.entries(alleTombs).map(([id, tijd]) => ({
