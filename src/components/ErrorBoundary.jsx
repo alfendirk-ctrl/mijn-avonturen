@@ -68,9 +68,9 @@ export default class ErrorBoundary extends Component {
     };
     const gevaar = {
       ...btn,
-      background: "rgba(239,68,68,0.12)",
+      background: "var(--gevaar-12)",
       color: "#FCA5A5",
-      border: "1px solid rgba(239,68,68,0.28)",
+      border: "1px solid var(--gevaar-28)",
     };
     const stil = {
       ...btn,
