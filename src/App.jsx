@@ -54,16 +54,24 @@ const TABS = [
 ];
 
 export default function App() {
-  const [activities, setActivities] = useLocalStorage(
+  const [activities, setActivities, foutAvonturen] = useLocalStorage(
     "av_db",
     SEED_ACTIVITIES,
     sanitizeActivities,
   );
-  const [categories, setCategories] = useLocalStorage(
+  const [categories, setCategories, foutCategorieen] = useLocalStorage(
     "av_cats",
     SEED_CATEGORIES,
     sanitizeCategories,
   );
+
+  // Kan er nog opgeslagen worden? Zolang dit niet null is, gaat elke wijziging
+  // verloren zodra de app opnieuw laadt.
+  const opslagFout = foutAvonturen || foutCategorieen;
+  // pushToast is een useCallback zonder afhankelijkheden; via een ref ziet hij
+  // toch altijd de actuele stand.
+  const opslagFoutRef = useRef(null);
+  opslagFoutRef.current = opslagFout;
 
   const [tab, setTab] = useState("nu");
   const [panelOpen, setPanelOpen] = useState(false);
@@ -152,7 +160,10 @@ export default function App() {
     ];
   }, [tab, items, perSoort]);
 
-  // Het huidige seizoen kleurt de hele app.
+  // Het huidige seizoen kleurt de hele app. main.jsx zet deze variabelen al
+  // vóór de eerste keer tekenen (anders flitst de app één beeld lang in de
+  // standaardkleur uit styles.css); dit is de vangnetversie voor het geval dat
+  // daar iets misging.
   const thema = useMemo(() => themaVanMaand(huidigeMaand()), []);
   useEffect(() => {
     const stijl = document.documentElement.style;
@@ -233,6 +244,9 @@ export default function App() {
   }, []);
 
   const pushToast = useCallback((msg, type = "success") => {
+    // Geen "Toegevoegd" melden terwijl de waarschuwing erboven zegt dat er
+    // niets bewaard wordt. Twee tegenstrijdige berichten is erger dan een.
+    if (opslagFoutRef.current && type === "success") return;
     const id = Date.now() + Math.random();
     setToasts((t) => [...t, { id, msg, type }]);
     setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 2200);
@@ -444,6 +458,22 @@ export default function App() {
 
   return (
     <div>
+      {/* Opslaan lukt niet meer. Dit moet blijven staan, niet als melding die na
+          twee seconden verdwijnt: de toestand houdt aan, en elke volgende
+          wijziging gaat er ook aan. Stil negeren was wat het hiervoor deed. */}
+      {opslagFout && (
+        <div className="opslag-waarschuwing" role="alert">
+          <span className="ow-ico" aria-hidden="true">⚠</span>
+          <div>
+            <strong>Je wijzigingen worden niet bewaard.</strong>{" "}
+            {opslagFout.vol
+              ? "De opslag van deze browser zit vol. Verwijder een paar foto's bij je avonturen om ruimte te maken."
+              : "Deze browser laat geen opslag toe — in een privévenster gebeurt dat bijvoorbeeld."}{" "}
+            Wat je nu toevoegt of aanpast is weg zodra je de app opnieuw opent.
+          </div>
+        </div>
+      )}
+
       <Header
         stats={stats}
         gedeeld={!!ruimte}

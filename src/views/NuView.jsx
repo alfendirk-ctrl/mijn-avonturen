@@ -137,12 +137,24 @@ export default function NuView({ items, catMeta, onOpen, onToggleDone, onToggleF
       )}
 
       {passend.length === 0 ? (
+        // Een lege lijst en een te krap bereik zien er hetzelfde uit maar
+        // vragen om iets heel anders. "Schuif de afstand verder open" is een
+        // loos advies als er helemaal niets ís: dan helpt geen enkele afstand.
         <div className="nu-leeg">
-          <span className="empty-ico">🗺️</span>
-          <div className="empty-h">Niets binnen dit bereik</div>
-          <div className="empty-p">
-            Schuif de afstand verder open, of kies een andere bron.
+          <span className="empty-ico">{items.length === 0 ? "✨" : "🗺️"}</span>
+          <div className="empty-h">
+            {items.length === 0 ? "Nog niets verzameld" : "Niets binnen dit bereik"}
           </div>
+          <div className="empty-p">
+            {items.length === 0
+              ? "Voeg je eerste avontuur toe, dan staat hier wat er nú kan."
+              : "Schuif de afstand verder open, of kies een andere bron."}
+          </div>
+          {items.length === 0 && (
+            <button className="btn acc nu-leeg-knop" onClick={() => onGaNaar("uitje")}>
+              + Eerste avontuur toevoegen
+            </button>
+          )}
         </div>
       ) : (
         <>
