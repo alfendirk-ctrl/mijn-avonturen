@@ -2,14 +2,18 @@
 name: Mijn Avonturen
 description: Een donker seizoensnotitieboek voor uitjes, hikes en reizen
 colors:
-  inkt: "#0A0A12"
+  grond: "#0A0A12"
   papier: "#12121E"
   rand: "rgba(255,255,255,0.08)"
   tekst: "#E8E8F0"
   kop: "#F0F0FF"
+  kaart-naam: "#E8E8F8"
+  veld-tekst: "#E0E0F0"
   zacht: "#B6B6D0"
+  chip-tekst: "#9090B8"
   gedempt: "#8A8AA8"
-  op-accent: "#0A0A12"
+  schuif: "#2A2A3A"
+  wit: "#FFFFFF"
   accent-lente: "#4ADE80"
   accent-lente-diep: "#BEF264"
   accent-zomer: "#FFC043"
@@ -18,9 +22,31 @@ colors:
   accent-herfst-diep: "#9A3412"
   accent-winter: "#7DD3FC"
   accent-winter-diep: "#A78BFA"
-  gedaan-groen: "#3DBE8A"
-  favoriet-amber: "#F5A623"
-  fout-rood: "#EF6B6B"
+  gedaan: "#3DBE8A"
+  favoriet: "#F5A623"
+  waarschuwing-tekst: "#D8B878"
+  gevaar: "#EF6B6B"
+  gevaar-tekst: "#FCA5A5"
+  gevaar-sterk: "#FECACA"
+  gevaar-vlak: "#B91C1C"
+  gevaar-12: "rgba(239,68,68,0.12)"
+  gevaar-20: "rgba(239,68,68,0.20)"
+  gevaar-28: "rgba(239,68,68,0.28)"
+  scrim-45: "rgba(0,0,0,0.45)"
+  scrim-60: "rgba(0,0,0,0.60)"
+  scrim-75: "rgba(0,0,0,0.75)"
+  cat-indigo: "#818CF8"
+  cat-blauw: "#4FC3F7"
+  cat-groen: "#A5D6A7"
+  cat-teal: "#4DB6AC"
+  cat-geel: "#FFD54F"
+  cat-oranje: "#FFCC80"
+  cat-rood: "#EF9A9A"
+  cat-roze: "#F48FB1"
+  cat-paars: "#CE93D8"
+  cat-bruin: "#BCAAA4"
+  cat-lime: "#DCE775"
+  cat-cyaan: "#80DEEA"
 typography:
   display:
     fontFamily: "Syne, sans-serif"
@@ -34,31 +60,97 @@ typography:
     fontWeight: 800
     lineHeight: 1
     letterSpacing: "-0.8px"
+  title-lg:
+    fontFamily: "Syne, sans-serif"
+    fontSize: "22px"
+    fontWeight: 800
+    lineHeight: 1.15
   title:
+    fontFamily: "Syne, sans-serif"
+    fontSize: "20px"
+    fontWeight: 700
+    lineHeight: 1.2
+  subtitle:
+    fontFamily: "Syne, sans-serif"
+    fontSize: "18px"
+    fontWeight: 700
+    lineHeight: 1.25
+  card-title:
     fontFamily: "Syne, sans-serif"
     fontSize: "17px"
     fontWeight: 700
     lineHeight: 1.25
-    letterSpacing: "normal"
+  card-title-sm:
+    fontFamily: "Syne, sans-serif"
+    fontSize: "15px"
+    fontWeight: 700
+    lineHeight: 1.3
+  body-lg:
+    fontFamily: "DM Sans, sans-serif"
+    fontSize: "16px"
+    fontWeight: 400
+    lineHeight: 1.6
   body:
     fontFamily: "DM Sans, sans-serif"
     fontSize: "14px"
     fontWeight: 400
     lineHeight: 1.6
-    letterSpacing: "normal"
+  body-sm:
+    fontFamily: "DM Sans, sans-serif"
+    fontSize: "13px"
+    fontWeight: 500
+    lineHeight: 1.5
+  caption:
+    fontFamily: "DM Sans, sans-serif"
+    fontSize: "12px"
+    fontWeight: 400
+    lineHeight: 1.5
   label:
     fontFamily: "DM Sans, sans-serif"
     fontSize: "11px"
     fontWeight: 500
     lineHeight: 1.3
     letterSpacing: "1.5px"
+  micro:
+    fontFamily: "DM Sans, sans-serif"
+    fontSize: "10px"
+    fontWeight: 400
+    lineHeight: 1.3
+  glyph:
+    fontFamily: "DM Sans, sans-serif"
+    fontSize: "8px"
+    fontWeight: 400
+    lineHeight: 1
+  modal-title:
+    fontFamily: "Syne, sans-serif"
+    fontSize: "clamp(22px, 5vw, 34px)"
+    fontWeight: 800
+    lineHeight: 1.1
+  watermark:
+    fontFamily: "Syne, sans-serif"
+    fontSize: "clamp(68px, 16vw, 120px)"
+    fontWeight: 800
+    lineHeight: 1
+    letterSpacing: "-5px"
+  icon:
+    fontFamily: "system-ui, sans-serif"
+    fontSize: "40px"
+    fontWeight: 400
+    lineHeight: 1
+  icon-lg:
+    fontFamily: "system-ui, sans-serif"
+    fontSize: "52px"
+    fontWeight: 400
+    lineHeight: 1
 rounded:
-  sm: "8px"
-  md: "10px"
-  lg: "12px"
-  card: "16px"
-  wenskaart: "18px"
-  venster: "22px"
+  r6: "6px"
+  r8: "8px"
+  r10: "10px"
+  r12: "12px"
+  r14: "14px"
+  r16: "16px"
+  r18: "18px"
+  r22: "22px"
   pil: "100px"
 spacing:
   xs: "6px"
@@ -70,14 +162,14 @@ spacing:
 components:
   knop-accent:
     backgroundColor: "{colors.accent-herfst}"
-    textColor: "{colors.op-accent}"
-    rounded: "{rounded.lg}"
+    textColor: "{colors.grond}"
+    rounded: "{rounded.r12}"
     padding: "13px 18px"
     height: "46px"
   knop-stil:
     backgroundColor: "rgba(255,255,255,0.05)"
     textColor: "{colors.zacht}"
-    rounded: "{rounded.lg}"
+    rounded: "{rounded.r12}"
     padding: "13px 18px"
     height: "46px"
   chip:
@@ -88,19 +180,19 @@ components:
     height: "38px"
   chip-actief:
     backgroundColor: "{colors.accent-herfst}"
-    textColor: "{colors.op-accent}"
+    textColor: "{colors.grond}"
     rounded: "{rounded.pil}"
     padding: "9px 16px"
     height: "38px"
   kaart:
     backgroundColor: "rgba(255,255,255,0.025)"
     textColor: "#E8E8F8"
-    rounded: "{rounded.card}"
+    rounded: "{rounded.r16}"
     padding: "20px"
   veld:
     backgroundColor: "rgba(255,255,255,0.04)"
     textColor: "#E0E0F0"
-    rounded: "{rounded.md}"
+    rounded: "{rounded.r10}"
     padding: "11px 13px"
   tabblad:
     backgroundColor: "rgba(255,255,255,0.03)"
@@ -180,7 +272,25 @@ Three status colours, each used only as a marker and never as a surface:
 **Gedaan Groen** (`#3DBE8A`), **Favoriet Amber** (`#F5A623`), **Fout Rood**
 (`#EF6B6B`).
 
+### Category palette
+
+Twelve pastel swatches (`cat-*`) live in `COLOR_PALETTE` in `src/data/seed.js`.
+They are **content, not chrome**: the owner picks one per category, and it shows
+up as the selected chip's fill, the card's corner glow, and the map pin. Each
+swatch also carries a two-stop dark `gradient` used for the hero banner at the
+top of the detail modal — the one place in the app where a gradient is the
+point rather than a tell.
+
+Those gradient stops (`#0d47a1`, `#7b1fa2`, …) are deliberately outside the
+token set. Promoting them would suggest an interface element may reach for
+`#7b1fa2`, which is exactly wrong: only a category may, and only through the
+value stored on that category.
+
 ### Named Rules
+
+**The Content Palette Rule.** A category colour is data. Read it from the
+category record (`cat.kleur`, `cat.gradient`); never hard-code one, and never
+use one for interface chrome.
 
 **The Living Accent Rule.** The accent is never written as a hex code anywhere
 outside `SEIZOEN_THEMA`. Use `var(--accent)`, one of the `--accent-XX` mixes, or
@@ -188,10 +298,15 @@ outside `SEIZOEN_THEMA`. Use `var(--accent)`, one of the `--accent-XX` mixes, or
 element in one season while the rest of the app moves on — this has been the
 cause of two real bugs.
 
-**The Three Greys Rule.** Secondary text has exactly three levels — zacht,
-gedempt, and that is it. Hierarchy comes from size, weight and spacing, not from
-inventing a fourth grey. Anything below `#8A8AA8` failed contrast on the card
-ground and was removed.
+**The Three Greys Rule.** Secondary text has exactly three levels — `zacht`,
+`chip-tekst`, `gedempt` — and that is it. Hierarchy comes from size, weight and
+spacing, not from inventing a fourth grey. Anything below `#8A8AA8` failed
+contrast on the card ground and was removed.
+
+This rule was written before the stylesheet obeyed it: there were **eight**
+greys, four near-identical light tints and six ways of writing a dark ground.
+Every literal is now a named token in `:root`, so the next change cannot quietly
+produce a ninth.
 
 ## Typography
 

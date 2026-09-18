@@ -263,6 +263,23 @@ Related rules, each paid for once:
   states its own count (the filter bar in a list, `.teller` on "Wat doen we?",
   the line above the map); what is lost on a phone is only comparing tabs at a
   glance.
+- **Every colour, font-size and radius is a token in `:root`** (`--kop`,
+  `--muted`, `--t-14`, `--r-12`, `--gevaar-28`, …). The stylesheet used to carry
+  33 literal hex values — eight greys where this file promises three — twenty
+  distinct font sizes including half-steps like 12.5 and 13.5 that existed only
+  because one element wanted them, and sixteen radii including `99px` and
+  `100px` side by side for the same pill. Each literal was defensible alone;
+  together they were no longer a system. `DESIGN.md` documents the resulting
+  scale and `impeccable detect` checks the code against it.
+  **The category palette is the deliberate exception**: `COLOR_PALETTE` and each
+  category's `kleur`/`gradient` in `data/seed.js` are *content* the user picks,
+  not chrome, so they stay outside the token set and the detector still reports
+  them. Read a category colour from the record; never hard-code one.
+- **Do not put `border-radius` in the `:focus-visible` rule.** It is a universal
+  selector, so it overrode the shape of every focused element — a chip visibly
+  morphed from a pill to a rounded rectangle when you tabbed to it, and
+  `transition:all` animated the morph. The outline follows the element's own
+  radius already.
 - **Never retype the accent as a hex code.** `--accent` shifts with the season
   (autumn is `#EA7C3C`), so a copied `#6366F1` stays winter-indigo while
   everything around it turns orange. Two places had done exactly that. Mix
