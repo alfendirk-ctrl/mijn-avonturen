@@ -98,8 +98,14 @@ export default function KaartView({ items, catMeta, onOpen }) {
       // Uitzoomen laat de rest gewoon zien; er wordt niets verborgen.
       const dichtbij = op.filter((a) => a.afstand === "dichtbij");
       const richtOp = dichtbij.length ? dichtbij : op;
-      const grenzen = L.latLngBounds(richtOp.map((a) => a.punt));
-      kaart.current.fitBounds(grenzen, { padding: [40, 40], maxZoom: 10 });
+      // Zonder spelden is er niets om op te richten: L.latLngBounds van een lege
+      // lijst gooit "Bounds are not valid" en daarmee lag het hele tabblad eruit
+      // - precies in de situatie waarin iemand de app voor het eerst opent en
+      // nog niets heeft toegevoegd. Dan houden we gewoon het beginbeeld aan.
+      if (richtOp.length) {
+        const grenzen = L.latLngBounds(richtOp.map((a) => a.punt));
+        kaart.current.fitBounds(grenzen, { padding: [40, 40], maxZoom: 10 });
+      }
       setBuitenBeeld(op.length - richtOp.length);
     })();
     return () => {

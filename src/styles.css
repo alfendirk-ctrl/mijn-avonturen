@@ -654,3 +654,20 @@ input[type="range"], input[type="checkbox"] { accent-color:var(--accent); }
 /* Twee knoppen rechtsboven op de compacte kaart in plaats van één. */
 .card-acties { display:flex; gap:4px; }
 .vink.fav { color:#F5A623; border-color:rgba(245,166,35,0.45); background:rgba(245,166,35,0.14); }
+
+/* Een aanraakscherm zoomt de hele pagina in zodra je een invoerveld met een
+   letter kleiner dan 16px aanraakt - iOS Safari doet dat, en zoomt niet vanzelf
+   terug. Elk veld hier stond op 13 tot 15px, dus elke keer dat je iets invulde
+   schoof de app scheef. Op een muisaanwijzer speelt het niet, dus daar blijft
+   de compactere maat staan. */
+@media (pointer: coarse) {
+  .fi, .srch input, .vsel, .cfm-sel, .tag-invoer, textarea.fi { font-size:16px; }
+}
+
+/* Opslaan lukt niet meer. Blijft staan zolang dat zo is. */
+.opslag-waarschuwing { display:flex; gap:12px; align-items:flex-start; max-width:900px; margin:0 auto; padding:14px 24px; background:rgba(239,68,68,0.13); border-bottom:1px solid rgba(239,68,68,0.3); font-family:'DM Sans',sans-serif; font-size:13.5px; line-height:1.5; color:#FCA5A5; }
+.opslag-waarschuwing strong { color:#FECACA; font-weight:600; }
+.ow-ico { font-size:18px; line-height:1.2; flex-shrink:0; }
+@media (max-width:520px) { .opslag-waarschuwing { padding-left:16px; padding-right:16px; } }
+
+.nu-leeg-knop { margin-top:16px; display:inline-flex; }
