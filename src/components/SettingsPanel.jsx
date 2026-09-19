@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useDialoog } from "../useDialoog.js";
 import {
   COLOR_PALETTE,
   EMOJI_OPTIONS,
@@ -33,11 +34,21 @@ export default function SettingsPanel({
     setDraft(EMPTY_CATEGORY);
   };
 
+  const paneel = useRef(null);
+  useDialoog(paneel);
+
   return (
     <div className="pov" onClick={onClose}>
-      <div className="panel" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="panel"
+        ref={paneel}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cat-kop"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="p-hdr">
-          <div className="p-title">Categorieën</div>
+          <h2 className="p-title" id="cat-kop">Categorieën</h2>
           <button className="p-x" onClick={onClose} aria-label="Sluiten">
             ✕
           </button>
@@ -47,7 +58,7 @@ export default function SettingsPanel({
           {/* De lijst staat boven het formulier. Andersom stond veertig emoji
               en een kleurenkiezer in de weg voor het enige wat je hier meestal
               komt doen: een categorie verplaatsen of weggooien. */}
-          <div className="sec-h">Bestaande categorieën</div>
+          <h3 className="sec-h">Bestaande categorieën</h3>
           <div className="hint">
             Verplaats een categorie naar een andere tab met de knopjes rechts.
           </div>
@@ -85,7 +96,7 @@ export default function SettingsPanel({
 
           <div className="divider" />
 
-          <div className="sec-h">Nieuwe categorie</div>
+          <h3 className="sec-h">Nieuwe categorie</h3>
 
           <div className="pf">
             <label className="lbl">Naam</label>

@@ -1,4 +1,5 @@
 import { useFoto } from "../useFoto.js";
+import { metBreekpunten } from "../lib/tekst.jsx";
 
 // Rijkere kaart voor bewaarde dromen (hikes en reizen): toont het beste
 // seizoen, notities en of er route-info bewaard is.
@@ -47,7 +48,7 @@ export default function WishCard({ item, cat, onClick, onToggleDone, onToggleFav
         </div>
       </div>
 
-      <div className="hcard-name">{item.naam}</div>
+      <div className="hcard-name">{metBreekpunten(item.naam)}</div>
       <div className="hcard-loc">📍 {item.locatie}</div>
 
       {item.notities && (

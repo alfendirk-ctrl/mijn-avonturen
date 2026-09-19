@@ -277,7 +277,7 @@ export default function App() {
       setActivities((lijst) => [stempel({ id: nieuweId, ...schoon }), ...lijst]);
       setAdding(null);
       setTab(soortVanCategorie(schoon.categorie));
-      pushToast("Toegevoegd");
+      pushToast(`${form.naam.trim()} toegevoegd`);
     } else {
       if (nieuweFoto) await bewaarFoto(id, nieuweFoto);
       else if (!schoon.foto) await verwijderFoto(id);
@@ -285,11 +285,14 @@ export default function App() {
         lijst.map((a) => (a.id === id ? stempel({ id, ...schoon }) : a)),
       );
       setModal(null);
-      pushToast("Wijzigingen opgeslagen");
+      pushToast(`${form.naam.trim()} opgeslagen`);
     }
   };
 
   const deleteActivity = (id) => {
+    // De naam vóór het verwijderen oppakken; daarna staat hij nergens meer en
+    // zou de melding "Avontuur verwijderd" zijn in plaats van welk avontuur.
+    const naam = activities.find((a) => a.id === id)?.naam;
     verwijderFoto(id);
     setActivities((lijst) => lijst.filter((a) => a.id !== id));
     // Grafsteen bewaren, anders komt het item bij de volgende synchronisatie
@@ -297,7 +300,7 @@ export default function App() {
     setTombs((t) => ({ ...t, [id]: Date.now() }));
     setConfirmItem(null);
     setModal(null);
-    pushToast("Verwijderd", "danger");
+    pushToast(`${naam || "Avontuur"} verwijderd`, "danger");
   };
 
   const toggleVeld = (item, veld, melding) => {
@@ -327,7 +330,7 @@ export default function App() {
         soort: cat.soort,
       }),
     }));
-    pushToast("Categorie aangemaakt");
+    pushToast(`Categorie ${naam} aangemaakt`);
   };
 
   const setCategorySoort = (naam, soort) => {
@@ -357,7 +360,7 @@ export default function App() {
       });
     }
     setConfirmCategory(null);
-    pushToast("Categorie verwijderd", "danger");
+    pushToast(`Categorie ${naam} verwijderd`, "danger");
   };
 
   const requestDeleteCategory = (naam) => {
@@ -481,7 +484,9 @@ export default function App() {
         onDelen={() => setDeelOpen(true)}
       />
 
-      <div className="tabs">
+      {/* Een echte navigatie-oriëntatiepunt: een schermlezer kan hier nu
+          rechtstreeks naartoe springen in plaats van de hele kop door te lopen. */}
+      <nav className="tabs" aria-label="Soorten avonturen">
         {TABS.map((t) => (
           <button
             key={t.key}
@@ -498,8 +503,11 @@ export default function App() {
             )}
           </button>
         ))}
-      </div>
+      </nav>
 
+      {/* Het hoofdgebied als oriëntatiepunt. Een schermlezer kan nu de kop en
+          de tabbalk overslaan en meteen bij de avonturen beginnen. */}
+      <main id="inhoud">
       {tab === "nu" ? (
         <NuView
           items={items}
@@ -526,6 +534,7 @@ export default function App() {
           onOpenSettings={() => setPanelOpen(true)}
         />
       )}
+      </main>
 
       {modal && (
         <DetailModal
@@ -567,13 +576,15 @@ export default function App() {
 
       {confirmItem && (
         <ConfirmDialog
-          title="Verwijderen?"
+          title="Dit avontuur verwijderen?"
           message={
             <>
-              Weet je zeker dat je <strong>{confirmItem.naam}</strong> wil
-              verwijderen?
+              <strong>{confirmItem.naam}</strong> verdwijnt van dit apparaat
+              {confirmItem.foto ? ", inclusief de foto die erbij staat" : ""}.
+              Dat is niet terug te draaien.
             </>
           }
+          confirmLabel="Verwijder avontuur"
           onConfirm={() => deleteActivity(confirmItem.id)}
           onCancel={() => setConfirmItem(null)}
         />

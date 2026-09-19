@@ -1,5 +1,6 @@
 import { MARKERINGEN } from "../data/seed.js";
 import { useFoto } from "../useFoto.js";
+import { metBreekpunten } from "../lib/tekst.jsx";
 
 // Hoeveel tags er op een compacte kaart passen zonder dat het rommelig wordt.
 // De rest wordt samengevat als "+2"; het volledige lijstje staat in het detail.
@@ -56,7 +57,7 @@ export default function ActivityCard({ activity, cat, onClick, onToggleDone, onT
         </button>
         </div>
       </div>
-      <div className="card-name">{activity.naam}</div>
+      <div className="card-name">{metBreekpunten(activity.naam)}</div>
       <div className="card-loc">{activity.locatie}</div>
       {/* Eén rustige regel in plaats van drie rijen identieke pillen. Type,
           alle tags én de periode stonden hier als even zware badges onder

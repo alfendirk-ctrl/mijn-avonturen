@@ -653,9 +653,24 @@ input[type="range"], input[type="checkbox"] { accent-color:var(--accent); }
 
 /* Elf animaties, waaronder een oneindige puls, zonder enige uitweg. */
 @media (prefers-reduced-motion: reduce) {
+  /* Alle beweging op 0,01ms zetten is te grof: dan verdwijnt ook de terugkoppeling
+     die juist nuttig is - een knop die oplicht, een veld waarvan de rand verkleurt,
+     een kaart die aangeeft dat hij aangetikt is. Wat mensen met bewegingsklachten
+     last van hebben is VERPLAATSING en schaal, niet kleur.
+     Dus: alles wat beweegt of van formaat verandert gaat eruit, kleur en
+     doorzichtigheid blijven. */
   *, *::before, *::after {
-    animation-duration:.01ms !important; animation-iteration-count:1 !important;
-    transition-duration:.01ms !important; scroll-behavior:auto !important;
+    animation: none !important;
+    transition-property: color, background-color, border-color, fill, stroke,
+      opacity, box-shadow, outline-color !important;
+    transition-duration: .15s !important;
+    scroll-behavior: auto !important;
+  }
+  /* Elementen die binnenkomen met een animatie moeten wel zichtbaar eindigen:
+     animation:none laat ze anders op hun beginstand staan (opacity 0). */
+  .vcard-in, .vcard-in.on, .modal, .panel, .cfm, .toast, .card, .hcard {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
 
@@ -726,3 +741,6 @@ input[type="range"], input[type="checkbox"] { accent-color:var(--accent); }
 @media (max-width:520px) { .opslag-waarschuwing { padding-left:16px; padding-right:16px; } }
 
 .nu-leeg-knop { margin-top:16px; display:inline-flex; }
+
+/* Een lege lijst biedt nu de uitweg aan in plaats van hem alleen te beschrijven. */
+.empty-knop { margin-top:16px; display:inline-flex; }

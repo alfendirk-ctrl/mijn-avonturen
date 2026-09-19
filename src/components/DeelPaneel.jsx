@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useDialoog } from "../useDialoog.js";
 import { deelLink, syncBeschikbaar } from "../lib/sync.js";
 
 // Paneel om de lijst te delen met je partner via een geheime link.
@@ -33,11 +34,21 @@ export default function DeelPaneel({
     uit: "",
   }[status];
 
+  const paneel = useRef(null);
+  useDialoog(paneel);
+
   return (
     <div className="pov" onClick={onClose}>
-      <div className="panel" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="panel"
+        ref={paneel}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="deel-kop"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="p-hdr">
-          <div className="p-title">Samen bijhouden</div>
+          <h2 className="p-title" id="deel-kop">Samen bijhouden</h2>
           <button className="p-x" onClick={onClose} aria-label="Sluiten">
             ✕
           </button>

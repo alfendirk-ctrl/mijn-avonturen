@@ -1,3 +1,6 @@
+import { useRef } from "react";
+import { useDialoog } from "../useDialoog.js";
+
 // Bevestigingsvenster. Optioneel met een keuzelijst (bijv. activiteiten
 // verplaatsen naar een andere categorie voordat de categorie verwijderd wordt).
 export default function ConfirmDialog({
@@ -11,11 +14,20 @@ export default function ConfirmDialog({
   onConfirm,
   onCancel,
 }) {
+  const venster = useRef(null);
+  useDialoog(venster);
   return (
     <div className="ov ov-boven" onClick={onCancel}>
-      <div className="cfm" onClick={(e) => e.stopPropagation()}>
-        <span className="cfm-ico">{icon}</span>
-        <div className="cfm-h">{title}</div>
+      <div
+        className="cfm"
+        ref={venster}
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="cfm-kop"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <span className="cfm-ico" aria-hidden="true">{icon}</span>
+        <h2 className="cfm-h" id="cfm-kop">{title}</h2>
         <div className="cfm-p">{message}</div>
         {moveOptions && moveOptions.length > 0 && (
           <select

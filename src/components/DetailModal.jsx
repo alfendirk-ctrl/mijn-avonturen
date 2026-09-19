@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { useDialoog } from "../useDialoog.js";
 import { MARKERINGEN, EMPTY_ACTIVITY, MAX_TAGS, schoonTags } from "../data/seed.js";
 import { haalFoto, verkleinAfbeelding } from "../lib/fotos.js";
 import { leesTekst, veldenUitTekst } from "../lib/lezen.js";
@@ -20,6 +21,11 @@ export default function DetailModal({
   onSave,
 }) {
   const isNew = !activity;
+  // Eén unieke basis voor de veld-id's, zodat elk label aan zijn eigen veld
+  // hangt. Een schermlezer hoorde hiervoor alleen de placeholder - en die
+  // verdwijnt juist zodra je begint te typen.
+  const vid = useId();
+  const venster = useRef(null);
   const [form, setForm] = useState(
     activity
       ? {
@@ -101,6 +107,9 @@ export default function DetailModal({
       document.body.style.overflow = "";
     };
   }, []);
+
+  // Houdt de focus in het venster en geeft hem terug bij sluiten.
+  useDialoog(venster);
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
   const toggle = (k) => () => setForm((f) => ({ ...f, [k]: !f[k] }));
@@ -192,7 +201,11 @@ export default function DetailModal({
             : "Geen tekst gevonden in deze afbeelding.",
       );
     } catch {
-      setLeesBericht("Het lezen lukte niet. Probeer het opnieuw met internet aan.");
+      setLeesBericht(
+        "Het lezen lukte niet. De tekstherkenning wordt de eerste keer opgehaald, " +
+          "dus dat vraagt internet; daarna niet meer. Lukt het met verbinding nog " +
+          "steeds niet, dan is deze afbeelding te onscherp.",
+      );
     } finally {
       setLezen(null);
     }
@@ -207,7 +220,14 @@ export default function DetailModal({
     const probeerSluiten = () => (veranderd ? setWilSluiten(true) : onClose());
     return (
       <Overlay onClose={probeerSluiten}>
-        <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="modal"
+          ref={venster}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={`${vid}-titel`}
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="m-hero" style={{ background: cat.gradient }}>
             <div className="m-hero-bg" />
             <button className="m-close" onClick={probeerSluiten} aria-label="Sluiten">
@@ -216,26 +236,27 @@ export default function DetailModal({
             <div className="m-cat">
               {cat.emoji} {form.categorie}
             </div>
-            <div className="m-title">
+            <h2 className="m-title" id={`${vid}-titel`}>
               {isNew ? "Nieuw avontuur" : form.naam || "Naamloos"}
-            </div>
+            </h2>
           </div>
 
           <div className="ef">
             <div>
-              <label className="lbl">Naam</label>
+              <label className="lbl" htmlFor={`${vid}-naam`}>Naam</label>
               <input
                 className="fi"
+                id={`${vid}-naam`}
                 value={form.naam}
                 onChange={set("naam")}
                 placeholder="Wat wil je doen?"
-                autoFocus
               />
             </div>
             <div>
-              <label className="lbl">Locatie</label>
+              <label className="lbl" htmlFor={`${vid}-locatie`}>Locatie</label>
               <input
                 className="fi"
+                id={`${vid}-locatie`}
                 value={form.locatie}
                 onChange={set("locatie")}
                 placeholder="bijv. Drenthe of Italië"
@@ -243,9 +264,10 @@ export default function DetailModal({
             </div>
             <div className="ef-g2">
               <div>
-                <label className="lbl">Categorie</label>
+                <label className="lbl" htmlFor={`${vid}-categorie`}>Categorie</label>
                 <select
                   className="fi"
+                  id={`${vid}-categorie`}
                   value={form.categorie}
                   onChange={(e) => {
                     categorieGekozen.current = true;
@@ -260,17 +282,18 @@ export default function DetailModal({
                 </select>
               </div>
               <div>
-                <label className="lbl">Type</label>
+                <label className="lbl" htmlFor={`${vid}-type`}>Type</label>
                 <input
                   className="fi"
-                  value={form.type}
+                  id={`${vid}-type`}
+                value={form.type}
                   onChange={set("type")}
                   placeholder="bijv. Dagwandeling"
                 />
               </div>
             </div>
             <div>
-              <label className="lbl">Tags</label>
+              <label className="lbl" htmlFor={`${vid}-tags`}>Tags</label>
               <div className="tag-vak">
                 {(form.tags || []).map((tag) => (
                   <span key={tag} className="tag-chip">
@@ -287,6 +310,7 @@ export default function DetailModal({
                 {(form.tags || []).length < MAX_TAGS && (
                   <input
                     className="tag-invoer"
+                  id={`${vid}-tags`}
                     value={tagInvoer}
                     onChange={(e) => setTagInvoer(e.target.value)}
                     onKeyDown={tagToets}
@@ -318,9 +342,10 @@ export default function DetailModal({
               </div>
             </div>
             <div>
-              <label className="lbl">Beste periode</label>
+              <label className="lbl" htmlFor={`${vid}-periode`}>Beste periode</label>
               <input
                 className="fi"
+                id={`${vid}-periode`}
                 value={form.periode}
                 onChange={set("periode")}
                 placeholder="bijv. juli-aug, zomer of okt-feb"
@@ -345,7 +370,7 @@ export default function DetailModal({
                   onClick={() => bestandKiezer.current?.click()}
                   disabled={bezigMetFoto}
                 >
-                  {bezigMetFoto ? "Bezig…" : "📷 Kies een foto of screenshot"}
+                  {bezigMetFoto ? "Foto verkleinen…" : "📷 Kies een foto of screenshot"}
                 </button>
               )}
               <input
@@ -405,18 +430,20 @@ export default function DetailModal({
               </div>
             </div>
             <div>
-              <label className="lbl">Website / Link</label>
+              <label className="lbl" htmlFor={`${vid}-link`}>Website / Link</label>
               <input
                 className="fi"
+                id={`${vid}-link`}
                 value={form.link}
                 onChange={set("link")}
                 placeholder="https://..."
               />
             </div>
             <div>
-              <label className="lbl">Notities</label>
+              <label className="lbl" htmlFor={`${vid}-notities`}>Notities</label>
               <textarea
                 className="fi"
+                id={`${vid}-notities`}
                 value={form.notities}
                 onChange={set("notities")}
                 placeholder="Tips, route-info, wat je wil onthouden…"
@@ -435,16 +462,18 @@ export default function DetailModal({
 
         {wilSluiten && (
           <div className="weggooi" onClick={(e) => e.stopPropagation()}>
-            <div className="weggooi-h">Weggooien?</div>
+            <h3 className="weggooi-h">Niet opslaan?</h3>
             <div className="weggooi-p">
-              Je wijzigingen zijn nog niet opgeslagen.
+              {isNew
+                ? "Dit avontuur is nog nergens bewaard. Sluit je nu, dan is het weg."
+                : "Je wijzigingen zijn nog niet opgeslagen. Sluit je nu, dan blijft het avontuur staan zoals het was."}
             </div>
             <div className="weggooi-row">
               <button className="cfm-no" onClick={() => setWilSluiten(false)}>
                 Blijf bewerken
               </button>
               <button className="cfm-yes" onClick={onClose}>
-                Gooi weg
+                {isNew ? "Weggooien" : "Wijzigingen weggooien"}
               </button>
             </div>
           </div>
@@ -456,7 +485,14 @@ export default function DetailModal({
   // ---- Alleen lezen ----
   return (
     <Overlay onClose={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal"
+        ref={venster}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={`${vid}-titel`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="m-hero" style={{ background: cat.gradient }}>
           <div className="m-hero-bg" />
           <button className="m-close" onClick={onClose} aria-label="Sluiten">
@@ -465,7 +501,7 @@ export default function DetailModal({
           <div className="m-cat">
             {cat.emoji} {activity.categorie}
           </div>
-          <div className="m-title">{activity.naam}</div>
+          <h2 className="m-title" id={`${vid}-titel`}>{activity.naam}</h2>
           <div className="m-actions">
             <button className="m-act m-edit" onClick={onEdit}>
               ✎ Bewerken
