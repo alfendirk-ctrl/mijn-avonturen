@@ -77,7 +77,7 @@ export default function NuView({ items, catMeta, onOpen, onToggleDone, onToggleF
       (t) => tags.includes(t.sleutel) && !top.includes(t),
     );
     return [...top, ...gekozen];
-  }, [basis, tags]);
+  }, [basis, tags, rijInfo]);
 
   const passend = useMemo(() => {
     return basis
@@ -87,11 +87,17 @@ export default function NuView({ items, catMeta, onOpen, onToggleDone, onToggleF
         return tags.every((t) => eigen.includes(t));
       })
       .sort((a, b) => {
-        // Favorieten eerst, dan dingen die júist nu in het seizoen zijn.
+        // Favorieten eerst, dan dingen die júist nu in het seizoen zijn, en
+        // daarbinnen het dichtstbijzijnde bovenaan - er worden er maar acht
+        // getoond, dus dat bepaalt welke acht je ziet. Zonder thuisadres valt
+        // die stap vanzelf weg en blijft de volgorde precies zoals hij was.
         if (a.favoriet !== b.favoriet) return a.favoriet ? -1 : 1;
         const aSeizoen = a.maanden.length > 0;
         const bSeizoen = b.maanden.length > 0;
         if (aSeizoen !== bSeizoen) return aSeizoen ? -1 : 1;
+        const va = rijInfo?.(a.locatie)?.km ?? Infinity;
+        const vb = rijInfo?.(b.locatie)?.km ?? Infinity;
+        if (va !== vb) return va - vb;
         return a.naam.localeCompare(b.naam);
       });
   }, [basis, tags]);

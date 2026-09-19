@@ -415,6 +415,18 @@ Details that matter:
   against many destinations in a single call, so ~35 places are one request and
   not one per card. Distances hang off the **place**, so twenty outings in
   Rotterdam share one calculation.
+- **Sorting, not filtering.** The list gets a toggle between "🚗 Dichtbij"
+  (nearest first) and "A↓ Naam"; it only appears once some ride is actually
+  known, and it defaults to distance the moment one is. A *filter* was the
+  first instinct and the wrong one: 46 of 77 adventures have no known drive
+  (everything abroad, everything with a vague `locatie`), so a "max 45 min"
+  filter would silently empty the Reizen tab. Sorting puts the unknowns at the
+  bottom instead — nothing is hidden.
+  In distance order **distance beats favourite**: a star that jumps the queue
+  makes "nearest first" mean something else. Done items still sink to the
+  bottom in both orders. Hikes and reizen are grouped by distance class first,
+  so the km order holds *within* a group and resets at each heading — measure
+  it per group, or the check fails on a correct list.
 - **The cache key contains the home coordinates**, so moving house invalidates
   everything by itself — there is no cleanup step that can be forgotten.
 - A failed request is remembered in a ref for the session. Without that, a
