@@ -83,7 +83,8 @@ Every category carries a `soort` (`uitje` | `hike` | `reis`) which decides the t
 - **`src/lib/rijden.js`** + **`src/useRijden.js`** — driving distance and time from a home address the user sets in the app. See "Rijafstand" below.
 - **`src/useLocalStorage.js`** — a `useState` wrapper that persists to `localStorage`.
 - **`src/lib/sync.js`** — optional sharing between two people. See "Delen" below.
-- **`src/components/`** — presentational pieces: `Header`, `ActivityCard`, `DetailModal` (both the read-only view *and* the add/edit form, switched by a `mode` prop), `ConfirmDialog`, `SettingsPanel` (category management), `Toast`.
+- **`src/components/`** — presentational pieces: `Header`, `ActivityCard`, `DetailModal` (both the read-only view *and* the add/edit form, switched by a `mode` prop), `ConfirmDialog`, `SettingsPanel` (home address and category management),
+  `Notitie`, `ThuisInstelling`, `Toast`.
 - **`src/styles.css`** — all styling, plain CSS with class names matching the JSX (`.card`, `.chip`, `.modal`, `.vbtn`, …). All animation is CSS keyframes; there is no animation library. Fonts (Syne, DM Sans) load from Google Fonts via `@import`.
 
 ### Data model
@@ -280,6 +281,11 @@ Related rules, each paid for once:
   flow *and* covers whatever is at the bottom of the viewport, so any category
   row scrolled to there became unclickable. Padding underneath does not fix
   this; it only helps the last row.
+- **The settings panel is opened from the header**, next to the share button,
+  not from a list's filter bar. It sat there while it only held categories,
+  which was fair — but once it also held the home address, it was reachable
+  from three of the five tabs and from "Nu" and "Kaart" you simply could not
+  get at it. One entry point, present everywhere.
 - **The panel opens on the existing categories**, not on the new-category form.
   Forty emoji and a colour picker above the fold buried the thing you actually
   came for, and pushed the list behind that sticky footer.
@@ -425,7 +431,8 @@ words, because quietly sending someone's address somewhere is not an
 implementation detail. A place the gazetteer already knows is resolved locally
 and never leaves at all.
 
-The "Thuis" block in the settings panel is **one collapsible row** by design:
+The settings panel is reached from the ⚙ in the header (see "Layout en
+dichtheid"). The "Thuis" block in it is **one collapsible row** by design:
 the panel has to open on the categories (see "Layout en dichtheid"), and an
 address field with three lines of explanation above it pushed those below the
 fold. You set your address once.

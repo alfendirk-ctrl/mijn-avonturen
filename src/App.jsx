@@ -552,6 +552,7 @@ export default function App() {
         gedeeld={!!ruimte}
         syncStatus={syncStatus}
         onDelen={() => setDeelOpen(true)}
+        onInstellingen={() => setPanelOpen(true)}
       />
 
       {/* Een echte navigatie-oriëntatiepunt: een schermlezer kan hier nu
@@ -602,7 +603,6 @@ export default function App() {
           onToggleDone={toggleGedaan}
           onToggleFav={toggleFavoriet}
           onAdd={setAdding}
-          onOpenSettings={() => setPanelOpen(true)}
           rijInfo={rijInfo}
         />
       )}
