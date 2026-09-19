@@ -10,6 +10,7 @@
 
 const PLAATSEN = {
   // Nederlandse plaatsen
+  apeldoorn: [52.2112, 5.9699],
   culemborg: [51.9556, 5.2272],
   ede: [52.0402, 5.6649],
   kaatsheuvel: [51.6547, 5.0486],

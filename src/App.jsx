@@ -31,7 +31,7 @@ import {
 import { bewaarFoto, verwijderFoto } from "./lib/fotos.js";
 import {
   SLEUTEL_GEMIGREERD,
-  SLEUTEL_BUNDEL_SEPT26,
+  BUNDELS,
   migreerAvonturen,
   migreerCategorieen,
   vulAanMetBundel,
@@ -206,24 +206,28 @@ export default function App() {
   }, []);
 
   // Nieuwe vondsten eenmalig bijzetten. Nodig omdat de standaardlijst alleen
-  // gelezen wordt op een toestel waar nog niets staat.
+  // gelezen wordt op een toestel waar nog niets staat. Elke bundel heeft zijn
+  // eigen markering, dus een telefoon die de vorige ronde al kent krijgt alleen
+  // wat er nieuw bij is.
   useEffect(() => {
-    try {
-      if (localStorage.getItem(SLEUTEL_BUNDEL_SEPT26)) return;
-    } catch {
-      return;
-    }
-    // Functioneel bijwerken, niet vanuit `activities`: het effect hierboven
-    // heeft in dezelfde ronde misschien al een nieuwe lijst gezet, en die zou
-    // anders overschreven worden met de versie van vóór de omzetting.
-    setActivities((lijst) => {
-      const aangevuld = vulAanMetBundel(lijst);
-      return aangevuld ? aangevuld.map(stempel) : lijst;
-    });
-    try {
-      localStorage.setItem(SLEUTEL_BUNDEL_SEPT26, "1");
-    } catch {
-      /* niets te doen */
+    for (const { sleutel, items } of BUNDELS) {
+      try {
+        if (localStorage.getItem(sleutel)) continue;
+      } catch {
+        return; // geen opslag: dan ook niet bijzetten, want we kunnen het niet onthouden
+      }
+      // Functioneel bijwerken, niet vanuit `activities`: het effect hierboven
+      // heeft in dezelfde ronde misschien al een nieuwe lijst gezet, en die zou
+      // anders overschreven worden met de versie van vóór de omzetting.
+      setActivities((lijst) => {
+        const aangevuld = vulAanMetBundel(lijst, items);
+        return aangevuld ? aangevuld.map(stempel) : lijst;
+      });
+      try {
+        localStorage.setItem(sleutel, "1");
+      } catch {
+        /* niets te doen */
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
