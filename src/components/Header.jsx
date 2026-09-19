@@ -9,7 +9,13 @@ const SYNC_TEKST = {
   fout: "Samen bijhouden — bijwerken mislukt",
 };
 
-export default function Header({ stats, gedeeld, syncStatus, onDelen }) {
+export default function Header({
+  stats,
+  gedeeld,
+  syncStatus,
+  onDelen,
+  onInstellingen,
+}) {
   const deelLabel = gedeeld
     ? SYNC_TEKST[syncStatus] || "Samen bijhouden"
     : "Deel met je partner";
@@ -31,6 +37,19 @@ export default function Header({ stats, gedeeld, syncStatus, onDelen }) {
                 </div>
               ))}
             </div>
+            {/* De instellingen zaten in de filterbalk van een lijst, wat
+                klopte toen er alleen categorieën in stonden. Sinds je
+                thuisadres er ook staat hoort het niet meer bereikbaar te zijn
+                vanuit drie van de vijf tabbladen; vanaf "Nu" en "Kaart" kwam
+                je er domweg niet bij. */}
+            <button
+              className="deel-knop"
+              onClick={onInstellingen}
+              title="Instellingen"
+              aria-label="Instellingen openen"
+            >
+              ⚙
+            </button>
             <button
               className={`deel-knop${gedeeld ? " aan" : ""}`}
               onClick={onDelen}

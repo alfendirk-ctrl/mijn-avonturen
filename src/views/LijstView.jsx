@@ -18,7 +18,6 @@ export default function LijstView({
   onToggleDone,
   onToggleFav,
   onAdd,
-  onOpenSettings,
   rijInfo,
 }) {
   const [zoek, setZoek] = useState("");
@@ -169,11 +168,8 @@ export default function LijstView({
           )}
         </div>
         {/* Onder 520px valt het woord weg en blijft alleen het teken over.
-            Een ⊞ of een + zegt een schermlezer niets, dus het label staat er
-            hoe dan ook - zichtbaar of niet. */}
-        <button className="btn" onClick={onOpenSettings} aria-label="Instellingen openen">
-          ⚙ <span>Instellingen</span>
-        </button>
+            Een + zegt een schermlezer niets, dus het label staat er hoe dan
+            ook - zichtbaar of niet. */}
         <button
           className="btn acc"
           onClick={() => onAdd(soort)}
