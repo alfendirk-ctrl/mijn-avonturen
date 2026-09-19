@@ -85,6 +85,10 @@ export default function DetailModal({
     .filter((t) => !(form.tags || []).some((e) => e.toLowerCase() === t.toLowerCase()))
     .slice(0, 5);
 
+  // Is de foto gekozen via de screenshot-knop bovenaan? Dan is "lees hem uit"
+  // precies wat er gevraagd is, en hoeft er geen tweede knop aan te pas te
+  // komen. Via de gewone fotoknop niet: daar wil je alleen een plaatje erbij.
+  const leesMeteen = useRef(false);
   const [nieuweFoto, setNieuweFoto] = useState(null);
   const [nieuweFotoUrl, setNieuweFotoUrl] = useState(null);
   const [bezigMetFoto, setBezigMetFoto] = useState(false);
@@ -135,6 +139,12 @@ export default function DetailModal({
         return URL.createObjectURL(klein);
       });
       setForm((f) => ({ ...f, foto: true }));
+      if (leesMeteen.current) {
+        leesMeteen.current = false;
+        // Buiten deze functie om, zodat de knop niet blijft hangen op
+        // "Foto verkleinen…" terwijl de herkenning loopt.
+        setTimeout(() => vulInVanafFotoRef.current?.(), 0);
+      }
     } catch {
       // Stil falen betekende: je kiest een foto en er gebeurt niets, zonder dat
       // ergens staat waarom. Hetzelfde berichtveld als de tekstherkenning doet
@@ -144,6 +154,9 @@ export default function DetailModal({
       setBezigMetFoto(false);
     }
   };
+
+  // kiesFoto staat boven vulInVanafFoto; via een ref kan hij er toch bij.
+  const vulInVanafFotoRef = useRef(null);
 
   const wisFoto = () => {
     setNieuweFotoUrl((oud) => {
@@ -211,6 +224,8 @@ export default function DetailModal({
     }
   };
 
+  vulInVanafFotoRef.current = vulInVanafFoto;
+
   // ---- Bewerken / toevoegen ----
   if (mode === "edit") {
     const kanOpslaan = form.naam.trim().length > 0;
@@ -242,6 +257,31 @@ export default function DetailModal({
           </div>
 
           <div className="ef">
+            {/* De screenshot-route stond helemaal onderaan dit formulier, ná
+                zes velden en achter twee knoppen - terwijl het juist de manier
+                is waarop vondsten binnenkomen. Bij een nieuw avontuur staat hij
+                nu vooraan, en leest hij de foto meteen uit in plaats van nog
+                een knop te vragen. */}
+            {isNew && !toonFoto && (
+              <div className="startroute">
+                <button
+                  type="button"
+                  className="startroute-knop"
+                  onClick={() => {
+                    leesMeteen.current = true;
+                    bestandKiezer.current?.click();
+                  }}
+                  disabled={bezigMetFoto || lezen !== null}
+                >
+                  <span className="startroute-ico" aria-hidden="true">✨</span>
+                  <span>
+                    <strong>Begin met een screenshot</strong>
+                    <small>Naam, plaats en seizoen worden voor je ingevuld</small>
+                  </span>
+                </button>
+                <div className="startroute-of">of vul het zelf in</div>
+              </div>
+            )}
             <div>
               <label className="lbl" htmlFor={`${vid}-naam`}>Naam</label>
               <input

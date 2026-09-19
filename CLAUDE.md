@@ -288,6 +288,43 @@ Related rules, each paid for once:
   `color(srgb 0.96 0.77 0.66)` — channels 0–1, not 0–255 — so a contrast
   checker that assumes `rgb()` will read every mixed colour as near-black.
 
+## Toegankelijkheid en eerste gebruik
+
+- **Every overlay is a real dialog.** `useDialoog` (`src/useDialoog.js`) traps
+  Tab inside the panel and returns focus to whatever opened it. Without it a
+  keyboard user tabbed straight out into the list behind the scrim — measured on
+  the edit form: **25 of 40 tabs landed outside the dialog**, on controls that
+  were invisible but still operable. All four overlays carry `role="dialog"`
+  (`alertdialog` for a confirmation), `aria-modal` and `aria-labelledby`.
+- **Form fields are labelled with `htmlFor`/`id`, built from `useId()`.** A
+  visible `<label>` that is not linked buys nothing: a screen reader fell back
+  to the placeholder, which is exactly the text that disappears once you type.
+  The one unlabelled input left is the `hidden` file picker, driven by a labelled
+  button — screen readers skip it.
+- **`prefers-reduced-motion` does not use the global `0.01ms` kill.** That also
+  destroys useful feedback. What causes trouble is *displacement*, not colour, so
+  animations and transforms go and colour/opacity transitions stay. Anything that
+  animates *in* needs an explicit `opacity:1; transform:none` or `animation:none`
+  leaves it stuck at its start frame (invisible).
+- **The screenshot route is the front door of adding, not a footnote.** It used
+  to sit below six fields behind two taps, which for an app whose whole purpose
+  is catching a find before it is lost had it backwards. On a *new* adventure it
+  is the first thing in the form, and choosing an image there runs the
+  recognition immediately (`leesMeteen`); the plain photo button still just
+  attaches a picture.
+- **Empty states distinguish their cause.** Nothing yet / nothing matching the
+  search / everything filtered out are three different situations with three
+  different ways out, and the app knows which it is. Note the category chip is
+  *not* part of `actieveFilters`, so the empty state adds it separately
+  (`knijpers`) — otherwise it reports "0 filters" while a chip is hiding
+  everything.
+- **Long compound names break at the internal capital.** `lib/tekst.jsx` inserts
+  `<wbr>` between a lowercase and an uppercase letter, so "BatensteinBuiten"
+  wraps as "Batenstein / Buiten" instead of "BatensteinBuite / n".
+  `overflow-wrap:anywhere` stays as the last resort for a word with no boundary
+  at all. That file is `.jsx`, not `.js`, because it returns JSX — Vite will not
+  parse JSX in a `.js` file.
+
 ## Delen (optional sync)
 
 Two people can share one list. The design is **local-first**: `localStorage`

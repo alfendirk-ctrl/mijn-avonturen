@@ -744,3 +744,20 @@ input[type="range"], input[type="checkbox"] { accent-color:var(--accent); }
 
 /* Een lege lijst biedt nu de uitweg aan in plaats van hem alleen te beschrijven. */
 .empty-knop { margin-top:16px; display:inline-flex; }
+
+/* De screenshot-route bovenaan een nieuw avontuur. */
+.startroute { display:flex; flex-direction:column; gap:10px; }
+.startroute-knop { display:flex; align-items:center; gap:12px; width:100%; text-align:left; padding:14px 16px; border-radius:var(--r-12); border:1px solid var(--accent-40); background:var(--accent-05); color:var(--zacht); cursor:pointer; transition:background .18s,border-color .18s; }
+.startroute-knop:hover:not(:disabled) { background:var(--accent-12); border-color:var(--accent); }
+.startroute-knop:disabled { opacity:.55; cursor:wait; }
+.startroute-ico { font-size:var(--t-22); line-height:1; flex-shrink:0; }
+.startroute-knop strong { display:block; font-family:'Syne',sans-serif; font-size:var(--t-15); font-weight:700; color:var(--kop); }
+.startroute-knop small { display:block; font-family:'DM Sans',sans-serif; font-size:var(--t-12); color:var(--muted); margin-top:2px; line-height:1.4; }
+.startroute-of { display:flex; align-items:center; gap:10px; font-family:'DM Sans',sans-serif; font-size:var(--t-12); color:var(--muted); }
+.startroute-of::before, .startroute-of::after { content:""; flex:1; height:1px; background:var(--border); }
+
+/* Eerste keer, lege lijst: waar dit voor is, in drie regels. */
+.eerstekeer { max-width:420px; margin:20px auto 0; text-align:left; }
+.eerstekeer-lijst { list-style:none; display:flex; flex-direction:column; gap:12px; margin-bottom:4px; }
+.eerstekeer-lijst li { display:flex; gap:10px; font-family:'DM Sans',sans-serif; font-size:var(--t-13); line-height:1.55; color:var(--zacht); }
+.eerstekeer-lijst li span { flex-shrink:0; font-size:var(--t-15); line-height:1.4; }
