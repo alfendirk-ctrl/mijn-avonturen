@@ -12,11 +12,15 @@ const PLAATSEN = {
   // Nederlandse plaatsen
   apeldoorn: [52.2112, 5.9699],
   culemborg: [51.9556, 5.2272],
+  duiven: [51.9472, 6.0236],
+  eibergen: [52.1042, 6.6431],
   eindhoven: [51.4416, 5.4697],
   ede: [52.0402, 5.6649],
+  harderwijk: [52.3417, 5.6208],
   kaatsheuvel: [51.6547, 5.0486],
   kraggenburg: [52.6667, 5.9],
   leiden: [52.1601, 4.497],
+  lievelde: [51.9903, 6.5322],
   mijnsheerenland: [51.7833, 4.4833],
   binnenmaas: [51.7833, 4.4833],
   nieuwegein: [52.0292, 5.0806],
@@ -32,6 +36,7 @@ const PLAATSEN = {
   woudenberg: [52.08, 5.4167],
   zeist: [52.0907, 5.2333],
   valkenburg: [50.8653, 5.8317],
+  valkenswaard: [51.3506, 5.4597],
 
   // Nederlandse provincies (middelpunt)
   drenthe: [52.9476, 6.6231],
