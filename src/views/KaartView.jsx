@@ -17,6 +17,18 @@ export default function KaartView({ items, catMeta, onOpen }) {
   const doel = useRef(null);
   const kaart = useRef(null);
   const laag = useRef(null);
+  // onOpen en catMeta komen als nieuwe functie binnen bij ELKE render van App.
+  // Stonden ze in de afhankelijkheden hieronder, dan werd de kaart opnieuw
+  // opgebouwd en opnieuw uitgericht zodra er iets veranderde in App - en dat
+  // gebeurt onder andere als je een speld aantikt, want dan opent het
+  // detailvenster. Je had de kaart dus net naar je eigen buurt gesleept, tikte
+  // een speld aan, sloot het venster, en stond weer op het beginbeeld.
+  const handlers = useRef({ onOpen, catMeta });
+  handlers.current = { onOpen, catMeta };
+
+  // Welke puntenverzameling stond er de vorige keer op? Zie hieronder.
+  const laatsteUitrichting = useRef("");
+
   const [soort, setSoort] = useState("alles");
   const [status, setStatus] = useState("laden");
   const [buitenBeeld, setBuitenBeeld] = useState(0);
@@ -76,7 +88,7 @@ export default function KaartView({ items, catMeta, onOpen }) {
         const lat = a.punt[0] + Math.sin(hoek) * straal;
         const lon = a.punt[1] + Math.cos(hoek) * straal * 1.6;
 
-        const cat = catMeta(a.categorie);
+        const cat = handlers.current.catMeta(a.categorie);
         const speld = L.divIcon({
           className: "",
           html: `<div class="speld${a.gedaan ? " af" : ""}" style="--speld:${cat.kleur}">
@@ -87,7 +99,7 @@ export default function KaartView({ items, catMeta, onOpen }) {
         });
         L.marker([lat, lon], { icon: speld, title: a.naam })
           .addTo(laag.current)
-          .on("click", () => onOpen(a));
+          .on("click", () => handlers.current.onOpen(a));
       }
 
       // Waarop richten we de kaart? Uitzoomen tot ook Thailand en de Pacific
@@ -102,7 +114,12 @@ export default function KaartView({ items, catMeta, onOpen }) {
       // lijst gooit "Bounds are not valid" en daarmee lag het hele tabblad eruit
       // - precies in de situatie waarin iemand de app voor het eerst opent en
       // nog niets heeft toegevoegd. Dan houden we gewoon het beginbeeld aan.
-      if (richtOp.length) {
+      // Alleen uitrichten als er andere punten op de kaart staan dan de vorige
+      // keer. Anders springt de kaart terug naar het beginbeeld bij elke
+      // herberekening, ook als jij hem net ergens anders heen had gesleept.
+      const vingerafdruk = richtOp.map((a) => a.punt.join()).sort().join("|");
+      if (richtOp.length && vingerafdruk !== laatsteUitrichting.current) {
+        laatsteUitrichting.current = vingerafdruk;
         const grenzen = L.latLngBounds(richtOp.map((a) => a.punt));
         kaart.current.fitBounds(grenzen, { padding: [40, 40], maxZoom: 10 });
       }
@@ -111,7 +128,7 @@ export default function KaartView({ items, catMeta, onOpen }) {
     return () => {
       afgebroken = true;
     };
-  }, [op, status, catMeta, onOpen]);
+  }, [op, status]);
 
   return (
     <div className="kaart-wrap">
