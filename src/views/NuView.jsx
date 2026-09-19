@@ -82,9 +82,11 @@ export default function NuView({ items, catMeta, onOpen, onToggleDone, onToggleF
         </div>
         <h2 className="nu-eye">Wat doen we?</h2>
         <div className="nu-lead">
-          {passend.length === 0
-            ? "Niets gevonden binnen dit bereik."
-            : `${passend.length} ${passend.length === 1 ? "idee past" : "ideeën passen"} bij ${MAAND_LABEL[maand]}.`}
+          {items.length === 0
+            ? "Nog niets om uit te kiezen."
+            : passend.length === 0
+              ? "Niets gevonden binnen dit bereik."
+              : `${passend.length} ${passend.length === 1 ? "idee past" : "ideeën passen"} bij ${MAAND_LABEL[maand]}.`}
         </div>
       </div>
 
@@ -151,9 +153,32 @@ export default function NuView({ items, catMeta, onOpen, onToggleDone, onToggleF
               : "Schuif de afstand verder open, of kies een andere bron."}
           </div>
           {items.length === 0 && (
-            <button className="btn acc nu-leeg-knop" onClick={() => onGaNaar("uitje")}>
-              + Eerste avontuur toevoegen
-            </button>
+            /* De eerste keer met een lege lijst. Geen rondleiding: drie regels
+               die zeggen waar dit voor is, en één knop die je meteen op de
+               plek zet waar het gebeurt. Wie al weet hoe het werkt, scrollt er
+               in één blik overheen. */
+            <div className="eerstekeer">
+              <ul className="eerstekeer-lijst">
+                <li>
+                  <span aria-hidden="true">✨</span>
+                  Zie je iets leuks voorbijkomen? Maak een screenshot en laat de
+                  app naam, plaats en seizoen eruit halen.
+                </li>
+                <li>
+                  <span aria-hidden="true">🗓</span>
+                  Vul je een periode in, dan weet dit scherm vanzelf wat er nú
+                  kan.
+                </li>
+                <li>
+                  <span aria-hidden="true">📍</span>
+                  Vul je een plaats in, dan verschijnt het op de kaart. Verder
+                  hoef je niets bij te houden.
+                </li>
+              </ul>
+              <button className="btn acc nu-leeg-knop" onClick={() => onGaNaar("uitje")}>
+                + Eerste avontuur toevoegen
+              </button>
+            </div>
           )}
         </div>
       ) : (

@@ -144,6 +144,11 @@ export default function LijstView({
 
   const gedaanAantal = items.filter((a) => a.gedaan).length;
 
+  // Voor de lege staat telt de categoriechip óók als knijpend filter, ook al
+  // zit hij niet in het filterpaneel: anders staat er "0 filters verbergen ze"
+  // terwijl je op één categorie hebt geklikt die niets oplevert.
+  const knijpers = actieveFilters + (categorie !== "Alle" ? 1 : 0);
+
   return (
     <div className="lijst">
       <div className="bar">
@@ -294,16 +299,43 @@ export default function LijstView({
       )}
 
       {zichtbaar.length === 0 ? (
+        /* Drie verschillende situaties zagen er hetzelfde uit: je hebt nog
+           niets, je zoekterm levert niets op, of je filters knijpen de lijst
+           dicht. "Pas je zoekopdracht of filters aan" was een gok naar allebei
+           terwijl de app precies weet welke het is - en in het laatste geval is
+           er ook iets aan te klikken in plaats van alleen advies. */
         <div className="empty los">
-          <span className="empty-ico">{meta.emoji}</span>
-          <div className="empty-h">
-            {items.length === 0 ? `Nog geen ${meta.meervoud}` : "Niets gevonden"}
-          </div>
+          <span className="empty-ico" aria-hidden="true">{meta.emoji}</span>
+          <h2 className="empty-h">
+            {items.length === 0
+              ? `Nog geen ${meta.meervoud}`
+              : zoek.trim()
+                ? `Niets met "${zoek.trim()}"`
+                : "Alles weggefilterd"}
+          </h2>
           <div className="empty-p">
             {items.length === 0
-              ? `Voeg je eerste ${meta.enkelvoud} toe`
-              : "Pas je zoekopdracht of filters aan"}
+              ? `Voeg je eerste ${meta.enkelvoud} toe met de knop hierboven.`
+              : zoek.trim()
+                ? `Geen ${meta.meervoud} waarin dat voorkomt${knijpers ? ", en er staan ook nog filters aan" : ""}.`
+                : `Je ${meta.meervoud} staan er nog; ${knijpers === 1 ? "één filter verbergt" : `${knijpers} filters verbergen`} ze.`}
           </div>
+          {zoek.trim() && (
+            <button className="btn empty-knop" onClick={() => setZoek("")}>
+              Wis de zoekopdracht
+            </button>
+          )}
+          {!zoek.trim() && knijpers > 0 && (
+            <button
+              className="btn empty-knop"
+              onClick={() => {
+                wisFilters();
+                setCategorie("Alle");
+              }}
+            >
+              Zet de filters uit
+            </button>
+          )}
         </div>
       ) : rijk ? (
         groepen.map(([afstand, lijst]) => (
