@@ -12,7 +12,13 @@
 // in te delen, en om bestaande opgeslagen data om te zetten. Eén bron, zodat
 // een verse installatie en een bestaande telefoon niet uit elkaar lopen.
 
-import { schoonTags, EXTRA_SEPT_2026, EXTRA_SEPT_2026_B } from "../data/seed.js";
+import {
+  schoonTags,
+  EXTRA_SEPT_2026,
+  EXTRA_SEPT_2026_B,
+  EXTRA_SEPT_2026_C,
+  VERRIJKINGEN_SEPT_2026,
+} from "../data/seed.js";
 
 // Onder welke sleutel onthouden wordt dat de omzetting gedraaid heeft. Zonder
 // die markering zou hij bij elke keer laden opnieuw draaien, en een avontuur
@@ -146,7 +152,42 @@ export const SLEUTEL_BUNDEL_SEPT26 = "av_bundel_sept26";
 export const BUNDELS = [
   { sleutel: SLEUTEL_BUNDEL_SEPT26, items: EXTRA_SEPT_2026 },
   { sleutel: "av_bundel_sept26b", items: EXTRA_SEPT_2026_B },
+  { sleutel: "av_bundel_sept26c", items: EXTRA_SEPT_2026_C },
 ];
+
+// Locaties waar de kaart geen speld op kan zetten; voor een aanvulling tellen
+// die als "nog niet ingevuld". Zie TE_VAAG in lib/kaart.js - bewust hier
+// herhaald en niet geimporteerd, want dat zou dit bestand aan de kaart hangen
+// voor een lijstje van drie woorden.
+const TE_VAAG_OM_TE_BEHOUDEN = ["nederland", "europa", "diverse", ""];
+
+const isLeeg = (waarde, veld) => {
+  const t = String(waarde ?? "").trim();
+  if (!t) return true;
+  return veld === "locatie" && TE_VAAG_OM_TE_BEHOUDEN.includes(t.toLowerCase());
+};
+
+export const SLEUTEL_VERRIJKING = "av_verrijking_sept26";
+
+// Vult lege velden aan op avonturen die er al staan. Wat jij zelf hebt
+// ingevuld blijft staan - dezelfde regel als bij de tekstherkenning: de
+// aanvulling raadt, jij weet. Geeft null als er niets te doen viel, zodat de
+// aanroeper de lijst ongemoeid kan laten.
+export function verrijkAvonturen(avonturen, verrijkingen = VERRIJKINGEN_SEPT_2026) {
+  let veranderd = false;
+  const uit = avonturen.map((a) => {
+    const bron = verrijkingen.find((v) => v.id === a.id);
+    if (!bron) return a;
+    const aanvulling = {};
+    for (const [veld, waarde] of Object.entries(bron.velden)) {
+      if (isLeeg(a[veld], veld)) aanvulling[veld] = waarde;
+    }
+    if (!Object.keys(aanvulling).length) return a;
+    veranderd = true;
+    return { ...a, ...aanvulling };
+  });
+  return veranderd ? uit : null;
+}
 
 // Vult de lijst aan met avonturen die er nog niet in zitten, herkend op id.
 // Verwijder je er later een, dan komt hij niet terug: de markering is dan al

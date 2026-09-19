@@ -288,6 +288,34 @@ Related rules, each paid for once:
   `color(srgb 0.96 0.77 0.66)` — channels 0–1, not 0–255 — so a contrast
   checker that assumes `rgb()` will read every mixed colour as near-black.
 
+### Bundels en verrijkingen
+
+`lib/migratie.js` kent twee manieren om nieuwe vondsten op een bestaande
+telefoon te krijgen, allebei eenmalig en allebei met een eigen markering:
+
+- **`BUNDELS`** voegt avonturen toe die er nog niet zijn, herkend op id. Een
+  nieuwe vondstenronde is één regel in die lijst. Hergebruik nooit de markering
+  van een eerdere bundel: dan komt de nieuwe nooit aan op een telefoon die de
+  vorige al verwerkte.
+- **`VERRIJKINGEN_SEPT_2026` + `verrijkAvonturen()`** vult lege velden aan op
+  een avontuur dat er *al* staat. Nodig omdat de seed alleen gelezen wordt als
+  `av_db` leeg is, terwijl sommige oude regels niets dan een naam bevatten —
+  "Adventure Valley" stond er met locatie `"Europa"`, geen link en geen
+  notities, en kreeg daarom ook geen speld op de kaart.
+
+**Een verrijking overschrijft nooit iets dat is ingevuld.** Dezelfde regel als
+bij de tekstherkenning: de aanvulling raadt, de gebruiker weet. De enige
+uitzondering is `locatie`, waar een waarde die de kaart zelf te vaag vindt
+(`TE_VAAG` in `lib/kaart.js`) als leeg telt — aan "Europa" heeft niemand iets.
+Er is een browsertest voor alle vier de gevallen: kale regel, volledig zelf
+ingevuld (niets mag wijzigen), deels ingevuld, en of hij echt maar één keer
+draait.
+
+**Controleer bij een nieuwe vondst eerst of hij er al staat.** "Adventure
+Valley" zou anders als tweede regel naast zichzelf zijn geëindigd. En kijk of
+de plaats in de gazetteer van `lib/kaart.js` zit, anders belandt het avontuur
+onder de kaart in plaats van erop.
+
 ## Toegankelijkheid en eerste gebruik
 
 - **Every overlay is a real dialog.** `useDialoog` (`src/useDialoog.js`) traps

@@ -12,6 +12,7 @@ const PLAATSEN = {
   // Nederlandse plaatsen
   apeldoorn: [52.2112, 5.9699],
   culemborg: [51.9556, 5.2272],
+  eindhoven: [51.4416, 5.4697],
   ede: [52.0402, 5.6649],
   kaatsheuvel: [51.6547, 5.0486],
   kraggenburg: [52.6667, 5.9],
@@ -22,6 +23,7 @@ const PLAATSEN = {
   nijmegen: [51.8126, 5.8372],
   arnhem: [51.9851, 5.8987],
   nuenen: [51.4728, 5.5472],
+  rotterdam: [51.9225, 4.4792],
   schalkwijk: [51.9833, 5.2167],
   terschelling: [53.3833, 5.3333],
   vinkeveen: [52.2167, 4.9333],
@@ -46,6 +48,8 @@ const PLAATSEN = {
   "zuid-holland": [51.99, 4.47],
 
   // Buitenland
+  durbuy: [50.3528, 5.4564],
+  brugelette: [50.5936, 3.8703],
   transinne: [50.0167, 5.2667],
   bruhl: [50.8283, 6.905],
   rust: [48.2667, 7.7333],

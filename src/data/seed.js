@@ -207,6 +207,37 @@ export const EXTRA_SEPT_2026_B = [
   {id: 70, naam: "De Pannenkoekenjungle", locatie: "Apeldoorn, Gelderland", categorie: "Eten & drinken", type: "Pannenkoekenrestaurant met speeltuin", link: "https://depannenkoekenjungle.nl/", notities: "Pannenkoekenrestaurant met jungledecor: planten, dieren en tropische aankleding, een kleine binnenspeeltuin en een grotere buitenspeeltuin. Het paradepaardje is de POFFERTJES EXPERIENCE: je bakt zelf aan tafel en kiest vijf toppings (mango, aardbei, blauwe bessen, Nutella, vruchtenhagel en meer). Die experience is voor 4 personen, maar met vijf lukt ook prima als je wat extra's bijbestelt. Verder pannenkoeken, lunchgerechten, burgers (ook vega), nagerechten en met de hand geperste jus. Voor de kinderen is er een speurtocht door het restaurant met een presentje aan het eind, en kleurplaten. Brinklaan 145. Openingstijden staan niet betrouwbaar online, dus check de site. Let op: de post waar dit vandaan komt was een uitnodiging van het restaurant (AD).", gedaan: false, favoriet: false, periode: "", tags: ["kids", "speeltuin", "uit eten", "lunch"]},
 ];
 
+// Vondsten van 19 september 2026, tweede ronde. Zelfde patroon: eigen bundel,
+// eigen markering.
+export const EXTRA_SEPT_2026_C = [
+  {id: 72, naam: "Pairi Daiza", locatie: "Brugelette, Belgie", categorie: "Dieren", type: "Dierenpark met tropische serre", link: "https://www.pairidaiza.eu/nl/", notities: "Groot dierenpark in Henegouwen, vaak uitgeroepen tot mooiste dierentuin van Europa. De post gaat over EDENYA, de nieuwe tropische serre die op 7 februari 2026 openging: vier hectare onder een glazen koepel van twintig meter hoog, met tropische regen, watervallen, capibaras, maki's, luiaards, jaguars, dwergnijlpaarden, reuzenotters en zelfs haaien - bijna 230 soorten. Er zit ook een onderwaterrestaurant in. PAS OP MET DE PRIJS: Edenya zit NIET bij de gewone entree in. Je betaalt EUR 7 p.p. extra bovenop je dagticket (leden EUR 5), en je moet er APART voor reserveren; vol is vol. Een dag Pairi Daiza mét Edenya komt in 2026 op maximaal ongeveer EUR 59 per persoon, waarbij de gewone entree voor 12 t/m 64 jaar tussen EUR 43 en EUR 52 ligt afhankelijk van dag en seizoen. Die toeslag leverde publieke kritiek op toen hij werd aangekondigd. Reken op een hele dag; het park is enorm. Let op: de post was een samenwerking met het park.", gedaan: false, favoriet: false, periode: "", tags: ["kids", "dieren", "hele dag", "buiten"]},
+  {id: 73, naam: "Maritiem Museum", locatie: "Rotterdam, Zuid-Holland", categorie: "Cultuur", type: "Museum met buitenspeelterras", link: "https://maritiemmuseum.nl/", notities: "Museum over de haven en de zee, met de kinderexpositie Plons! De toekomst van de zee. Sinds 18 juli 2026 hoort daar een BUITENSPEELTERRAS OP HET DAK bij: klimmen, klauteren en sjouwen tussen speelelementen met een zeethema. Je vaart met een bootkarretje, zoekt je weg door het wierenwoud en helpt mee op de zeeboerderij - die sluit aan op wat er binnen in de expositie te leren valt. Bedoeld voor kinderen van ongeveer 3 tot 8 jaar. Een volwassenkaartje kost vanaf EUR 18, maar GRATIS met Museumkaart, Rotterdampas of jeugdvakantiepaspoort, en kinderen t/m 3 jaar zijn sowieso gratis. Leuvehaven 1, in het Maritiem District vlak bij de Erasmusbrug. Het terras ligt buiten, dus bij regen blijft alleen het binnenmuseum over. Let op: de post waar dit vandaan komt was op uitnodiging.", gedaan: false, favoriet: false, periode: "apr-okt", tags: ["kids", "binnen", "buiten", "museumkaart"]},
+  {id: 74, naam: "Speelpark De Splinter", locatie: "Eindhoven, Noord-Brabant", categorie: "Speelpark", type: "Grote speeltuin met kinderboerderij", link: "https://www.speelparkdesplinter.nl/", notities: "Verborgen pareltje in het Henri Dunantpark in Woensel-Noord, zo groot als zeven voetbalvelden. Speeltoestellen voor verschillende leeftijden, een piratenschip en speelfort, een bouwhoek, kinderboerderij, voetbalveld, picknicktafels, wc's en een winkeltje voor een ijsje of drinken (het aanbod hangt af van welke vrijwilligers er zijn). ENTREE IS BIJNA NIETS: van 1 april tot 1 november betaal je EUR 1,50 p.p. op woensdag, zaterdag en zondag, en in de schoolvakanties elke dag; buiten die periode is het gratis, en van 1 november tot eind december is het ma t/m za gratis met zondag dicht. In herfst en winter gaat het dicht zodra het donker wordt. LET OP HET ZWEMBAD: de post noemt een zwembadje en spraypark, maar dat bad is dit seizoen NIET opengegaan vanwege herstelwerk en ligt er al langer uit - er is zelfs ophef over geweest omdat het nieuw is. Ga er dus niet heen voor het water zonder eerst de site of hun socials te checken. Rode Kruislaan 2.", gedaan: false, favoriet: false, periode: "", tags: ["kids", "speeltuin", "dieren", "gratis", "buiten"]},
+];
+
+// Aanvullingen op avonturen die er AL staan, maar als kale regel: een naam en
+// verder niets. "Adventure Valley" stond er met locatie "Europa", zonder link
+// en zonder notities - dat is precies de vondst die alsnog kwijtraakt, want de
+// naam alleen vertelt je niet dat het in Durbuy ligt en wat het kost.
+//
+// Deze vullen ALLEEN velden die leeg zijn. Wat jij zelf hebt ingevuld blijft
+// staan, net zoals de tekstherkenning dat doet: de aanvulling raadt, jij weet.
+// Voor `locatie` geldt een kleine uitzondering: een waarde die de kaart zelf al
+// te vaag vindt om een speld op te zetten (zie TE_VAAG in lib/kaart.js) telt
+// hier als leeg, want daar heb je niets aan.
+export const VERRIJKINGEN_SEPT_2026 = [
+  {
+    id: 25,
+    velden: {
+      locatie: "Durbuy, Belgie",
+      link: "https://www.adventure-valley.be/nl/tickets",
+      type: "Outdoor avonturenpark",
+      periode: "apr-okt",
+      notities: "Avonturenpark in de Ardennen met vijf zones en meer dan twintig attracties: klimnetten, glijbanen en parcours voor de kleintjes, en deathrides en een sky ladder voor wie het hoog en eng wil. De nieuwe zone heet Wild Wood: een boomparcours met bruggen, netten, touwparcours en uitzichtpunten. TOEGANG GAAT OP LENGTE, niet op leeftijd: vanaf 1,10 m betaal je het volwassenentarief, tussen 85 cm en 1,10 m het kindertarief, onder 85 cm gratis. Er geldt ook een maximum van 120 kg. VOORAF RESERVEREN IS VERPLICHT en de toegang hangt af van beschikbaarheid, dus niet zomaar langsgaan. Losse dagtickets gaan richting de EUR 33; via kortingssites zag ik lagere tarieven, en er lopen regelmatig acties zoals kom-met-3-betaal-voor-2. Reken op een hele dag. Let op: de Instagram-post waar dit vandaan komt was een advertentie.",
+    },
+  },
+];
+
 export const SEED_ACTIVITIES = [
   { id: 1, naam: "Bootje varen", locatie: "Nederland", categorie: "Water", type: "Wateractiviteit", link: null, notities: "", status: "wil doen", periode: "", tags: [] },
   { id: 2, naam: "Vissen", locatie: "Nederland", categorie: "Water", type: "Wateractiviteit", link: null, notities: "", status: "wil doen", periode: "", tags: [] },
@@ -270,4 +301,5 @@ export const SEED_ACTIVITIES = [
   { id: 60, naam: "Dolomieten vakantie", locatie: "Italie", categorie: "Vakantie", type: "Bergvakantie", link: null, notities: "", status: "favoriet", periode: "juli-aug", tags: [] },
   ...EXTRA_SEPT_2026,
   ...EXTRA_SEPT_2026_B,
+  ...EXTRA_SEPT_2026_C,
 ];

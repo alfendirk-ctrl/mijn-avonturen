@@ -32,6 +32,8 @@ import { bewaarFoto, verwijderFoto } from "./lib/fotos.js";
 import {
   SLEUTEL_GEMIGREERD,
   BUNDELS,
+  SLEUTEL_VERRIJKING,
+  verrijkAvonturen,
   migreerAvonturen,
   migreerCategorieen,
   vulAanMetBundel,
@@ -228,6 +230,26 @@ export default function App() {
       } catch {
         /* niets te doen */
       }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Avonturen die er al staan maar als kale regel: naam en verder niets. Alleen
+  // lege velden worden bijgewerkt, dus wat je zelf hebt ingevuld blijft staan.
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(SLEUTEL_VERRIJKING)) return;
+    } catch {
+      return;
+    }
+    setActivities((lijst) => {
+      const verrijkt = verrijkAvonturen(lijst);
+      return verrijkt ? verrijkt.map(stempel) : lijst;
+    });
+    try {
+      localStorage.setItem(SLEUTEL_VERRIJKING, "1");
+    } catch {
+      /* niets te doen */
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
