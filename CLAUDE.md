@@ -330,8 +330,11 @@ telefoon te krijgen, allebei eenmalig en allebei met een eigen markering:
   nieuwe vondstenronde is één regel in die lijst. Hergebruik nooit de markering
   van een eerdere bundel: dan komt de nieuwe nooit aan op een telefoon die de
   vorige al verwerkte.
-- **`VERRIJKINGEN_SEPT_2026` + `verrijkAvonturen()`** vult lege velden aan op
-  een avontuur dat er *al* staat. Nodig omdat de seed alleen gelezen wordt als
+- **`VERRIJKINGEN` + `verrijkAvonturen()`** vult lege velden aan op een
+  avontuur dat er *al* staat. Net als `BUNDELS` is dit een lijst van rondes,
+  elk met een eigen markering, dus een nieuwe ronde is één regel erbij — en
+  **hergebruik ook hier nooit de markering van een vorige ronde**, want die is
+  op een bestaande telefoon al gezet. Nodig omdat de seed alleen gelezen wordt als
   `av_db` leeg is, terwijl sommige oude regels niets dan een naam bevatten —
   "Adventure Valley" stond er met locatie `"Europa"`, geen link en geen
   notities, en kreeg daarom ook geen speld op de kaart.
@@ -355,7 +358,10 @@ draait.
   ander avontuur.
 
 **Controleer bij een nieuwe vondst eerst of hij er al staat.** "Adventure
-Valley" zou anders als tweede regel naast zichzelf zijn geëindigd. En kijk of
+Valley" zou anders als tweede regel naast zichzelf zijn geëindigd, en
+"Netl Camping Kallumaan" stond er al sinds het begin — met niets dan een naam,
+een plaats en "Kamperen". Een vondst die al in de lijst staat is meestal geen
+bundel maar een **verrijking**: de regel is er, alleen nog leeg. En kijk of
 de plaats in de gazetteer van `lib/kaart.js` zit, anders belandt het avontuur
 onder de kaart in plaats van erop.
 

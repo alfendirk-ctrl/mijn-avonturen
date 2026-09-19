@@ -237,6 +237,25 @@ export const VERRIJKINGEN_SEPT_2026 = [
   },
 ];
 
+// Tweede ronde aanvullingen. Eigen lijst en straks een eigen markering: de
+// vorige is op een bestaande telefoon al afgevinkt, dus hergebruiken zou
+// betekenen dat deze daar nooit aankomt. Zelfde regel als bij de bundels.
+export const VERRIJKINGEN_SEPT_2026_B = [
+  {
+    // Stond er al sinds het begin, maar kaal: alleen een naam, een plaats en
+    // "Kamperen". Terwijl dit nou juist het soort plek is waarvan je een half
+    // jaar later niet meer weet waarom je hem had opgeschreven.
+    id: 35,
+    velden: {
+      link: "https://www.netl.nl/campingkallumaan",
+      periode: "apr-sept",
+      tags: ["kamperen", "natuur", "water", "kids", "huisdiervrij"],
+      notities:
+        "Camping bij Netl de Wildste Tuin, een natuurpark van zo'n negentig voetbalvelden in de Noordoostpolder. Op het terrein liggen het grootste bamboebos van de Benelux, zwemmeren, het Vuurtorenstrand en een grote natuurspeeltuin met modderglijbaan, kabelbaan en klimtoestellen; in het hoogseizoen is er op het strand live muziek. Slapen kan op een van de 233 plaatsen (144 afgebakend) of in een lodge, een huurtent voor twee tot zes personen of een omgebouwde zeecontainer. HUISDIEREN MOGEN NIET MEE - dat stond niet in de post zelf maar in de reacties eronder, en de camping bevestigt het. Wie de hond niet kan wegbrengen hoeft niet verder te kijken. DE DAGENTREE VAN HET PARK ZIT BIJ JE OVERNACHTING IN; los kost die vanaf 1 april EUR 7,50 p.p. OVER HET SEIZOEN SPREKEN DE BRONNEN ELKAAR TEGEN: de een zegt Goede Vrijdag t/m september plus een aantal weekenden tussen november en maart, de ander april t/m oktober. Check dus voor je boekt. Leemringweg 19, Kraggenburg. Er is een Open Camping Dag op zaterdag 28 maart 2026 als je eerst wilt rondkijken.",
+    },
+  },
+];
+
 // Avonturen die achteraf zijn ingetrokken. Een verse installatie krijgt ze niet
 // meer omdat ze uit de bundel zijn gehaald, maar een telefoon die de bundel al
 // verwerkte heeft ze nog staan - en die markering is al gezet, dus daar gebeurt

@@ -34,7 +34,7 @@ import { bewaarFoto, verwijderFoto } from "./lib/fotos.js";
 import {
   SLEUTEL_GEMIGREERD,
   BUNDELS,
-  SLEUTEL_VERRIJKING,
+  VERRIJKINGEN,
   SLEUTEL_INGETROKKEN,
   verrijkAvonturen,
   trekIn,
@@ -250,18 +250,27 @@ export default function App() {
   // lege velden worden bijgewerkt, dus wat je zelf hebt ingevuld blijft staan.
   useEffect(() => {
     try {
-      if (localStorage.getItem(SLEUTEL_VERRIJKING)) return;
+      // Alleen kijken of opslag überhaupt werkt; per ronde controleren we
+      // hieronder de eigen markering.
+      localStorage.getItem("av_verrijking_sept26");
     } catch {
       return;
     }
-    setActivities((lijst) => {
-      const verrijkt = verrijkAvonturen(lijst);
-      return verrijkt ? verrijkt.map(stempel) : lijst;
-    });
-    try {
-      localStorage.setItem(SLEUTEL_VERRIJKING, "1");
-    } catch {
-      /* niets te doen */
+    for (const { sleutel, items } of VERRIJKINGEN) {
+      try {
+        if (localStorage.getItem(sleutel)) continue;
+      } catch {
+        return;
+      }
+      setActivities((lijst) => {
+        const verrijkt = verrijkAvonturen(lijst, items);
+        return verrijkt ? verrijkt.map(stempel) : lijst;
+      });
+      try {
+        localStorage.setItem(sleutel, "1");
+      } catch {
+        /* niets te doen */
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
