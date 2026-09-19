@@ -19,6 +19,7 @@ import {
   EXTRA_SEPT_2026_C,
   EXTRA_SEPT_2026_D,
   VERRIJKINGEN_SEPT_2026,
+  VERRIJKINGEN_SEPT_2026_B,
   INGETROKKEN,
 } from "../data/seed.js";
 
@@ -195,7 +196,14 @@ export function trekIn(avonturen, ingetrokken = INGETROKKEN) {
   return weg.size ? { lijst, verwijderdeIds: [...weg] } : null;
 }
 
-export const SLEUTEL_VERRIJKING = "av_verrijking_sept26";
+// Rondes aanvullingen, elk met een eigen markering. Net als bij BUNDELS geldt:
+// HERGEBRUIK NOOIT DE MARKERING VAN EEN VORIGE RONDE. Die is op een bestaande
+// telefoon al gezet, dus de nieuwe ronde zou daar nooit aankomen. Een volgende
+// ronde is één regel erbij.
+export const VERRIJKINGEN = [
+  { sleutel: "av_verrijking_sept26", items: VERRIJKINGEN_SEPT_2026 },
+  { sleutel: "av_verrijking_sept26b", items: VERRIJKINGEN_SEPT_2026_B },
+];
 
 // Vult lege velden aan op avonturen die er al staan. Wat jij zelf hebt
 // ingevuld blijft staan - dezelfde regel als bij de tekstherkenning: de
