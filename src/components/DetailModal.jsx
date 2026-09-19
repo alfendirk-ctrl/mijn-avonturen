@@ -5,6 +5,7 @@ import { haalFoto, verkleinAfbeelding } from "../lib/fotos.js";
 import { leesTekst, veldenUitTekst } from "../lib/lezen.js";
 import { useFoto } from "../useFoto.js";
 import Notitie from "./Notitie.jsx";
+import { beschrijfRit } from "../lib/rijden.js";
 
 // Detail-/bewerkvenster voor één avontuur.
 // mode "view" -> alleen lezen, met knoppen om te bewerken of te verwijderen
@@ -20,6 +21,7 @@ export default function DetailModal({
   onEdit,
   onDelete,
   onSave,
+  rit,
 }) {
   const isNew = !activity;
   // Eén unieke basis voor de veld-id's, zodat elk label aan zijn eigen veld
@@ -612,6 +614,16 @@ export default function DetailModal({
             </div>
           </div>
 
+          {/* Alleen als er een thuisadres is ingesteld en de plaats bekend is.
+              Zonder dat staat er niets - een lege regel "Rijden: -" vertelt je
+              niets wat je nog niet wist. */}
+          {rit && (
+            <Rij
+              icoon="🚗"
+              label="Rijden"
+              waarde={`${beschrijfRit(rit)}${rit.geschat ? " (afstand geschat)" : ""}`}
+            />
+          )}
           {activity.periode && (
             <Rij icoon="🗓" label="Beste periode" waarde={activity.periode} />
           )}

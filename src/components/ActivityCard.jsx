@@ -1,13 +1,14 @@
 import { MARKERINGEN } from "../data/seed.js";
 import { useFoto } from "../useFoto.js";
 import { metBreekpunten } from "../lib/tekst.jsx";
+import { beschrijfRit } from "../lib/rijden.js";
 
 // Hoeveel tags er op een compacte kaart passen zonder dat het rommelig wordt.
 // De rest wordt samengevat als "+2"; het volledige lijstje staat in het detail.
 const MAX_KAART_TAGS = 2;
 
 // Compacte kaart voor uitjes: snel scannen in een raster.
-export default function ActivityCard({ activity, cat, onClick, onToggleDone, onToggleFav }) {
+export default function ActivityCard({ activity, cat, onClick, onToggleDone, onToggleFav, rit }) {
   const { gedaan, favoriet } = activity;
   const foto = useFoto(activity.id, activity.foto);
   return (
@@ -59,6 +60,11 @@ export default function ActivityCard({ activity, cat, onClick, onToggleDone, onT
       </div>
       <div className="card-name">{metBreekpunten(activity.naam)}</div>
       <div className="card-loc">{activity.locatie}</div>
+      {/* Eigen regel, rustig gezet: het antwoord op "kunnen we daar even
+          heen?" hoort op de kaart te staan, maar niet harder te roepen dan
+          de naam. Staat er geen thuisadres, of kent de app de plaats niet,
+          dan staat hier niets. */}
+      {rit && <div className="card-rit">🚗 {beschrijfRit(rit)}</div>}
       {/* Eén rustige regel in plaats van drie rijen identieke pillen. Type,
           alle tags én de periode stonden hier als even zware badges onder
           elkaar; op een smalle kaart werd dat een lappendeken waar het oog

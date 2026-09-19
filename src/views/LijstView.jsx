@@ -19,6 +19,7 @@ export default function LijstView({
   onToggleFav,
   onAdd,
   onOpenSettings,
+  rijInfo,
 }) {
   const [zoek, setZoek] = useState("");
   const [categorie, setCategorie] = useState("Alle");
@@ -130,6 +131,7 @@ export default function LijstView({
         onClick={() => onOpen(a)}
         onToggleDone={() => onToggleDone(a)}
         onToggleFav={() => onToggleFav(a)}
+        rit={rijInfo?.(a.locatie)}
       />
     ) : (
       <ActivityCard
@@ -139,6 +141,7 @@ export default function LijstView({
         onClick={() => onOpen(a)}
         onToggleDone={() => onToggleDone(a)}
         onToggleFav={() => onToggleFav(a)}
+        rit={rijInfo?.(a.locatie)}
       />
     );
 
@@ -168,8 +171,8 @@ export default function LijstView({
         {/* Onder 520px valt het woord weg en blijft alleen het teken over.
             Een ⊞ of een + zegt een schermlezer niets, dus het label staat er
             hoe dan ook - zichtbaar of niet. */}
-        <button className="btn" onClick={onOpenSettings} aria-label="Categorieën beheren">
-          ⊞ <span>Categorieën</span>
+        <button className="btn" onClick={onOpenSettings} aria-label="Instellingen openen">
+          ⚙ <span>Instellingen</span>
         </button>
         <button
           className="btn acc"

@@ -11,6 +11,8 @@ import {
   schoonTags,
 } from "./data/seed.js";
 import { verrijk, huidigeMaand, themaVanMaand } from "./lib/afleiden.js";
+import { useRijden } from "./useRijden.js";
+import { THUIS_SLEUTEL, wisRoutes } from "./lib/rijden.js";
 import Header from "./components/Header.jsx";
 import NuView from "./views/NuView.jsx";
 import LijstView from "./views/LijstView.jsx";
@@ -103,6 +105,12 @@ export default function App() {
     [categories],
   );
 
+  // Het thuisadres waar de rijafstanden vandaan gerekend worden. Eigen
+  // sleutel, en met opzet BUITEN de synchronisatie: `synchroniseer()` raakt
+  // alleen av_db en av_cats aan. Het adres van de een is niet iets om op het
+  // toestel van de ander te zetten.
+  const [thuis, setThuis] = useLocalStorage(THUIS_SLEUTEL, null);
+
   const catNamen = useMemo(() => Object.keys(categories), [categories]);
   const catNamenPerSoort = useMemo(() => {
     const m = { uitje: [], hike: [], reis: [] };
@@ -117,6 +125,8 @@ export default function App() {
     () => activities.map((a) => verrijk(a, soortVanCategorie)),
     [activities, soortVanCategorie],
   );
+
+  const { rijInfo, status: rijStatus, berekend, plaatsen } = useRijden(items, thuis);
 
   const perSoort = useMemo(
     () => ({
@@ -576,6 +586,7 @@ export default function App() {
           onToggleDone={toggleGedaan}
           onToggleFav={toggleFavoriet}
           onGaNaar={setTab}
+          rijInfo={rijInfo}
         />
       ) : tab === "kaart" ? (
         <KaartView items={items} catMeta={catMeta} onOpen={openItem} />
@@ -592,6 +603,7 @@ export default function App() {
           onToggleFav={toggleFavoriet}
           onAdd={setAdding}
           onOpenSettings={() => setPanelOpen(true)}
+          rijInfo={rijInfo}
         />
       )}
       </main>
@@ -607,6 +619,7 @@ export default function App() {
           onEdit={() => setModal({ ...modal, mode: "edit" })}
           onDelete={() => setConfirmItem(modal.activity)}
           onSave={saveActivity}
+          rit={rijInfo(modal.activity?.locatie)}
         />
       )}
 
@@ -631,6 +644,19 @@ export default function App() {
           onSetCategorySoort={setCategorySoort}
           onDeleteCategory={requestDeleteCategory}
           onClose={() => setPanelOpen(false)}
+          thuis={thuis}
+          onZetThuis={(gevonden) => {
+            setThuis(gevonden);
+            pushToast("Thuisadres opgeslagen");
+          }}
+          onWisThuis={() => {
+            setThuis(null);
+            wisRoutes();
+            pushToast("Thuisadres gewist");
+          }}
+          rijStatus={rijStatus}
+          rijBerekend={berekend}
+          rijPlaatsen={plaatsen}
         />
       )}
 

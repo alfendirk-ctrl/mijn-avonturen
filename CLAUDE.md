@@ -79,6 +79,8 @@ point of tags here is finding the overlap.
 ### Soorten (the three tabs)
 
 Every category carries a `soort` (`uitje` | `hike` | `reis`) which decides the tab its activities appear in. **Do not key this off category names** — an earlier version hardcoded `["Hike NL", "Hike"]`, which silently emptied the Hikes tab if a category was renamed. `soortVoorNaam()` only supplies the default for pre-existing data; after that the stored `soort` wins, and the settings panel lets the user move a category between tabs.
+- **`src/lib/notities.js`** — reads the free-text `notities` field as paragraphs plus "let op" blocks. See "Notities" below.
+- **`src/lib/rijden.js`** + **`src/useRijden.js`** — driving distance and time from a home address the user sets in the app. See "Rijafstand" below.
 - **`src/useLocalStorage.js`** — a `useState` wrapper that persists to `localStorage`.
 - **`src/lib/sync.js`** — optional sharing between two people. See "Delen" below.
 - **`src/components/`** — presentational pieces: `Header`, `ActivityCard`, `DetailModal` (both the read-only view *and* the add/edit form, switched by a `mode` prop), `ConfirmDialog`, `SettingsPanel` (category management), `Toast`.
@@ -90,6 +92,10 @@ Two `localStorage` keys, **which must not be renamed** or existing users lose th
 
 - **`av_db`** — array of activities: `{ id, naam, locatie, categorie, type, link, notities, gedaan, favoriet, periode, tags, foto }`. `gedaan` and `favoriet` are **independent booleans** — an older single `status` field conflated them, so ticking a favourite as done wiped its favourite mark. `sanitizeActivities` migrates the old `status` field on read.
 - **`av_cats`** — object mapping a category name → `{ emoji, kleur, gradient, soort }`.
+
+Two further keys exist but are **not** data in the same sense: `av_thuis` (the
+home address, device-only, never synced) and `av_routes` (a cache of driving
+times, throwaway). Deleting either loses nothing.
 
 Both `sanitize*` functions also run over the seed defaults (see `useLocalStorage`), so stored and default data always have the exact same shape.
 
@@ -198,6 +204,21 @@ into one heap of overlapping 30px pins — on a phone that already happens at
 Europe scale. Nothing is hidden: a line above the map counts what lies further
 out, and zooming out reveals it.
 
+A third trap, paid for later: **the effect that draws the pins must not depend
+on callbacks from `App.jsx`.** `onOpen` there is a plain function, so it is new
+on every render — and tapping a pin opens the detail modal, which *is* a
+render. The effect re-ran and called `fitBounds`, so the map jumped back to its
+opening view exactly when you opened something. The handlers now live in a ref
+and `fitBounds` only runs when the set of points actually differs from last
+time.
+
+Measure that one **on the pins' own screen positions**, not on
+`.leaflet-map-pane`'s transform: `fitBounds` leaves that transform alone and
+moves the layers underneath, so a test watching the transform reports success
+while the map visibly jumps. Before the fix two fixed pins sat 518px apart
+after zooming in, and 129px the moment a pin was opened; after it, 518px
+before, during and after.
+
 Pins are `divIcon`s carrying the category emoji and colour — no image assets, so
 nothing to bundle or break. Note `vite.config.js` gives non-CSS assets their own
 filename: the single stable `assets/main[extname]` pattern would name every
@@ -219,6 +240,12 @@ first adventure**, and the tag bar grew with every tag the user invented.
 
 Related rules, each paid for once:
 
+- **"Verras me" has a tag row, capped at six buttons** plus whatever is
+  selected. This is the home screen: every extra row of controls pushes the
+  first adventure further down, and the tag bar grows with every tag the user
+  invents. The counts come from what actually fits right now, so a tag that
+  would yield nothing is not offered. Its empty state is a third cause next to
+  "nothing yet" and "range too narrow".
 - **The tab bar scrolls itself** (`overflow-x:auto`). With five tabs it is
   428px wide at 360px, and without its own scroll container the *whole
   document* shifted sideways when a tab scrolled into view — the header slid
@@ -325,6 +352,83 @@ draait.
 Valley" zou anders als tweede regel naast zichzelf zijn geëindigd. En kijk of
 de plaats in de gazetteer van `lib/kaart.js` zit, anders belandt het avontuur
 onder de kaart in plaats van erop.
+
+## Notities
+
+`lib/notities.js` reads the free-text `notities` field as a list of blocks —
+paragraphs of at most three sentences, plus separate "let op" blocks — and
+`components/Notitie.jsx` renders them. As everywhere else in this app the text
+is **derived, never stored**: a note the user types benefits the same way, and
+nothing has to be migrated when the reader improves.
+
+What it keys off is structure that is already in the data: a sentence that
+starts with two or more words in capitals ("LET OP DE KOSTEN NAAST DE ENTREE")
+is the writer announcing the one thing you need to know before you get in the
+car. That becomes its own block, with the shouted opener set in bold instead of
+capitals. `kop + scheiding + tekst` reassembles the original sentence exactly —
+nothing is dropped or reworded, only set differently.
+
+Three rules worth keeping:
+
+- **Two words minimum.** One word in capitals is emphasis the writer meant
+  ("maar GRATIS met Museumkaart", "zitten NIET bij de entree in") and stays as
+  it is. With one word, nearly every sentence got a heading.
+- **`EDENYA` must not become `edenya`.** Usually that same name appears
+  elsewhere in the note as "Edenya", and that spelling is adopted. The **most
+  frequent** variant wins, lowercase on a tie — otherwise "PAS OP MET DE PRIJS"
+  came out as "Pas op met De prijs", because the article also starts a sentence
+  somewhere. `AFKORTINGEN` holds the handful that must stay capitalised; note
+  `DE` is deliberately *not* in it.
+- Sentences after a warning start a fresh paragraph rather than being pulled
+  into it. Sometimes the next sentence belongs to the warning ("Ga er dus niet
+  heen zonder…"), sometimes it is a new subject — directly underneath reads
+  correctly either way.
+
+All 79 seeded notes round-trip through this without losing a character; that is
+the test worth re-running after a change.
+
+## Rijafstand
+
+`lib/rijden.js` and `useRijden.js` put "🚗 32 km · 28 min" on every card, in the
+detail view and on the "Verras me" card.
+
+**This is the only place in the app that asks anything of a service outside the
+door**, which goes against two rules that hold everywhere else, so both are
+bought consciously:
+
+- *Derived, not stored.* A real road distance cannot be computed from what is
+  already there. What it does do is treat the result as a **cache and not as
+  data**: it hangs off coordinates rather than off an adventure, it is not part
+  of the sync, and `av_routes` can be deleted without anything being lost.
+- *Works offline.* Without a connection whatever was already computed stays,
+  and for the rest nothing appears. Nothing breaks; there is just less to see.
+
+Details that matter:
+
+- **One request for the whole list.** OSRM's `table` service answers one origin
+  against many destinations in a single call, so ~35 places are one request and
+  not one per card. Distances hang off the **place**, so twenty outings in
+  Rotterdam share one calculation.
+- **The cache key contains the home coordinates**, so moving house invalidates
+  everything by itself — there is no cleanup step that can be forgotten.
+- A failed request is remembered in a ref for the session. Without that, a
+  service that is down is retried on every render, forever.
+- Destinations OSRM cannot reach by road (Thailand, the Pacific Crest Trail)
+  come back null and are simply skipped.
+
+**The home address is never in the repository.** This repo is public, so an
+address in a source file is published permanently. It is a setting the user
+types in the app, it lives in `av_thuis`, and it is **not synced** —
+`synchroniseer()` only touches `av_db` and `av_cats`. It leaves the device once,
+at the moment it is saved, to be geocoded; the settings panel says so in plain
+words, because quietly sending someone's address somewhere is not an
+implementation detail. A place the gazetteer already knows is resolved locally
+and never leaves at all.
+
+The "Thuis" block in the settings panel is **one collapsible row** by design:
+the panel has to open on the categories (see "Layout en dichtheid"), and an
+address field with three lines of explanation above it pushed those below the
+fold. You set your address once.
 
 ## Toegankelijkheid en eerste gebruik
 

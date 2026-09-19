@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { useDialoog } from "../useDialoog.js";
 import {
   COLOR_PALETTE,
@@ -6,6 +6,7 @@ import {
   EMPTY_CATEGORY,
   SOORTEN,
 } from "../data/seed.js";
+import ThuisInstelling from "./ThuisInstelling.jsx";
 
 // Zijpaneel voor categoriebeheer: aanmaken, verplaatsen tussen tabs, verwijderen.
 export default function SettingsPanel({
@@ -15,7 +16,14 @@ export default function SettingsPanel({
   onSetCategorySoort,
   onDeleteCategory,
   onClose,
+  thuis,
+  onZetThuis,
+  onWisThuis,
+  rijStatus,
+  rijBerekend,
+  rijPlaatsen,
 }) {
+  const vid = useId();
   const [draft, setDraft] = useState(EMPTY_CATEGORY);
   const namen = Object.keys(categories);
   const naam = draft.naam.trim();
@@ -48,13 +56,24 @@ export default function SettingsPanel({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-hdr">
-          <h2 className="p-title" id="cat-kop">Categorieën</h2>
+          <h2 className="p-title" id="cat-kop">Instellingen</h2>
           <button className="p-x" onClick={onClose} aria-label="Sluiten">
             ✕
           </button>
         </div>
 
         <div className="p-body">
+          <ThuisInstelling
+            thuis={thuis}
+            onZet={onZetThuis}
+            onWis={onWisThuis}
+            rijStatus={rijStatus}
+            berekend={rijBerekend}
+            plaatsen={rijPlaatsen}
+          />
+
+          <div className="divider" />
+
           {/* De lijst staat boven het formulier. Andersom stond veertig emoji
               en een kleurenkiezer in de weg voor het enige wat je hier meestal
               komt doen: een categorie verplaatsen of weggooien. */}
@@ -99,9 +118,10 @@ export default function SettingsPanel({
           <h3 className="sec-h">Nieuwe categorie</h3>
 
           <div className="pf">
-            <label className="lbl">Naam</label>
+            <label className="lbl" htmlFor={`${vid}-catnaam`}>Naam</label>
             <input
               className="fi"
+              id={`${vid}-catnaam`}
               value={draft.naam}
               onChange={(e) => setDraft((d) => ({ ...d, naam: e.target.value }))}
               placeholder="bijv. Festivals"

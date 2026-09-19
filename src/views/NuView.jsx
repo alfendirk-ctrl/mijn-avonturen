@@ -9,6 +9,7 @@ import {
 import { SOORTEN } from "../data/seed.js";
 import ActivityCard from "../components/ActivityCard.jsx";
 import AfstandSlider from "../components/AfstandSlider.jsx";
+import { beschrijfRit } from "../lib/rijden.js";
 
 // Hoeveel suggesties we tonen voordat we naar de volledige lijst verwijzen.
 const MAX_SUGGESTIES = 8;
@@ -30,7 +31,7 @@ const BRONNEN = {
 
 // "Wat doen we?" — het startscherm. Laat alleen zien wat nú kan: in dit
 // seizoen, binnen het gekozen bereik, en nog niet gedaan.
-export default function NuView({ items, catMeta, onOpen, onToggleDone, onToggleFav, onGaNaar }) {
+export default function NuView({ items, catMeta, onOpen, onToggleDone, onToggleFav, onGaNaar, rijInfo }) {
   const [bereik, setBereik] = useState(0); // 0 = alleen Nederland
   const [bron, setBron] = useState("uitje");
   // Gekozen tags, kleine letters. Meerdere tags betekent "alle van deze",
@@ -208,6 +209,9 @@ export default function NuView({ items, catMeta, onOpen, onToggleDone, onToggleF
               {verrast.locatie}
               {verrast.periode && ` · 🗓 ${verrast.periode}`}
             </div>
+            {rijInfo?.(verrast.locatie) && (
+              <div className="vcard-rit">🚗 {beschrijfRit(rijInfo(verrast.locatie))}</div>
+            )}
           </div>
         </div>
       )}
@@ -277,6 +281,7 @@ export default function NuView({ items, catMeta, onOpen, onToggleDone, onToggleF
                 onClick={() => onOpen(a)}
                 onToggleDone={() => onToggleDone(a)}
                 onToggleFav={onToggleFav ? () => onToggleFav(a) : undefined}
+                rit={rijInfo?.(a.locatie)}
               />
             ))}
           </div>

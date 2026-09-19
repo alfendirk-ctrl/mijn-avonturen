@@ -1,10 +1,11 @@
 import { useFoto } from "../useFoto.js";
 import { metBreekpunten } from "../lib/tekst.jsx";
 import { eersteAlinea } from "../lib/notities.js";
+import { beschrijfRit } from "../lib/rijden.js";
 
 // Rijkere kaart voor bewaarde dromen (hikes en reizen): toont het beste
 // seizoen, notities en of er route-info bewaard is.
-export default function WishCard({ item, cat, onClick, onToggleDone, onToggleFav }) {
+export default function WishCard({ item, cat, onClick, onToggleDone, onToggleFav, rit }) {
   const { gedaan, favoriet } = item;
   const foto = useFoto(item.id, item.foto);
   return (
@@ -51,6 +52,7 @@ export default function WishCard({ item, cat, onClick, onToggleDone, onToggleFav
 
       <div className="hcard-name">{metBreekpunten(item.naam)}</div>
       <div className="hcard-loc">📍 {item.locatie}</div>
+      {rit && <div className="hcard-loc rit">🚗 {beschrijfRit(rit)}</div>}
 
       {/* Alleen de openingsalinea, geknipt op drie regels. De notities bij de
           hikes en reizen zijn nu nog één regel, dus dit knipt vandaag niets
