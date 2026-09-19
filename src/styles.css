@@ -591,7 +591,10 @@ html, body { background:var(--grond); color:var(--text); font-family:system-ui, 
 /* ---- Opgeruimd: filterbalk, kaarthiërarchie, raakdoelen ---- */
 
 /* Eén rij bediening in plaats van drie. */
-.filterbalk { display:flex; align-items:center; gap:8px; max-width:900px; margin:0 auto; padding:0 24px 14px; }
+/* Wrapt op een smal scherm: met Filters, "Wis alles" en de sorteerknop erbij
+   past de rij op 320px niet meer op één regel, en zonder wrap duwde de
+   telling de pagina breder dan het scherm. */
+.filterbalk { display:flex; align-items:center; flex-wrap:wrap; gap:8px; max-width:900px; margin:0 auto; padding:0 24px 14px; }
 .filterknop { display:flex; align-items:center; gap:7px; min-height:44px; padding:0 16px; border-radius:var(--r-pil); border:1px solid var(--border); background:rgba(255,255,255,0.04); font-family:'DM Sans',sans-serif; font-size:var(--t-13); color:var(--zacht); cursor:pointer; transition:all .18s; }
 .filterknop:hover { border-color:rgba(255,255,255,0.2); color:var(--kop); }
 .filterknop.actief { border-color:var(--accent); color:var(--accent); background:var(--accent-05); }

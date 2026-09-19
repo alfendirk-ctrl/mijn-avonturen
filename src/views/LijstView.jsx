@@ -31,6 +31,10 @@ export default function LijstView({
   // tenslotte bedoeld voor dingen die twee dingen tegelijk zijn.
   const [tags, setTags] = useState([]);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  // Volgorde. `null` betekent "kies zelf": zodra er rijtijden bekend zijn is
+  // dichtbij-eerst wat je wilt, en anders is dat een onmogelijke sortering.
+  // Kies je zelf iets, dan blijft dat staan.
+  const [ordening, setOrdening] = useState(null);
 
   // Hoeveel filters staan er aan? Bepaalt het bolletje op de knop, zodat je
   // ook met het paneel dicht ziet dat je lijst geknepen is — anders zoek je je
@@ -74,6 +78,15 @@ export default function LijstView({
   const rijk = soort !== "uitje";
   const maand = huidigeMaand();
 
+  // Sorteren op rijafstand kan alleen als er een thuisadres staat én de
+  // rijtijden binnen zijn. Anders tonen we de knop niet: een sorteerknop die
+  // niets doet is erger dan geen knop.
+  const ritBekend = useMemo(
+    () => items.some((a) => rijInfo?.(a.locatie)),
+    [items, rijInfo],
+  );
+  const volgorde = ordening ?? (ritBekend ? "dichtbij" : "naam");
+
   // De schuif heeft alleen zin als deze lijst meerdere afstanden bevat.
   const afstandenAanwezig = useMemo(
     () => new Set(items.map((a) => a.afstand)).size,
@@ -103,11 +116,22 @@ export default function LijstView({
         );
       })
       .sort((a, b) => {
+        // Gedane dingen zakken altijd naar beneden; die zoek je niet meer uit.
         if (a.gedaan !== b.gedaan) return a.gedaan ? 1 : -1;
+        if (volgorde === "dichtbij") {
+          // Hier wint afstand van favoriet. "Dichtstbij bovenaan" betekent
+          // dichtstbij bovenaan; een ster die dat doorbreekt maakt de
+          // volgorde onvoorspelbaar. Onbekende rijtijd zakt naar onderen in
+          // plaats van te verdwijnen - er wordt niets verborgen.
+          const va = rijInfo?.(a.locatie)?.km ?? Infinity;
+          const vb = rijInfo?.(b.locatie)?.km ?? Infinity;
+          if (va !== vb) return va - vb;
+          return a.naam.localeCompare(b.naam);
+        }
         if (a.favoriet !== b.favoriet) return a.favoriet ? -1 : 1;
         return a.naam.localeCompare(b.naam);
       });
-  }, [items, zoek, categorie, tags, alleenOpen, alleenFav, alleenNu, bereik, maand]);
+  }, [items, zoek, categorie, tags, alleenOpen, alleenFav, alleenNu, bereik, maand, volgorde, rijInfo]);
 
   // Voor hikes/reizen: groepeer op afstand, in oplopende volgorde.
   const groepen = useMemo(() => {
@@ -233,6 +257,21 @@ export default function LijstView({
         {actieveFilters > 0 && (
           <button className="filterknop wis" onClick={wisFilters}>
             Wis alles
+          </button>
+        )}
+        {/* Alleen zichtbaar als er iets te sorteren valt. De knop toont de
+            volgorde die nu geldt; tikken zet hem om. */}
+        {ritBekend && (
+          <button
+            className="filterknop"
+            onClick={() => setOrdening(volgorde === "dichtbij" ? "naam" : "dichtbij")}
+            aria-label={
+              volgorde === "dichtbij"
+                ? "Gesorteerd op afstand, dichtstbij eerst. Wissel naar sorteren op naam."
+                : "Gesorteerd op naam. Wissel naar sorteren op afstand."
+            }
+          >
+            {volgorde === "dichtbij" ? "🚗 Dichtbij" : "A↓ Naam"}
           </button>
         )}
         <span className="filter-telling">
