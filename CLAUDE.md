@@ -311,6 +311,16 @@ Er is een browsertest voor alle vier de gevallen: kale regel, volledig zelf
 ingevuld (niets mag wijzigen), deels ingevuld, en of hij echt maar één keer
 draait.
 
+- **`INGETROKKEN` + `trekIn()`** haalt een avontuur weg dat achteraf is
+  ingetrokken. Dit is de **enige plek waar code data van de gebruiker
+  weggooit**, dus er zitten twee sloten op: de naam moet nog kloppen (heb je het
+  item hernoemd, of dat id inmiddels aan iets anders gegeven, dan blijft het
+  staan), en het draait één keer met een eigen markering. Het zet ook een
+  **grafsteen** in `av_verwijderd`, anders komt het item bij de eerstvolgende
+  synchronisatie gewoon terug van het andere toestel. Vier browsertests:
+  verse installatie, telefoon die het had, hernoemd, en hetzelfde id met een
+  ander avontuur.
+
 **Controleer bij een nieuwe vondst eerst of hij er al staat.** "Adventure
 Valley" zou anders als tweede regel naast zichzelf zijn geëindigd. En kijk of
 de plaats in de gazetteer van `lib/kaart.js` zit, anders belandt het avontuur
