@@ -33,7 +33,9 @@ import {
   SLEUTEL_GEMIGREERD,
   BUNDELS,
   SLEUTEL_VERRIJKING,
+  SLEUTEL_INGETROKKEN,
   verrijkAvonturen,
+  trekIn,
   migreerAvonturen,
   migreerCategorieen,
   vulAanMetBundel,
@@ -248,6 +250,38 @@ export default function App() {
     });
     try {
       localStorage.setItem(SLEUTEL_VERRIJKING, "1");
+    } catch {
+      /* niets te doen */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Avonturen die achteraf zijn ingetrokken weghalen. Draait een keer, en laat
+  // staan wat jij hernoemd hebt (zie trekIn). De grafsteen is nodig omdat het
+  // item anders bij de eerstvolgende synchronisatie terugkomt van het andere
+  // toestel.
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(SLEUTEL_INGETROKKEN)) return;
+    } catch {
+      return;
+    }
+    setActivities((lijst) => {
+      const uitkomst = trekIn(lijst);
+      if (!uitkomst) return lijst;
+      const nu = Date.now();
+      setTombs((t) => {
+        const volgende = { ...t };
+        uitkomst.verwijderdeIds.forEach((id) => {
+          volgende[id] = nu;
+        });
+        return volgende;
+      });
+      uitkomst.verwijderdeIds.forEach((id) => verwijderFoto(id));
+      return uitkomst.lijst;
+    });
+    try {
+      localStorage.setItem(SLEUTEL_INGETROKKEN, "1");
     } catch {
       /* niets te doen */
     }

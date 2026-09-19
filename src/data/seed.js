@@ -203,7 +203,6 @@ export const EXTRA_SEPT_2026 = [
 // betekenen dat deze drie nooit op een bestaande telefoon aankomen.
 export const EXTRA_SEPT_2026_B = [
   {id: 68, naam: "SharkTown", locatie: "Utrecht", categorie: "Speelpark", type: "Indoor speelhal, onderwaterthema", link: "https://www.sharktown.nl/", notities: "Indoorspeelhal met onderwaterthema, geopend op 15 augustus 2026. Ballenbak, glijbanen, trampolines, tunnels en een hindernisbaan; bedoeld voor kinderen van ongeveer 1 tot 12 jaar, met horeca voor de ouders. Volgens de post komen er elke week karakters langs (prinsessen en bekende helden) en is het eten halal. Prijzen uit die post: 0-1 jaar gratis, 2-3 jaar EUR 5,95, 4-12 jaar EUR 9,95, volwassenen gratis - dat waren de openingsprijzen, dus check ze voor je gaat. SOKKEN ZIJN VERPLICHT; vergeet je ze, dan kosten ze EUR 2,50 aan de kassa. Dagelijks 10-18 uur, maandag dicht. Binnenlopen kan gewoon, reserveren hoeft alleen voor groepen en feestjes. Australielaan 24, aan de rand van Utrecht (Kanaleneiland), ongeveer 960 m2. Het is nieuw, dus in vakanties kan het druk zijn.", gedaan: false, favoriet: false, periode: "", tags: ["kids", "binnen", "regendag", "halal"]},
-  {id: 69, naam: "Bubble Planet", locatie: "Utrecht", categorie: "Cultuur", type: "Immersieve experience", link: "https://bubble-planet.com/utrecht/", notities: "LET OP: DE UTRECHTSE EDITIE IS VOORBIJ. Die liep van 22 december 2025 tot en met 6 september 2026 in hal 5 van de Jaarbeurs. Het is een rondreizende experience, dus hij kan in een andere stad terugkomen - daarom bewaard in plaats van weggegooid. Wat het was: tien interactieve zintuiglijke ruimtes met bubbels, ballonnen, licht, kleur, gezichtsbedrog en VR, plus een ballenbak die volgens de post het grootste succes bij de kinderen was. Reken op 60 tot 90 minuten. Alle leeftijden welkom; kinderen t/m 2 jaar gratis, kindertarief gold voor 3 t/m 12 jaar. Prijzen lagen rond EUR 18,90 voor volwassenen en EUR 14,90 voor kinderen, met korting voor studenten, 65-plussers en mensen met een beperking. Sokken meenemen voor de ballenbak. De locatie lag pal naast Utrecht Centraal.", gedaan: false, favoriet: false, periode: "", tags: ["kids", "binnen", "regendag"]},
   {id: 70, naam: "De Pannenkoekenjungle", locatie: "Apeldoorn, Gelderland", categorie: "Eten & drinken", type: "Pannenkoekenrestaurant met speeltuin", link: "https://depannenkoekenjungle.nl/", notities: "Pannenkoekenrestaurant met jungledecor: planten, dieren en tropische aankleding, een kleine binnenspeeltuin en een grotere buitenspeeltuin. Het paradepaardje is de POFFERTJES EXPERIENCE: je bakt zelf aan tafel en kiest vijf toppings (mango, aardbei, blauwe bessen, Nutella, vruchtenhagel en meer). Die experience is voor 4 personen, maar met vijf lukt ook prima als je wat extra's bijbestelt. Verder pannenkoeken, lunchgerechten, burgers (ook vega), nagerechten en met de hand geperste jus. Voor de kinderen is er een speurtocht door het restaurant met een presentje aan het eind, en kleurplaten. Brinklaan 145. Openingstijden staan niet betrouwbaar online, dus check de site. Let op: de post waar dit vandaan komt was een uitnodiging van het restaurant (AD).", gedaan: false, favoriet: false, periode: "", tags: ["kids", "speeltuin", "uit eten", "lunch"]},
 ];
 
@@ -236,6 +235,21 @@ export const VERRIJKINGEN_SEPT_2026 = [
       notities: "Avonturenpark in de Ardennen met vijf zones en meer dan twintig attracties: klimnetten, glijbanen en parcours voor de kleintjes, en deathrides en een sky ladder voor wie het hoog en eng wil. De nieuwe zone heet Wild Wood: een boomparcours met bruggen, netten, touwparcours en uitzichtpunten. TOEGANG GAAT OP LENGTE, niet op leeftijd: vanaf 1,10 m betaal je het volwassenentarief, tussen 85 cm en 1,10 m het kindertarief, onder 85 cm gratis. Er geldt ook een maximum van 120 kg. VOORAF RESERVEREN IS VERPLICHT en de toegang hangt af van beschikbaarheid, dus niet zomaar langsgaan. Losse dagtickets gaan richting de EUR 33; via kortingssites zag ik lagere tarieven, en er lopen regelmatig acties zoals kom-met-3-betaal-voor-2. Reken op een hele dag. Let op: de Instagram-post waar dit vandaan komt was een advertentie.",
     },
   },
+];
+
+// Avonturen die achteraf zijn ingetrokken. Een verse installatie krijgt ze niet
+// meer omdat ze uit de bundel zijn gehaald, maar een telefoon die de bundel al
+// verwerkte heeft ze nog staan - en die markering is al gezet, dus daar gebeurt
+// niets meer. Vandaar deze lijst.
+//
+// De `naam` is een CONTROLE, geen sierletter: hij moet overeenkomen met wat er
+// staat voordat er iets verdwijnt. Anders zou een id dat jij inmiddels aan iets
+// anders hebt gegeven zomaar weggegooid worden.
+export const INGETROKKEN = [
+  // Bubble Planet: de Utrechtse editie liep t/m 6 september 2026 en is voorbij.
+  // Toegevoegd omdat het een rondreizende experience is, op verzoek weer
+  // ingetrokken.
+  { id: 69, naam: "Bubble Planet" },
 ];
 
 export const SEED_ACTIVITIES = [

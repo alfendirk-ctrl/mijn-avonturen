@@ -18,6 +18,7 @@ import {
   EXTRA_SEPT_2026_B,
   EXTRA_SEPT_2026_C,
   VERRIJKINGEN_SEPT_2026,
+  INGETROKKEN,
 } from "../data/seed.js";
 
 // Onder welke sleutel onthouden wordt dat de omzetting gedraaid heeft. Zonder
@@ -166,6 +167,31 @@ const isLeeg = (waarde, veld) => {
   if (!t) return true;
   return veld === "locatie" && TE_VAAG_OM_TE_BEHOUDEN.includes(t.toLowerCase());
 };
+
+export const SLEUTEL_INGETROKKEN = "av_ingetrokken_sept26";
+
+// Haalt avonturen weg die achteraf zijn ingetrokken. Dit is de enige plek waar
+// code data van de gebruiker WEGGOOIT, dus er zitten twee sloten op:
+//
+// 1. de naam moet nog kloppen. Heb je dat id inmiddels aan iets anders gegeven,
+//    of het avontuur hernoemd tot iets dat je wél wilt houden, dan blijft het
+//    staan;
+// 2. het draait een keer, met een eigen markering, net als de rest.
+//
+// Geeft { lijst, verwijderdeIds } terug, zodat de aanroeper er grafstenen voor
+// kan zetten - anders komt het item bij de eerstvolgende synchronisatie gewoon
+// terug van het andere toestel.
+export function trekIn(avonturen, ingetrokken = INGETROKKEN) {
+  const weg = new Set();
+  const lijst = avonturen.filter((a) => {
+    const bron = ingetrokken.find((i) => i.id === a.id);
+    if (!bron) return true;
+    if (String(a.naam ?? "").trim() !== bron.naam) return true;
+    weg.add(a.id);
+    return false;
+  });
+  return weg.size ? { lijst, verwijderdeIds: [...weg] } : null;
+}
 
 export const SLEUTEL_VERRIJKING = "av_verrijking_sept26";
 
