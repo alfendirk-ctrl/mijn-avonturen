@@ -4,6 +4,7 @@ import { MARKERINGEN, EMPTY_ACTIVITY, MAX_TAGS, schoonTags } from "../data/seed.
 import { haalFoto, verkleinAfbeelding } from "../lib/fotos.js";
 import { leesTekst, veldenUitTekst } from "../lib/lezen.js";
 import { useFoto } from "../useFoto.js";
+import Notitie from "./Notitie.jsx";
 
 // Detail-/bewerkvenster voor één avontuur.
 // mode "view" -> alleen lezen, met knoppen om te bewerken of te verwijderen
@@ -621,7 +622,13 @@ export default function DetailModal({
               <Rij icoon="🧭" label="Regio" waarde={activity.regio} />
             )}
           {activity.notities && (
-            <Rij icoon="📝" label="Notities" waarde={activity.notities} />
+            <div className="m-row">
+              <div className="m-ico">📝</div>
+              <div className="m-info">
+                <div className="m-lbl">Notities</div>
+                <Notitie tekst={activity.notities} />
+              </div>
+            </div>
           )}
           {activity.link && (
             <div className="m-row">

@@ -42,6 +42,8 @@
   /* Het accent heeft vier vaste doorschijnende stappen; het rood had er negen,
      van 9% tot 30%, allemaal per element bedacht. Nu dezelfde drie die je nodig
      hebt: een vlak, een rand, en een sterkere rand. */
+  --amber-09: rgba(245,166,35,0.09);
+  --amber-22: rgba(245,166,35,0.22);
   --gevaar-12: rgba(239,68,68,0.12);
   --gevaar-20: rgba(239,68,68,0.20);
   --gevaar-28: rgba(239,68,68,0.28);
@@ -171,6 +173,15 @@
 .m-info { flex:1; min-width:0; }
 .m-lbl { font-family:'DM Sans',sans-serif; font-size:var(--t-11); letter-spacing:1.5px; text-transform:uppercase; color:var(--label); margin-bottom:3px; }
 .m-val { font-family:'DM Sans',sans-serif; font-size:var(--t-15); color:var(--zacht); line-height:1.5; word-break:break-word; }
+/* Notities kwamen hier binnen als één blok van soms negenhonderd tekens,
+   met een geschreeuwde waarschuwing ergens in het midden. lib/notities.js
+   leest de alinea's en die waarschuwingen eruit; hier krijgen ze lucht. */
+.notitie { display:flex; flex-direction:column; gap:10px; }
+.notitie-alinea { font-family:'DM Sans',sans-serif; font-size:var(--t-15); color:var(--zacht); line-height:1.65; word-break:break-word; }
+.notitie-letop { display:flex; gap:9px; padding:10px 12px; border-radius:var(--r-10); background:var(--amber-09); border:1px solid var(--amber-22); font-family:'DM Sans',sans-serif; font-size:var(--t-14); line-height:1.6; color:var(--waarschuwing-tekst); word-break:break-word; }
+.notitie-letop strong { color:var(--kop); font-weight:500; }
+.notitie-letop-ico { flex-shrink:0; line-height:1.6; }
+
 .m-badge { display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:var(--r-pil); font-family:'DM Sans',sans-serif; font-size:var(--t-13); font-weight:500; }
 .m-link { display:inline-flex; align-items:center; gap:8px; padding:10px 18px; border-radius:var(--r-10); font-family:'DM Sans',sans-serif; font-size:var(--t-14); font-weight:600; color:var(--op-accent); text-decoration:none; background:var(--accent); }
 
@@ -309,7 +320,8 @@ html, body { background:var(--grond); color:var(--text); font-family:system-ui, 
 .htag.season { border-color:var(--accent-40); color:color-mix(in srgb, var(--accent) 45%, var(--wit)); background:var(--accent-05); }
 .htag.fav { border-color:rgba(245,166,35,0.35); color:var(--favoriet); background:rgba(245,166,35,0.1); }
 .hcard-note { font-family:'DM Sans',sans-serif; font-size:var(--t-12); color:var(--zacht); line-height:1.5; margin:2px 0 12px; display:flex; gap:6px; }
-.hcard-note span { flex-shrink:0; opacity:.7; }
+.hcard-note > span:first-child { flex-shrink:0; opacity:.7; }
+.hcard-note-tekst { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
 
 
 @media (max-width:520px) {
@@ -340,6 +352,12 @@ html, body { background:var(--grond); color:var(--text); font-family:system-ui, 
 .nu-eye { font-family:'Syne',sans-serif; font-size:clamp(26px,6vw,38px); font-weight:800; letter-spacing:-1px; color:var(--kop); line-height:1.05; }
 .nu-lead { font-family:'DM Sans',sans-serif; font-size:var(--t-14); color:var(--muted); margin-top:8px; line-height:1.5; }
 .nu-lead strong { color:var(--zacht); font-weight:500; }
+/* Tagknoppen op het startscherm. Dezelfde knop als in de lijst, zodat een
+   tag er overal hetzelfde uitziet; alleen de rij eromheen is anders, want
+   hier staan er hooguit zes. */
+.nu-tags { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:-8px 0 20px; }
+.nu-tags-lbl { font-family:'DM Sans',sans-serif; font-size:var(--t-13); color:var(--muted); margin-right:2px; }
+
 .nu-bar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:20px; }
 .nu-bar .vbtn { font-size:var(--t-15); padding:13px 24px; }
 .vbtn:disabled { opacity:.35; cursor:not-allowed; transform:none; }
@@ -413,7 +431,7 @@ html, body { background:var(--grond); color:var(--text); font-family:system-ui, 
 .deel-ico { font-size:var(--t-icoon); display:block; margin-bottom:12px; }
 .deel-uit .empty-h { color:var(--zacht); margin-bottom:8px; }
 .deel-uit .hint { text-align:left; }
-.waarschuwing { padding:12px 14px; border-radius:var(--r-10); background:rgba(245,166,35,0.09); border:1px solid rgba(245,166,35,0.22); font-family:'DM Sans',sans-serif; font-size:var(--t-12); line-height:1.5; color:var(--waarschuwing-tekst); }
+.waarschuwing { padding:12px 14px; border-radius:var(--r-10); background:var(--amber-09); border:1px solid var(--amber-22); font-family:'DM Sans',sans-serif; font-size:var(--t-12); line-height:1.5; color:var(--waarschuwing-tekst); }
 .link-doos { padding:12px 14px; border-radius:var(--r-10); background:rgba(255,255,255,0.04); border:1px solid var(--border); font-family:'DM Sans',sans-serif; font-size:var(--t-12); color:var(--zacht); word-break:break-all; line-height:1.5; }
 .sync-status { display:flex; align-items:center; gap:9px; font-family:'DM Sans',sans-serif; font-size:var(--t-13); color:var(--zacht); }
 .sync-status .sync-stip { position:static; width:8px; height:8px; border:none; }

@@ -1,5 +1,6 @@
 import { useFoto } from "../useFoto.js";
 import { metBreekpunten } from "../lib/tekst.jsx";
+import { eersteAlinea } from "../lib/notities.js";
 
 // Rijkere kaart voor bewaarde dromen (hikes en reizen): toont het beste
 // seizoen, notities en of er route-info bewaard is.
@@ -51,10 +52,15 @@ export default function WishCard({ item, cat, onClick, onToggleDone, onToggleFav
       <div className="hcard-name">{metBreekpunten(item.naam)}</div>
       <div className="hcard-loc">📍 {item.locatie}</div>
 
+      {/* Alleen de openingsalinea, geknipt op drie regels. De notities bij de
+          hikes en reizen zijn nu nog één regel, dus dit knipt vandaag niets
+          weg - maar bij de uitjes staan er al van negenhonderd tekens, en die
+          zouden hier een kaart van een halve schermhoogte maken. Het hele
+          verhaal staat in het detailvenster. */}
       {item.notities && (
         <div className="hcard-note">
           <span>📝</span>
-          {item.notities}
+          <span className="hcard-note-tekst">{eersteAlinea(item.notities)}</span>
         </div>
       )}
 
