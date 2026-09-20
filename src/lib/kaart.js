@@ -27,6 +27,7 @@ const PLAATSEN = {
   nijmegen: [51.8126, 5.8372],
   arnhem: [51.9851, 5.8987],
   nuenen: [51.4728, 5.5472],
+  putten: [52.2547, 5.6086],
   rotterdam: [51.9225, 4.4792],
   schalkwijk: [51.9833, 5.2167],
   terschelling: [53.3833, 5.3333],

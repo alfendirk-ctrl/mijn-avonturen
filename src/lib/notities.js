@@ -64,7 +64,19 @@ function schrijfwijzeElders(woord, heleTekst) {
     if (gevonden === woord) continue;
     telling.set(gevonden, (telling.get(gevonden) ?? 0) + 1);
   }
-  if (!telling.size) return null;
+  if (!telling.size) {
+    // Niets gevonden. Laatste kans: een samenstelling waarvan alleen het
+    // eerste deel elders staat. "SPEULDERBOS" komt in zijn geheel nergens
+    // anders voor, maar "Speulder-" wel - en dat is genoeg om te weten dat
+    // het een eigennaam is. Zonder dit werd het "speulderbos".
+    const klein = woord.toLowerCase();
+    for (const [, gevonden] of heleTekst.matchAll(/\b(\p{Lu}\p{Ll}{3,})/gu)) {
+      if (klein.startsWith(gevonden.toLowerCase())) {
+        return woord.charAt(0) + woord.slice(1).toLowerCase();
+      }
+    }
+    return null;
+  }
   // De vaakst voorkomende schrijfwijze wint, en bij gelijkspel de kleine
   // letter. Anders werd "PAS OP MET DE PRIJS" een "Pas op met De prijs": het
   // lidwoord "de" staat ook ergens aan het begin van een zin als "De", en de

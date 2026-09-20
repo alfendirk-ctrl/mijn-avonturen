@@ -391,6 +391,10 @@ Three rules worth keeping:
   came out as "Pas op met De prijs", because the article also starts a sentence
   somewhere. `AFKORTINGEN` holds the handful that must stay capitalised; note
   `DE` is deliberately *not* in it.
+  A **compound** falls back to its first part: `SPEULDERBOS` appears nowhere
+  else in its note, but `Speulder-` does, and that is enough to know it is a
+  name. Without that rule the heading read "in het speulderbos". The rule only
+  fires when nothing else matched, and it only restores the leading capital.
 - Sentences after a warning start a fresh paragraph rather than being pulled
   into it. Sometimes the next sentence belongs to the warning ("Ga er dus niet
   heen zonder…"), sometimes it is a new subject — directly underneath reads

@@ -237,6 +237,12 @@ export const VERRIJKINGEN_SEPT_2026 = [
   },
 ];
 
+// Vijfde ronde. Een uitkijktoren in het bos bij Putten, gevonden als
+// herfsttip; dus met een periode, want daar is het startscherm voor.
+export const EXTRA_SEPT_2026_E = [
+  {id: 80, naam: "Bostoren Schovenhorst", locatie: "Putten, Gelderland", categorie: "Hike", type: "Uitkijktoren met boswandeling", link: "https://schovenhorst.nl/bostoren/", notities: "Uitkijktoren van veertig meter op Landgoed Schovenhorst, met 235 treden naar boven. Onderweg kom je langs een klein theater, een wand met nestkasten en een vrijhangend klimnet voor wie durft. Vanaf de top kijk je over de boomtoppen uit, en in oktober en november kleurt dat hele bos oranje - dat is waar de tip om begonnen is. DE TOREN STAAT NIET IN HET SPEULDERBOS, zoals de post suggereert, maar op Landgoed Schovenhorst. Het Speulder- en Sprielderbos ligt ernaast en is van Staatsbosbeheer, dus een wandeling eraan vastknopen kan prima - het is alleen niet hetzelfde terrein. DE TOREN IS OOK NIET GRATIS: EUR 4 p.p., vanaf tien personen EUR 3 als je online koopt. Het landgoed zelf is wel vrij toegankelijk van zonsopgang tot zonsondergang. Dagelijks open van 9:00 tot 17:15 (een andere bron zegt 17:30, dus ga niet op het laatste kwartier af). Betalen kan contactloos bij de draaideur; kaartjes zijn er ook bij Brasserie Schovenhorst, Museum de Tien Malen en de VVV in Putten. Parkeren aan de Garderenseweg bij de kruising met de Nieuwe Prinsenweg, vanaf daar is het nog ongeveer 500 meter lopen.", gedaan: false, favoriet: false, periode: "okt-nov", tags: ["herfst", "uitzicht", "bos", "wandelen", "kids"]},
+];
+
 // Tweede ronde aanvullingen. Eigen lijst en straks een eigen markering: de
 // vorige is op een bestaande telefoon al afgevinkt, dus hergebruiken zou
 // betekenen dat deze daar nooit aankomt. Zelfde regel als bij de bundels.
@@ -347,4 +353,5 @@ export const SEED_ACTIVITIES = [
   ...EXTRA_SEPT_2026_B,
   ...EXTRA_SEPT_2026_C,
   ...EXTRA_SEPT_2026_D,
+  ...EXTRA_SEPT_2026_E,
 ];
