@@ -19,6 +19,7 @@ import {
   EXTRA_SEPT_2026_C,
   EXTRA_SEPT_2026_D,
   EXTRA_SEPT_2026_E,
+  EXTRA_SEPT_2026_F,
   VERRIJKINGEN_SEPT_2026,
   VERRIJKINGEN_SEPT_2026_B,
   INGETROKKEN,
@@ -159,6 +160,7 @@ export const BUNDELS = [
   { sleutel: "av_bundel_sept26c", items: EXTRA_SEPT_2026_C },
   { sleutel: "av_bundel_sept26d", items: EXTRA_SEPT_2026_D },
   { sleutel: "av_bundel_sept26e", items: EXTRA_SEPT_2026_E },
+  { sleutel: "av_bundel_sept26f", items: EXTRA_SEPT_2026_F },
 ];
 
 // Locaties waar de kaart geen speld op kan zetten; voor een aanvulling tellen
