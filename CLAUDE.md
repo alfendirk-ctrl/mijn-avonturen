@@ -15,7 +15,45 @@ npm install        # install dependencies
 npm run build      # build the app into the repo root (assets/main.js, assets/main.css)
 ```
 
-There is no linter or test runner configured.
+There is no linter or test runner configured, and no test files are committed.
+
+## Hoe je iets nameet
+
+Nearly every rule in this file ends in "measure it, don't assume it", so here
+is how, because it has been re-derived more than once.
+
+Checks are **throwaway scripts in a headless browser**, written in the
+scratchpad and not committed — the thing being checked is usually a layout, a
+tap target, a sort order or a one-time migration, none of which a unit test
+reaches. The pattern:
+
+1. `npm install && npm run build`. The container is wiped between sessions, so
+   `node_modules` is often gone and `vite: not found` means exactly that.
+2. Serve the **repo root** over a tiny static server mounted at
+   `/mijn-avonturen/`, the same sub-path Pages uses. Serving it at `/` makes
+   every asset 404, because `index.html` is hand-written with that prefix.
+3. Drive it with `playwright-core`. It is **not** a project dependency and must
+   not become one — install it in the scratchpad (`npm install
+   playwright-core` there) and import it by absolute path, so a plain
+   `npm install` in the project cannot wipe it.
+4. Launch with `executablePath` pointing at the preinstalled Chromium and
+   `args: ["--no-sandbox", "--no-proxy-server"]`. **Glob for the binary**
+   (`/opt/pw-browsers/chromium-*/chrome-linux*/chrome`); the version number in
+   that path changes under you, and so does the directory name
+   (`chrome-linux` became `chrome-linux64`).
+
+Two habits that have each caught a real bug:
+
+- **Collect `pageerror`** and report the list. A silent React error otherwise
+  looks like a passing test.
+- **Stub the outside world** with `context.route()`. OSRM and Nominatim are
+  blocked by the egress proxy here, so a test that needs driving distances
+  answers them itself. Give the stub **random** distances rather than an
+  ascending series: with an ascending series a sort test passes even when
+  nothing is sorted.
+
+And the honest limit: a stub proves what the app asks for and what it does with
+the answer, not that the real service replies that way. Say so when reporting.
 
 `npm run build` is the primary command: it writes the production build straight into the repo root (see Deployment). To preview the built app the way GitHub Pages serves it (root mounted under `/mijn-avonturen/`), serve the repo root through a static server at that sub-path and open `…/mijn-avonturen/`. Note there is **no** `npm run dev` flow here: the root `index.html` is hand-written to reference the built assets, not `/src/main.jsx`, so a Vite dev server won't hot-load source — rebuild instead.
 
@@ -24,7 +62,7 @@ There is no linter or test runner configured.
 - **`src/main.jsx`** — React entry; mounts `<App>` and imports `src/styles.css`.
 - **`src/App.jsx`** — state, CRUD handlers, the tab bar, and all overlays (modal, settings panel, confirm dialogs). Read this first; the views below are presentational.
 - **`src/lib/afleiden.js`** — derives usable data from the free-text fields that already exist. `maandenUitPeriode` parses `periode` (`"juli-aug"`, `"okt-feb"`, `"lente/zomer"`) into month numbers; `afstandUitLocatie` maps `locatie` to one of `dichtbij` / `buurland` / `europa` / `ver` plus a region name. `verrijk()` adds `maanden`, `afstand`, `regio` and `soort` to an activity. **These are computed, never stored** — the free text stays the single source of truth, so there is nothing to migrate when the parser improves.
-- **`src/views/NuView.jsx`** — the "Wat doen we?" home screen: only shows what fits the current month, within a chosen distance range, and isn't done yet. Contains the "Verras me" picker.
+- **`src/views/NuView.jsx`** — the "Wat doen we?" home screen: only shows uitjes that fit the current month and the chosen distance, and that are not done — unless they are done *and* rated 3+, which brings them back (see "Waardering"). Contains the "Verras me" picker and its category chips.
 - **`src/views/LijstView.jsx`** — one list view reused by all three soorten. Uitjes render as compact `ActivityCard`s in a flat grid; hikes and reizen are "saved for later" and render as richer `WishCard`s grouped by distance.
 - **`src/data/seed.js`** — default data and fixed lists: `SEED_ACTIVITIES`, `SEED_CATEGORIES`, `SOORTEN`, `MARKERINGEN`, `COLOR_PALETTE`, `EMOJI_OPTIONS`, plus the `sanitize*` functions. Edit here to change starter content.
 
@@ -83,8 +121,17 @@ Every category carries a `soort` (`uitje` | `hike` | `reis`) which decides the t
 - **`src/lib/rijden.js`** + **`src/useRijden.js`** — driving distance and time from a home address the user sets in the app. See "Rijafstand" below.
 - **`src/useLocalStorage.js`** — a `useState` wrapper that persists to `localStorage`.
 - **`src/lib/sync.js`** — optional sharing between two people. See "Delen" below.
-- **`src/components/`** — presentational pieces: `Header`, `ActivityCard`, `DetailModal` (both the read-only view *and* the add/edit form, switched by a `mode` prop), `ConfirmDialog`, `SettingsPanel` (home address and category management),
-  `Notitie`, `ThuisInstelling`, `Toast`.
+- **`src/components/`** — presentational pieces: `Header`, `ActivityCard`
+  (compact, for uitjes) and `WishCard` (roomier, for hikes and reizen),
+  `DetailModal` (both the read-only view *and* the add/edit form, switched by a
+  `mode` prop), `ConfirmDialog`, `SettingsPanel` (home address and category
+  management), `DeelPaneel` (the share panel), `AfstandSlider`, `Notitie`,
+  `Sterren`, `ThuisInstelling`, `Toast`, and `ErrorBoundary` — which wraps the
+  whole app in `main.jsx` and offers a two-step wipe that copies the data to
+  the clipboard first, so a crash never forces you to throw the list away
+  blind.
+- **`src/useFoto.js`** — reads one photo out of IndexedDB for a card. See
+  "Foto's" for why it revokes its object URL.
 - **`src/styles.css`** — all styling, plain CSS with class names matching the JSX (`.card`, `.chip`, `.modal`, `.vbtn`, …). All animation is CSS keyframes; there is no animation library. Fonts (Syne, DM Sans) load from Google Fonts via `@import`.
 
 ### Data model
@@ -420,8 +467,11 @@ Three rules worth keeping:
   heen zonder…"), sometimes it is a new subject — directly underneath reads
   correctly either way.
 
-All 79 seeded notes round-trip through this without losing a character; that is
-the test worth re-running after a change.
+Run the reader over every seeded record and check each one comes back out
+unchanged, bar the capitals of a heading. There are 79 records but only 24 with
+an actual note; the empty ones are part of the check, because `leesNotitie("")`
+must give an empty list and not a block of nothing. That is the test worth
+re-running after any change here.
 
 ## Waardering
 
@@ -471,13 +521,15 @@ Details that matter:
 - **Sorting, not filtering.** The list gets a toggle between "🚗 Dichtbij"
   (nearest first) and "A↓ Naam"; it only appears once some ride is actually
   known, and it defaults to distance the moment one is. A *filter* was the
-  first instinct and the wrong one: 46 of 77 adventures have no known drive
-  (everything abroad, everything with a vague `locatie`), so a "max 45 min"
-  filter would silently empty the Reizen tab. Sorting puts the unknowns at the
+  first instinct and the wrong one: a large minority have no known drive — 19
+  of 79 resolve to no place at all, and of the 60 that do, OSRM cannot reach
+  several by road (Thailand, the Pacific Crest Trail). A "max 45 min" filter
+  would therefore silently empty the Reizen tab. Sorting puts the unknowns at the
   bottom instead — nothing is hidden.
   In distance order **distance beats favourite**: a star that jumps the queue
-  makes "nearest first" mean something else. Done items still sink to the
-  bottom in both orders. Hikes and reizen are grouped by distance class first,
+  makes "nearest first" mean something else. Done items used to sink to the
+  bottom in both orders; that is gone — see "Done is a label, not a
+  strikethrough". Hikes and reizen are grouped by distance class first,
   so the km order holds *within* a group and resets at each heading — measure
   it per group, or the check fails on a correct list.
 - **The distance slider switches to kilometres** as soon as any ride is known
