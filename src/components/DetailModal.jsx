@@ -6,6 +6,7 @@ import { leesTekst, veldenUitTekst } from "../lib/lezen.js";
 import { useFoto } from "../useFoto.js";
 import Notitie from "./Notitie.jsx";
 import { beschrijfRit } from "../lib/rijden.js";
+import Sterren from "./Sterren.jsx";
 
 // Detail-/bewerkvenster voor één avontuur.
 // mode "view" -> alleen lezen, met knoppen om te bewerken of te verwijderen
@@ -21,6 +22,7 @@ export default function DetailModal({
   onEdit,
   onDelete,
   onSave,
+  onWaardeer,
   rit,
 }) {
   const isNew = !activity;
@@ -42,6 +44,7 @@ export default function DetailModal({
           favoriet: !!activity.favoriet,
           periode: activity.periode || "",
           tags: activity.tags || [],
+          waardering: activity.waardering || 0,
           foto: !!activity.foto,
         }
       : {
@@ -471,6 +474,16 @@ export default function DetailModal({
                   ✓ Gedaan
                 </button>
               </div>
+              {/* Pas zinvol als je er geweest bent, dus de sterren komen pas
+                  tevoorschijn als "gedaan" aan staat. Het cijfer blijft wel
+                  bewaard als je het weer uitzet - zie sanitizeActivities. */}
+              {form.gedaan && (
+                <Sterren
+                  waarde={form.waardering}
+                  onKies={(n) => setForm((f) => ({ ...f, waardering: n }))}
+                  label="Hoe was het?"
+                />
+              )}
             </div>
             <div>
               <label className="lbl" htmlFor={`${vid}-link`}>Website / Link</label>
@@ -611,6 +624,16 @@ export default function DetailModal({
                   </span>
                 )}
               </div>
+              {/* Meteen aan te tikken, zonder eerst op Bewerken: na afloop
+                  van een dagje uit wil je één tik doen, geen formulier
+                  openen. */}
+              {activity.gedaan && onWaardeer && (
+                <Sterren
+                  waarde={activity.waardering}
+                  onKies={(n) => onWaardeer(activity, n)}
+                  label="Hoe was het?"
+                />
+              )}
             </div>
           </div>
 

@@ -5,7 +5,7 @@
 // wordt er samengevoegd: bij een conflict wint de versie die het laatst is
 // bijgewerkt. De ruimte-id is het geheim — wie die niet heeft, ziet niets.
 
-import { schoonTags } from "../data/seed.js";
+import { schoonTags, schoonWaardering } from "../data/seed.js";
 
 const URL_BASIS = "https://lnldkebuctpfxlccspga.supabase.co";
 
@@ -52,10 +52,10 @@ const ITEM_VELDEN = [
   "gedaan", "favoriet", "periode",
 ];
 
-// `tags` staat bewust niet in die lijst: het is een array en geen tekst, dus
-// de terugvalwaarde "" zou er een lege string van maken in plaats van een lege
-// lijst. Hij wordt hieronder apart behandeld, met dezelfde opschoning als de
-// rest van de app gebruikt.
+// `tags` en `waardering` staan bewust niet in die lijst. De terugvalwaarde ""
+// zou van een ontbrekende array een lege string maken en van een ontbrekend
+// cijfer ook; allebei worden ze hieronder apart behandeld, met dezelfde
+// opschoning als de rest van de app gebruikt.
 
 // ---- Samenvoegen (pure functies, los te testen) -----------------------------
 
@@ -83,6 +83,9 @@ export function voegItemsSamen(lokaal, extern) {
       // Een rij die nog van vóór de tags komt heeft hier null staan; dat moet
       // een lege lijst worden en geen ontbrekend veld.
       schoon.tags = schoonTags(rij.tags);
+      // Een rij van vóór de waarderingen heeft hier null; dat is 0 (nog geen
+      // oordeel) en niet "".
+      schoon.waardering = schoonWaardering(rij.waardering);
       perId.set(sleutel, schoon);
     }
   }
@@ -155,6 +158,7 @@ export async function synchroniseer({ ruimte, items, categorieen, tombs }) {
     const rij = { ruimte_id: ruimte, id: a.id, verwijderd: false, bijgewerkt: a.bijgewerkt || nu };
     for (const v of ITEM_VELDEN) rij[v] = a[v] ?? (v === "link" ? null : "");
     rij.tags = schoonTags(a.tags);
+    rij.waardering = schoonWaardering(a.waardering);
     return rij;
   });
   const tombRijen = Object.entries(alleTombs).map(([id, tijd]) => ({

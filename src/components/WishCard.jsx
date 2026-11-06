@@ -1,7 +1,9 @@
+import { MARKERINGEN } from "../data/seed.js";
 import { useFoto } from "../useFoto.js";
 import { metBreekpunten } from "../lib/tekst.jsx";
 import { eersteAlinea } from "../lib/notities.js";
 import { beschrijfRit } from "../lib/rijden.js";
+import Sterren from "./Sterren.jsx";
 
 // Rijkere kaart voor bewaarde dromen (hikes en reizen): toont het beste
 // seizoen, notities en of er route-info bewaard is.
@@ -51,6 +53,11 @@ export default function WishCard({ item, cat, onClick, onToggleDone, onToggleFav
       </div>
 
       <div className="hcard-name">{metBreekpunten(item.naam)}</div>
+      {gedaan && (
+        <div className="hcard-af" style={{ color: MARKERINGEN.gedaan.kleur }}>
+          ✓ gedaan <Sterren waarde={item.waardering} />
+        </div>
+      )}
       <div className="hcard-loc">📍 {item.locatie}</div>
       {rit && <div className="hcard-loc rit">🚗 {beschrijfRit(rit)}</div>}
 
