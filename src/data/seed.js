@@ -98,7 +98,7 @@ export const EMOJI_OPTIONS = [
 ];
 
 // Lege sjablonen voor de formulieren.
-export const EMPTY_ACTIVITY = { naam: "", locatie: "", categorie: "Water", type: "", link: "", notities: "", gedaan: false, favoriet: false, periode: "", tags: [], foto: false };
+export const EMPTY_ACTIVITY = { naam: "", locatie: "", categorie: "Water", type: "", link: "", notities: "", gedaan: false, favoriet: false, periode: "", tags: [], waardering: 0, foto: false };
 export const EMPTY_CATEGORY = { naam: "", emoji: "🌍", kleurIndex: 0, soort: "uitje" };
 
 // Kleine hulp: veilig naar kleine letters (ook bij null/undefined/getallen).
@@ -137,6 +137,17 @@ export function schoonTags(waarde) {
 // Schoont een opgeslagen activiteitenlijst op zodat elk item de verwachte
 // velden heeft. Voorkomt crashes door onvolledige/oude data. Geeft null bij
 // onbruikbare invoer (dan valt de app terug op de seed).
+// Een waardering is 0 (niet beoordeeld) of 1 t/m 5. Alles daarbuiten - een
+// komma, een tekst, iets negatiefs, 7 - wordt 0 en niet geraden. Eigen
+// normaliseerfunctie, net als schoonTags, zodat opgeslagen, getypte en
+// gesynchroniseerde waarderingen dezelfde vorm hebben.
+export const MAX_STERREN = 5;
+
+export function schoonWaardering(ruw) {
+  const n = Math.round(Number(ruw));
+  return Number.isFinite(n) && n >= 1 && n <= MAX_STERREN ? n : 0;
+}
+
 export function sanitizeActivities(arr) {
   if (!Array.isArray(arr)) return null;
   return arr
@@ -160,6 +171,10 @@ export function sanitizeActivities(arr) {
         favoriet,
         periode: String(a.periode ?? ""),
         tags: schoonTags(a.tags),
+        // 0 = nog geen oordeel. Alleen zinvol als `gedaan` aan staat, maar we
+        // gooien hem niet weg als dat uit staat: vink je per ongeluk uit en
+        // weer aan, dan is je oordeel er nog.
+        waardering: schoonWaardering(a.waardering),
         // Vlag, niet de afbeelding zelf: die staat in IndexedDB (lib/fotos.js).
         foto: !!a.foto,
       };

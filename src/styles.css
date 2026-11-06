@@ -309,8 +309,10 @@ html, body { background:var(--grond); color:var(--text); font-family:system-ui, 
 .hcard:hover { transform:translateY(-4px); border-color:rgba(255,255,255,0.14); box-shadow:0 12px 40px rgba(0,0,0,0.4); }
 .hcard:active { transform:scale(0.985); }
 .hcard-glow { position:absolute; top:-30px; left:-30px; width:120px; height:120px; border-radius:50%; opacity:.14; filter:blur(28px); pointer-events:none; }
-.hcard.done { opacity:.62; }
-.hcard.done .hcard-name { text-decoration:line-through; text-decoration-color:rgba(255,255,255,0.25); }
+/* Gedaan wordt niet meer gedimd of doorgestreept. Dat las als "afgehandeld,
+   wegwezen", terwijl een plek waar je geweest bent juist een plek is waar je
+   terug kunt - zeker met een goede waardering erbij. Het label zegt het nu. */
+.hcard-af { font-family:'DM Sans',sans-serif; font-size:var(--t-12); font-weight:500; margin:-6px 0 10px; display:flex; align-items:center; gap:6px; }
 .hcard-top { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:12px; }
 .hcard-ico { width:44px; height:44px; border-radius:var(--r-12); display:flex; align-items:center; justify-content:center; font-size:var(--t-22); background:rgba(255,255,255,0.06); flex-shrink:0; }
 .hcard-check { flex-shrink:0; width:34px; height:34px; border-radius:50%; border:1.5px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.03); color:var(--muted); font-size:var(--t-15); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .16s; }
@@ -363,6 +365,10 @@ html, body { background:var(--grond); color:var(--text); font-family:system-ui, 
 /* Tagknoppen op het startscherm. Dezelfde knop als in de lijst, zodat een
    tag er overal hetzelfde uitziet; alleen de rij eromheen is anders, want
    hier staan er hooguit zes. */
+/* De categorierij op het startscherm: dezelfde chips als in de lijst, zodat
+   een categorie er overal hetzelfde uitziet. */
+.nu-cats { margin:-6px 0 16px; }
+
 .nu-tags { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:-8px 0 20px; }
 .nu-tags-lbl { font-family:'DM Sans',sans-serif; font-size:var(--t-13); color:var(--muted); margin-right:2px; }
 
@@ -396,10 +402,19 @@ html, body { background:var(--grond); color:var(--text); font-family:system-ui, 
 
 /* ---- Kaartdetails ---- */
 .ster { color:var(--favoriet); margin-right:5px; }
-.card.af { opacity:.55; }
-.card.af .card-name { text-decoration:line-through; text-decoration-color:rgba(255,255,255,0.25); }
+
 .card-onder { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
-.card-af-badge { display:block; font-family:'DM Sans',sans-serif; font-size:var(--t-11); font-weight:600; margin-top:9px; }
+.card-af-badge { display:flex; align-items:center; gap:6px; font-family:'DM Sans',sans-serif; font-size:var(--t-11); font-weight:600; margin-top:9px; }
+
+/* Sterren. Lezend zijn het tekens, kiezend zijn het knoppen van 44px. */
+.sterren { display:inline-flex; align-items:center; gap:2px; letter-spacing:1px; }
+.sterren .ster { color:var(--schuif); }
+.sterren .ster.aan { color:var(--favoriet); }
+.sterren.kies { gap:0; flex-wrap:wrap; margin-top:10px; }
+.ster-knop { min-width:44px; min-height:44px; display:inline-flex; align-items:center; justify-content:center; border:none; background:none; cursor:pointer; font-size:var(--t-20); line-height:1; color:var(--schuif); transition:color .15s, transform .15s; }
+.ster-knop:hover { transform:scale(1.12); }
+.ster-knop.aan { color:var(--favoriet); }
+.sterren-uitleg { font-family:'DM Sans',sans-serif; font-size:var(--t-12); color:var(--muted); margin-left:8px; }
 .card-per { margin-top:0 !important; }
 
 /* ---- Formulier & paneel ---- */
@@ -478,6 +493,12 @@ html, body { background:var(--grond); color:var(--text); font-family:system-ui, 
 .afstand-schuif::-moz-range-thumb { width:22px; height:22px; border-radius:50%; background:var(--accent); border:3px solid var(--grond); box-shadow:0 2px 8px rgba(0,0,0,0.5); cursor:grab; }
 .afstand-schuif:focus-visible { box-shadow:0 0 0 3px var(--accent-25); }
 .afstand-schaal { display:flex; justify-content:space-between; margin-top:6px; }
+/* In kilometers staan er geen knoppen maar labels onder de schuif: zes
+   knopjes van 23px erbij zou de uitzondering op de 44px-regel verdubbelen.
+   De schuif zelf is de bediening. */
+.afstand-schaal.km { font-family:'DM Sans',sans-serif; font-size:var(--t-11); color:var(--chip-tekst); }
+.afstand-tik { min-width:22px; text-align:center; }
+.afstand-tik.aan { color:var(--accent); font-weight:600; }
 .afstand-stap { background:none; border:none; padding:4px 2px; font-size:var(--t-15); line-height:1; cursor:pointer; opacity:.28; transition:opacity .15s, transform .15s; }
 .afstand-stap.aan { opacity:1; }
 .afstand-stap:hover { transform:scale(1.15); opacity:.85; }
@@ -499,7 +520,7 @@ html, body { background:var(--grond); color:var(--text); font-family:system-ui, 
 .kaart-foto { margin:-20px -20px 14px; height:120px; overflow:hidden; background:rgba(255,255,255,0.03); }
 .kaart-foto.groot { margin:-20px -20px 14px; height:150px; }
 .kaart-foto img { width:100%; height:100%; object-fit:cover; display:block; }
-.card.af .kaart-foto img { filter:grayscale(0.6); }
+
 
 .foto-kies { width:100%; padding:22px 14px; border-radius:var(--r-12); border:1px dashed var(--accent-40); background:var(--accent-05); font-family:'DM Sans',sans-serif; font-size:var(--t-14); color:var(--accent); cursor:pointer; transition:all .18s; }
 .foto-kies:hover { border-color:var(--accent); background:var(--accent-12); }

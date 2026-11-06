@@ -2,6 +2,7 @@ import { MARKERINGEN } from "../data/seed.js";
 import { useFoto } from "../useFoto.js";
 import { metBreekpunten } from "../lib/tekst.jsx";
 import { beschrijfRit } from "../lib/rijden.js";
+import Sterren from "./Sterren.jsx";
 
 // Hoeveel tags er op een compacte kaart passen zonder dat het rommelig wordt.
 // De rest wordt samengevat als "+2"; het volledige lijstje staat in het detail.
@@ -82,9 +83,12 @@ export default function ActivityCard({ activity, cat, onClick, onToggleDone, onT
           <span className="card-tag meer">+{activity.tags.length - MAX_KAART_TAGS}</span>
         )}
       </div>
+      {/* Gedaan is een label, geen doorhaling. Een avontuur dat je gedaan
+          hebt is geen afgehandeld takenlijstje maar een plek waar je bent
+          geweest - en waar je terug kunt. Vandaar ook de sterren erbij. */}
       {gedaan && (
         <span className="card-af-badge" style={{ color: MARKERINGEN.gedaan.kleur }}>
-          ✓ gedaan
+          ✓ gedaan <Sterren waarde={activity.waardering} />
         </span>
       )}
     </div>

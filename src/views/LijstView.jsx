@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { AFSTANDEN, huidigeMaand, pastInMaand } from "../lib/afleiden.js";
-import AfstandSlider, { AFSTAND_STAPPEN } from "../components/AfstandSlider.jsx";
+import AfstandSlider, { AFSTAND_STAPPEN, binnenBereik, KM_ALLES } from "../components/AfstandSlider.jsx";
 import { SOORTEN, lc } from "../data/seed.js";
 import ActivityCard from "../components/ActivityCard.jsx";
 import WishCard from "../components/WishCard.jsx";
@@ -25,7 +25,8 @@ export default function LijstView({
   const [alleenOpen, setAlleenOpen] = useState(false);
   const [alleenFav, setAlleenFav] = useState(false);
   const [alleenNu, setAlleenNu] = useState(false);
-  const [bereik, setBereik] = useState(AFSTAND_STAPPEN.length - 1);
+  const [bereikKlasse, setBereikKlasse] = useState(AFSTAND_STAPPEN.length - 1);
+  const [bereikKm, setBereikKm] = useState(KM_ALLES);
   // Gekozen tags, kleine letters. Meerdere tags betekent "alle van deze",
   // niet "een van deze": zo kun je juist naar de kruising zoeken — het is
   // tenslotte bedoeld voor dingen die twee dingen tegelijk zijn.
@@ -39,19 +40,30 @@ export default function LijstView({
   // Hoeveel filters staan er aan? Bepaalt het bolletje op de knop, zodat je
   // ook met het paneel dicht ziet dat je lijst geknepen is — anders zoek je je
   // suf naar een avontuur dat er wel is maar wegvalt.
+  // Zodra er rijafstanden bekend zijn gaat de schuif in kilometers; de twee
+  // standen worden apart bijgehouden zodat je niet per ongeluk op "tot 15 km"
+  // uitkomt als de rijtijden binnenkomen terwijl je op "Nederland" stond.
+  const kmModus = useMemo(
+    () => items.some((a) => rijInfo?.(a.locatie)),
+    [items, rijInfo],
+  );
+  const bereik = kmModus ? bereikKm : bereikKlasse;
+  const setBereik = kmModus ? setBereikKm : setBereikKlasse;
+  const bereikOpen = kmModus ? KM_ALLES : AFSTAND_STAPPEN.length - 1;
+
   const actieveFilters =
     (alleenOpen ? 1 : 0) +
     (alleenFav ? 1 : 0) +
     (alleenNu ? 1 : 0) +
     tags.length +
-    (bereik < AFSTAND_STAPPEN.length - 1 ? 1 : 0);
+    (bereik < bereikOpen ? 1 : 0);
 
   const wisFilters = () => {
     setAlleenOpen(false);
     setAlleenFav(false);
     setAlleenNu(false);
     setTags([]);
-    setBereik(AFSTAND_STAPPEN.length - 1);
+    setBereik(bereikOpen);
   };
 
   const wisselTag = (tag) =>
@@ -105,7 +117,7 @@ export default function LijstView({
         if (alleenOpen && a.gedaan) return false;
         if (alleenFav && !a.favoriet) return false;
         if (alleenNu && !pastInMaand(a.maanden, maand)) return false;
-        if (AFSTANDEN[a.afstand].volgorde > bereik) return false;
+        if (!binnenBereik(a, bereik, kmModus, rijInfo)) return false;
         if (!q) return true;
         return (
           lc(a.naam).includes(q) ||
@@ -116,8 +128,11 @@ export default function LijstView({
         );
       })
       .sort((a, b) => {
-        // Gedane dingen zakken altijd naar beneden; die zoek je niet meer uit.
-        if (a.gedaan !== b.gedaan) return a.gedaan ? 1 : -1;
+        // Gedane dingen zakten hier naar beneden. Dat is eruit: een plek waar
+        // je geweest bent is geen afgehandeld takenlijstje maar een plek waar
+        // je terug kunt, en hem wegstoppen maakt juist die moeilijk te vinden.
+        // Het label op de kaart zegt dat hij gedaan is; de filterknop "Nog te
+        // doen" haalt ze weg als je ze even niet wil zien.
         if (volgorde === "dichtbij") {
           // Hier wint afstand van favoriet. "Dichtstbij bovenaan" betekent
           // dichtstbij bovenaan; een ster die dat doorbreekt maakt de
@@ -131,7 +146,7 @@ export default function LijstView({
         if (a.favoriet !== b.favoriet) return a.favoriet ? -1 : 1;
         return a.naam.localeCompare(b.naam);
       });
-  }, [items, zoek, categorie, tags, alleenOpen, alleenFav, alleenNu, bereik, maand, volgorde, rijInfo]);
+  }, [items, zoek, categorie, tags, alleenOpen, alleenFav, alleenNu, bereik, kmModus, maand, volgorde, rijInfo]);
 
   // Voor hikes/reizen: groepeer op afstand, in oplopende volgorde.
   const groepen = useMemo(() => {
@@ -324,12 +339,13 @@ export default function LijstView({
             </div>
           )}
 
-          {afstandenAanwezig > 1 && (
+          {(afstandenAanwezig > 1 || kmModus) && (
             <div className="filtergroep">
               <AfstandSlider
                 waarde={bereik}
                 onChange={setBereik}
                 aantal={zichtbaar.length}
+                kmModus={kmModus}
               />
             </div>
           )}

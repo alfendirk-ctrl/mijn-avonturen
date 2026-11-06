@@ -91,7 +91,14 @@ Every category carries a `soort` (`uitje` | `hike` | `reis`) which decides the t
 
 Two `localStorage` keys, **which must not be renamed** or existing users lose their data:
 
-- **`av_db`** — array of activities: `{ id, naam, locatie, categorie, type, link, notities, gedaan, favoriet, periode, tags, foto }`. `gedaan` and `favoriet` are **independent booleans** — an older single `status` field conflated them, so ticking a favourite as done wiped its favourite mark. `sanitizeActivities` migrates the old `status` field on read.
+- **`av_db`** — array of activities: `{ id, naam, locatie, categorie, type, link, notities, gedaan, favoriet, periode, tags, waardering, foto }`. `gedaan` and `favoriet` are **independent booleans** — an older single `status` field conflated them, so ticking a favourite as done wiped its favourite mark. `sanitizeActivities` migrates the old `status` field on read.
+  `waardering` is 0 (no opinion yet) or 1–5; `schoonWaardering()` is its single
+  normaliser, used by the sanitizer **and by both directions of sync**, exactly
+  like `schoonTags()`. It is kept when `gedaan` is switched off, so an
+  accidental untick does not throw an opinion away. Like `tags` it is handled
+  separately from `ITEM_VELDEN` in `sync.js`: that loop's `""` fallback would
+  turn a missing number into an empty string. The Postgres column carries the
+  0–5 bound itself, so a row arriving past the app cannot hold a 9.
 - **`av_cats`** — object mapping a category name → `{ emoji, kleur, gradient, soort }`.
 
 Two further keys exist but are **not** data in the same sense: `av_thuis` (the
@@ -241,6 +248,19 @@ first adventure**, and the tag bar grew with every tag the user invented.
 
 Related rules, each paid for once:
 
+- **"Verras me" draws per category.** The dice used to sit next to two
+  buttons, "Uitjes" and "Alles", deciding whether hikes and reizen joined in —
+  which on a screen asking "what shall we do *now*?" could hand you the
+  Pacific Crest Trail. Those are gone: hikes and reizen never join, and the
+  space went to a row of category chips (the same `.cats-row` chips as the
+  list, so a category looks the same everywhere). Only categories that would
+  actually yield something are offered, with their counts.
+- **Done is a label, not a strikethrough.** A finished adventure used to be
+  dimmed, struck through and sunk to the bottom of the list. That reads as
+  "handled, out of the way", but a place you have been is a place you can go
+  back to. It now keeps its position and normal weight and carries a
+  `✓ gedaan` label with its stars. The "Nog te doen" filter is there for when
+  you do want them out of sight.
 - **"Verras me" has a tag row, capped at six buttons** plus whatever is
   selected. This is the home screen: every extra row of controls pushes the
   first adventure further down, and the tag bar grows with every tag the user
@@ -403,6 +423,29 @@ Three rules worth keeping:
 All 79 seeded notes round-trip through this without losing a character; that is
 the test worth re-running after a change.
 
+## Waardering
+
+A done adventure can carry 1–5 stars (`components/Sterren.jsx`, one component
+for both reading and setting — the difference is the `onKies` prop). Zero means
+**no opinion yet**, not a bad one, so a row of empty grey stars is never shown
+where nothing has been said.
+
+- Tapping the star you already chose **clears** the rating. Without that a
+  mistap is permanent: you can move to another number but never back to
+  "nothing said".
+- The stars sit in the read-only view and save on the tap, no Edit first. After
+  a day out you want one tap, not a form.
+- **A rating of 3 or more brings a done adventure back into "Wat doen we?"**
+  (`TERUG_VANAF` in `NuView.jsx`). That is the point of rating at all: a place
+  that was good is a tip from yourself. Without a rating it stays out, because
+  we do not know whether it was worth it.
+
+That last rule is why **the detail window holds an id and not a copy of the
+record**. It used to hold the object it was opened with, so rating from inside
+the window saved the number but left the stars empty — and the same went for
+any other change from outside. `App.jsx` looks the live item up by id on every
+render.
+
 ## Rijafstand
 
 `lib/rijden.js` and `useRijden.js` put "🚗 32 km · 28 min" on every card, in the
@@ -437,6 +480,18 @@ Details that matter:
   bottom in both orders. Hikes and reizen are grouped by distance class first,
   so the km order holds *within* a group and resets at each heading — measure
   it per group, or the check fails on a correct list.
+- **The distance slider switches to kilometres** as soon as any ride is known
+  (`KM_STAPPEN` / `binnenBereik` in `AfstandSlider.jsx`): 15, 30, 50, 75, 120,
+  ∞. The coarse Nederland / buurlanden / Europa / overal scale stays for when
+  there is no home address. The two positions are **kept separately**, so the
+  slider does not land on "tot 15 km" when the rides come in while you were on
+  "Nederland".
+  On the highest stop everything joins in, including the 46 adventures with no
+  known drive; move it down and they drop out, because "tot 50 km" cannot mean
+  anything else. The slider therefore **starts at the highest stop**: you only
+  lose something once you move it yourself. In kilometres the scale under the
+  slider is labels and not buttons — six more 23px targets would double the one
+  exception to the 44px rule, and the slider itself is the control.
 - **The cache key contains the home coordinates**, so moving house invalidates
   everything by itself — there is no cleanup step that can be forgotten.
 - A failed request is remembered in a ref for the session. Without that, a

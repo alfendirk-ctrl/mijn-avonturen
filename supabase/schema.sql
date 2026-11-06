@@ -60,6 +60,11 @@ create table if not exists public.item (
   -- Vrije labels naast de categorie. Not null met een lege lijst als standaard,
   -- zodat de app nooit hoeft te raden of null "geen tags" of "onbekend" betekent.
   tags       text[]  not null default '{}',
+  -- 0 = nog geen oordeel, 1 t/m 5 sterren. Not null om dezelfde reden als
+  -- tags: de app hoeft niet te raden of null "niet beoordeeld" of "onbekend"
+  -- betekent. De grenzen staan er ook echt in, zodat een rij die langs de app
+  -- om binnenkomt geen 9 kan bevatten.
+  waardering integer not null default 0 check (waardering between 0 and 5),
   verwijderd boolean not null,
   bijgewerkt bigint  not null,
   primary key (ruimte_id, id)
@@ -67,6 +72,16 @@ create table if not exists public.item (
 
 -- Voor een database die al bestond vóór de tags.
 alter table public.item add column if not exists tags text[] not null default '{}';
+
+-- En voor een database van vóór de waarderingen.
+alter table public.item add column if not exists waardering integer not null default 0;
+do $$
+begin
+  alter table public.item add constraint item_waardering_bereik
+    check (waardering between 0 and 5);
+exception
+  when duplicate_object then null;
+end $$;
 
 -- Categorieën horen bij een ruimte, niet bij de app: wie een categorie hernoemt
 -- of naar een ander tabblad verplaatst, doet dat voor allebei.

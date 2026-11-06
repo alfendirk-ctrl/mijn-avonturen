@@ -9,6 +9,7 @@ import {
   sanitizeActivities,
   sanitizeCategories,
   schoonTags,
+  schoonWaardering,
 } from "./data/seed.js";
 import { verrijk, huidigeMaand, themaVanMaand } from "./lib/afleiden.js";
 import { useRijden } from "./useRijden.js";
@@ -81,7 +82,7 @@ export default function App() {
 
   const [tab, setTab] = useState("nu");
   const [panelOpen, setPanelOpen] = useState(false);
-  const [modal, setModal] = useState(null); // { activity, mode }
+  const [modal, setModal] = useState(null); // { id, mode }
   const [adding, setAdding] = useState(null); // soort-sleutel
   const [confirmItem, setConfirmItem] = useState(null);
   const [confirmCategory, setConfirmCategory] = useState(null);
@@ -127,6 +128,15 @@ export default function App() {
   );
 
   const { rijInfo, status: rijStatus, berekend, plaatsen } = useRijden(items, thuis);
+
+  // Het geopende venster houdt alleen een id vast, geen kopie van het
+  // avontuur. Met een kopie bleef het venster staan op hoe het eruitzag toen
+  // je het opende: zet je er sterren in, dan sloeg hij ze wel op maar bleven
+  // de sterren leeg, en hetzelfde gold voor elke andere wijziging van buiten.
+  const modalItem = useMemo(
+    () => (modal ? items.find((a) => a.id === modal.id) ?? null : null),
+    [modal, items],
+  );
 
   const perSoort = useMemo(
     () => ({
@@ -398,6 +408,15 @@ export default function App() {
       aan ? "Toegevoegd aan favorieten ★" : "Uit favorieten",
     );
 
+  // Waardering zetten vanuit het leesvenster: één tik, geen formulier.
+  const waardeerActiviteit = (item, sterren) => {
+    const schoon = schoonWaardering(sterren);
+    setActivities((lijst) =>
+      lijst.map((a) => (a.id === item.id ? stempel({ ...a, waardering: schoon }) : a)),
+    );
+    pushToast(schoon ? `${schoon} ${schoon === 1 ? "ster" : "sterren"}` : "Waardering weg");
+  };
+
   // ---- Categorieën ----
   const addCategory = (cat) => {
     setCategories((c) => ({
@@ -455,7 +474,7 @@ export default function App() {
     }
   };
 
-  const openItem = (item) => setModal({ activity: item, mode: "view" });
+  const openItem = (item) => setModal({ id: item.id, mode: "view" });
 
   // ---- Delen met je partner ----
 
@@ -617,18 +636,19 @@ export default function App() {
       )}
       </main>
 
-      {modal && (
+      {modal && modalItem && (
         <DetailModal
-          activity={modal.activity}
+          activity={modalItem}
           mode={modal.mode}
           categories={catNamen}
           catMeta={catMeta}
           bekendeTags={bekendeTags}
           onClose={() => setModal(null)}
           onEdit={() => setModal({ ...modal, mode: "edit" })}
-          onDelete={() => setConfirmItem(modal.activity)}
+          onDelete={() => setConfirmItem(modalItem)}
           onSave={saveActivity}
-          rit={rijInfo(modal.activity?.locatie)}
+          onWaardeer={waardeerActiviteit}
+          rit={rijInfo(modalItem.locatie)}
         />
       )}
 

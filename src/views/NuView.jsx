@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import {
-  AFSTANDEN,
   huidigeMaand,
   MAAND_LABEL,
   pastInMaand,
@@ -8,7 +7,7 @@ import {
 } from "../lib/afleiden.js";
 import { SOORTEN } from "../data/seed.js";
 import ActivityCard from "../components/ActivityCard.jsx";
-import AfstandSlider from "../components/AfstandSlider.jsx";
+import AfstandSlider, { binnenBereik, KM_ALLES } from "../components/AfstandSlider.jsx";
 import { beschrijfRit } from "../lib/rijden.js";
 
 // Hoeveel suggesties we tonen voordat we naar de volledige lijst verwijzen.
@@ -22,18 +21,31 @@ const MAX_SUGGESTIES = 8;
 // uit beeld terwijl hij wel werkt.
 const MAX_TAGKNOPPEN = 6;
 
-// Waar "Verras me" uit put. Standaard alleen uitjes: dat zijn de dingen die je
-// zomaar kunt doen. Hikes en reizen vragen planning en horen in hun eigen tab.
-const BRONNEN = {
-  uitje: { label: "Uitjes", soorten: ["uitje"] },
-  alles: { label: "Alles", soorten: ["uitje", "hike", "reis"] },
-};
+// Vanaf hoeveel sterren een avontuur dat je al gedaan hebt weer meedoet. Een
+// plek waar het goed was is geen afgehandeld punt maar een plek om terug te
+// gaan; drie is "het was prima". Zonder oordeel (0 sterren) doet hij niet mee,
+// want dan weten we niet of het de moeite was.
+const TERUG_VANAF = 3;
 
 // "Wat doen we?" — het startscherm. Laat alleen zien wat nú kan: in dit
 // seizoen, binnen het gekozen bereik, en nog niet gedaan.
 export default function NuView({ items, catMeta, onOpen, onToggleDone, onToggleFav, onGaNaar, rijInfo }) {
-  const [bereik, setBereik] = useState(0); // 0 = alleen Nederland
-  const [bron, setBron] = useState("uitje");
+  // Zodra er rijafstanden bekend zijn gaat de schuif in kilometers. Die staat
+  // dan standaard op "alles": pas als je hem zelf verzet raak je iets kwijt.
+  const kmModus = useMemo(
+    () => items.some((a) => rijInfo?.(a.locatie)),
+    [items, rijInfo],
+  );
+  const [bereikKlasse, setBereikKlasse] = useState(0); // 0 = alleen Nederland
+  const [bereikKm, setBereikKm] = useState(KM_ALLES);
+  const bereik = kmModus ? bereikKm : bereikKlasse;
+  const setBereik = kmModus ? setBereikKm : setBereikKlasse;
+  // "alles", of de naam van één categorie. Hier stonden twee knoppen,
+  // "Uitjes" en "Alles", die bepaalden of hikes en reizen meededen in de
+  // dobbelsteen. Dat leverde op een scherm dat "wat doen we nú?" vraagt een
+  // Pacific Crest Trail op. Weg; de plek is naar de categorieën gegaan, want
+  // dat is wat je wél wil kiezen: zin in eten, of in een speeltuin.
+  const [categorie, setCategorie] = useState("alles");
   // Gekozen tags, kleine letters. Meerdere tags betekent "alle van deze",
   // net als in de lijst: het punt van tags is de overlap vinden.
   const [tags, setTags] = useState([]);
@@ -43,18 +55,40 @@ export default function NuView({ items, catMeta, onOpen, onToggleDone, onToggleF
   const maand = huidigeMaand();
   const thema = themaVanMaand(maand);
 
-  // Alles wat nú kan, nog zonder tagfilter. Hieruit komen ook de tagknoppen:
-  // een tag die niets zou opleveren hoort er niet te staan.
-  const basis = useMemo(() => {
-    const soorten = BRONNEN[bron].soorten;
-    return items.filter(
-      (a) =>
-        !a.gedaan &&
-        soorten.includes(a.soort) &&
-        pastInMaand(a.maanden, maand) &&
-        AFSTANDEN[a.afstand].volgorde <= bereik,
-    );
-  }, [items, bron, bereik, maand]);
+  // Wat er nú kan, los van categorie en tags. Hikes en reizen doen niet mee:
+  // dit scherm gaat over vanmiddag, niet over volgend jaar - daar zijn hun
+  // eigen tabbladen voor.
+  const kanNu = useMemo(
+    () =>
+      items.filter(
+        (a) =>
+          a.soort === "uitje" &&
+          // Gedaan valt af, behalve als je het goed vond. Dan is het geen
+          // afgevinkt punt meer maar een tip van jezelf.
+          (!a.gedaan || a.waardering >= TERUG_VANAF) &&
+          pastInMaand(a.maanden, maand) &&
+          binnenBereik(a, bereik, kmModus, rijInfo),
+      ),
+    [items, bereik, kmModus, rijInfo, maand],
+  );
+
+  // Welke categorieën leveren nu iets op, en hoeveel? Een categorie die niets
+  // oplevert hoort er niet te staan: dan tik je op een knop en krijg je niets.
+  const catTelling = useMemo(() => {
+    const m = new Map();
+    for (const a of kanNu) m.set(a.categorie, (m.get(a.categorie) ?? 0) + 1);
+    return [...m.entries()]
+      .map(([naam, aantal]) => ({ naam, aantal }))
+      .sort((a, b) => b.aantal - a.aantal || a.naam.localeCompare(b.naam));
+  }, [kanNu]);
+
+  // Alles wat nú kan binnen de gekozen categorie, nog zonder tagfilter.
+  // Hieruit komen ook de tagknoppen: een tag die niets zou opleveren hoort er
+  // niet te staan.
+  const basis = useMemo(
+    () => (categorie === "alles" ? kanNu : kanNu.filter((a) => a.categorie === categorie)),
+    [kanNu, categorie],
+  );
 
   const tagTelling = useMemo(() => {
     const telling = new Map();
@@ -154,23 +188,45 @@ export default function NuView({ items, catMeta, onOpen, onToggleDone, onToggleF
         <button className="vbtn" onClick={verrasMe} disabled={!passend.length}>
           🎲 Verras me
         </button>
-        <div className="hfilter">
-          {Object.entries(BRONNEN).map(([key, b]) => (
-            <button
-              key={key}
-              className={bron === key ? "on" : ""}
-              onClick={() => wissel(setBron)(key)}
-            >
-              {b.label}
-            </button>
-          ))}
-        </div>
       </div>
+
+      {/* Waar de dobbelsteen uit put. Eén rij die zichzelf schuift, zoals in
+          de lijst - zodat een categorie er overal hetzelfde uitziet. */}
+      {catTelling.length > 1 && (
+        <div className="cats-row nu-cats">
+          <button
+            className={`chip${categorie === "alles" ? " on" : ""}`}
+            style={
+              categorie === "alles"
+                ? { background: "var(--accent)", borderColor: "var(--accent)" }
+                : undefined
+            }
+            onClick={() => wissel(setCategorie)("alles")}
+          >
+            Alles <span className="chip-count">{kanNu.length}</span>
+          </button>
+          {catTelling.map(({ naam, aantal }) => {
+            const cm = catMeta(naam);
+            const actief = categorie === naam;
+            return (
+              <button
+                key={naam}
+                className={`chip${actief ? " on" : ""}`}
+                style={actief ? { background: cm.kleur, borderColor: cm.kleur } : undefined}
+                onClick={() => wissel(setCategorie)(naam)}
+              >
+                {cm.emoji} {naam} <span className="chip-count">{aantal}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       <AfstandSlider
         waarde={bereik}
         onChange={wissel(setBereik)}
         aantal={passend.length}
+        kmModus={kmModus}
       />
 
       {tagTelling.length > 0 && (
@@ -233,14 +289,18 @@ export default function NuView({ items, catMeta, onOpen, onToggleDone, onToggleF
               ? "Nog niets verzameld"
               : tags.length > 0
                 ? "Niets met deze tags"
-                : "Niets binnen dit bereik"}
+                : categorie !== "alles"
+                  ? `Niets in ${categorie}`
+                  : "Niets binnen dit bereik"}
           </div>
           <div className="empty-p">
             {items.length === 0
               ? "Voeg je eerste avontuur toe, dan staat hier wat er nú kan."
               : tags.length > 0
                 ? `Geen enkel idee heeft ${tags.length === 1 ? "deze tag" : "al deze tags"} én past bij dit bereik.`
-                : "Schuif de afstand verder open, of kies een andere bron."}
+                : categorie !== "alles"
+                  ? "Kies een andere categorie, of schuif de afstand verder open."
+                  : "Schuif de afstand verder open, of kijk later nog eens."}
           </div>
           {items.length > 0 && tags.length > 0 && (
             <button className="btn empty-knop" onClick={() => { setTags([]); setVerrast(null); }}>
