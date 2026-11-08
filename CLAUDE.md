@@ -52,6 +52,16 @@ Two habits that have each caught a real bug:
   ascending series: with an ascending series a sort test passes even when
   nothing is sorted.
 
+- **Setting up "a phone that already has data" has two traps**, and both make a
+  test pass while testing nothing. First, the preparing page load *is* a fresh
+  install, so every migration marker is already set by the time you write to
+  `localStorage` — clear the marker you mean to exercise. Second, do not write
+  that storage from the running app's page: React keeps persisting its own
+  state afterwards and overwrites you. Load the app once so the migrations run,
+  then navigate to a **blank page on the same origin** and prepare the storage
+  there with the app closed. Attach the `pageerror` collector after that, or
+  the helper page's own missing favicon is reported as an app error.
+
 And the honest limit: a stub proves what the app asks for and what it does with
 the answer, not that the real service replies that way. Say so when reporting.
 
@@ -424,6 +434,18 @@ draait.
   verse installatie, telefoon die het had, hernoemd, en hetzelfde id met een
   ander avontuur.
 
+**Een notitie draagt wat lang meegaat, geen momentopname.** Een prijs is over
+een jaar fout maar ziet er in een notitie nog even gezaghebbend uit, en niemand
+gaat hem nalopen. Daarom gaat de officiele link er altijd in — dat is wat de
+notitie naslaanbaar maakt — plus het seizoensgat en de valkuil, en een prijs
+alleen als je hem bij de bron zelf zag, met het jaartal erbij ("de entree was in
+2026 EUR 18"). Spreken bronnen elkaar tegen, schrijf dat gewoon op: dat is
+nuttiger dan een getal dat zeker lijkt. En gok nooit een link — een officiele
+pagina die 404 geeft is erger dan geen link. Bij de derde ronde bleek ook hoe
+snel feiten verlopen: de vier Jumpsquare-vestigingen in die regel heten
+inmiddels deels anders of bestaan niet meer, en dat is precies het soort ding
+dat in de notitie hoort en niet in je hoofd.
+
 **Controleer bij een nieuwe vondst eerst of hij er al staat.** "Adventure
 Valley" zou anders als tweede regel naast zichzelf zijn geëindigd, en
 "Netl Camping Kallumaan" stond er al sinds het begin — met niets dan een naam,
@@ -458,6 +480,16 @@ Three rules worth keeping:
   came out as "Pas op met De prijs", because the article also starts a sentence
   somewhere. `AFKORTINGEN` holds the handful that must stay capitalised; note
   `DE` is deliberately *not* in it.
+  **A capital at the start of a sentence is not evidence.** Occurrences that
+  begin a sentence are skipped when counting, because their capital is
+  grammar. Without that, "HET SEIZOEN BEPAALT WAT ER OPEN IS" came out as
+  "Het seizoen bepaalt wat Er open is": "Er" began a sentence further down and
+  plain "er" never stood alone mid-sentence. Same failure as "De prijs", but
+  the tie-break could not catch it — 1 against 0 is not a tie. The cost is a
+  name that *only* ever starts a sentence elsewhere, which loses its capital;
+  that is the right trade, because a name nearly always also appears
+  mid-sentence, the compound rule below still catches "Speulder-", and the
+  first word of a heading gets its capital back anyway.
   A **compound** falls back to its first part: `SPEULDERBOS` appears nowhere
   else in its note, but `Speulder-` does, and that is enough to know it is a
   name. Without that rule the heading read "in het speulderbos". The rule only
@@ -467,10 +499,13 @@ Three rules worth keeping:
   heen zonder…"), sometimes it is a new subject — directly underneath reads
   correctly either way.
 
-Run the reader over every seeded record and check each one comes back out
-unchanged, bar the capitals of a heading. There are 79 records but only 24 with
-an actual note; the empty ones are part of the check, because `leesNotitie("")`
-must give an empty list and not a block of nothing. That is the test worth
+Run the reader over every seeded record **and over every enrichment round**,
+and check each one comes back out unchanged, bar the capitals of a heading. Of
+the 79 adventures 37 carry an actual note once the enrichments have run; the
+empty ones are part of the check, because `leesNotitie("")` must give an empty
+list and not a block of nothing. Worth listing the headings the run produces
+and looking at them: a capital in the middle of one should be a proper name,
+and twice now it was not. That is the test worth
 re-running after any change here.
 
 ## Waardering

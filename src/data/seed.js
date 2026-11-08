@@ -284,6 +284,114 @@ export const VERRIJKINGEN_SEPT_2026_B = [
   },
 ];
 
+// Derde ronde aanvullingen: de kale regels die een ECHTE, BESTAANDE PLEK zijn.
+// Van de 79 avonturen hadden 54 niets dan een naam, een plaats en een
+// categorie. Een deel daarvan is een werkwoord ("Bowlen", "Picknicken") en daar
+// valt niets op te zoeken; deze elf zijn plekken met een adres, een website en
+// openingstijden, en dus het soort regel waarvan je een half jaar later niet
+// meer weet waarom je hem had opgeschreven.
+//
+// Wat hier WEL en NIET in gaat, is een keuze die het navragen waard was. Een
+// prijs is een momentopname: over een jaar klopt hij niet meer, maar in een
+// notitie ziet hij er nog even gezaghebbend uit. Daarom staat er per plek
+// vooral wat lang meegaat - de officiele link, het seizoensgat, de valkuil - en
+// een prijs alleen als ik hem bij de bron zelf zag staan, met het jaartal
+// erbij. Waar bronnen elkaar tegenspraken staat dat er gewoon bij; dat is
+// nuttiger dan een getal dat zeker lijkt.
+export const VERRIJKINGEN_SEPT_2026_C = [
+  {
+    id: 13,
+    velden: {
+      link: "https://www.naturalis.nl/museum/praktische-informatie",
+      notities:
+        "Natuurhistorisch museum in Leiden, met de dinozaal als publiekstrekker: daar staat Trix, een echte Tyrannosaurus rex. Verder zalen over de ijstijd, de aarde, het leven en de dood, en een verdieping waar je zelf aan de slag gaat. Een flinke halve dag, en volledig binnen, dus dit is een regendagbestemming die niet van het seizoen afhangt. Dagelijks open van 10:00 tot 17:00. De entree was in 2026 EUR 18 vanaf vier jaar en gratis tot en met drie jaar; met een Museumkaart kom je gratis binnen en met een CJP- of studentenkaart betaal je EUR 13,50. LET OP DE PARKEERKOSTEN: de P+R bij het museum rekende EUR 1,20 per half uur, oftewel EUR 25 voor een dag - met de trein ben je van Leiden Centraal in een kwartier ter plaatse. Er zijn een paar vaste sluitingsdagen door het jaar, waaronder Koningsdag, eerste kerstdag en twee schoonmaakdagen in de zomer, dus kijk de kalender na voor een losse dag. Online kopen is geen verplichting maar wel een garantie: dan weet je zeker dat je erin komt.",
+    },
+  },
+  {
+    id: 21,
+    velden: {
+      link: "https://www.staatsbosbeheer.nl/boomkroonpad",
+      tags: ["bos", "kids", "wandelen", "uitzicht", "natuur"],
+      notities:
+        "Buitencentrum van Staatsbosbeheer bij Drouwen op de Hondsrug, met een loopbrug van honderden meters die je door de boomkronen voert - je loopt op zo'n twintig meter hoogte tussen de toppen door. Onderweg hoort een worteltunnel waar je ondergronds door de wortels kruipt; dat is een apart onderdeel en wordt soms ook los aangeboden. IN DE WINTER IS HET MAAR DRIE DAGEN PER WEEK OPEN: van 1 november tot en met 31 maart alleen op vrijdag, zaterdag en zondag van 10:00 tot 16:00, plus de schoolvakanties. Van 1 april tot en met 31 oktober is het dagelijks open van 10:00 tot 17:00. Dat staat zo in de eigen brochure van Staatsbosbeheer voor 2026, dus een winterse zondag kan prima - een winterse woensdag niet. Over de entree lopen de bronnen uiteen, rond de EUR 4,50 voor een volwassene, maar dat kon ik niet op de officiele pagina bevestigen; bellen kan via 0592-377305.",
+    },
+  },
+  {
+    id: 6,
+    velden: {
+      link: "https://www.henschotermeer.nl/",
+      tags: ["zwemmen", "strand", "kids", "water"],
+      notities:
+        "Zandmeer op de Utrechtse Heuvelrug tussen Woudenberg en Maarn, met brede zandstranden, flauw aflopend water en bos eromheen. Het terrein is van zonsopgang tot zonsondergang toegankelijk. IN HET ZOMERSEIZOEN BETAAL JE TOEGANG, buiten dat seizoen niet: meerdere bronnen noemen 1 april tot en met 30 september als de betaalde periode. Reken daarbuiten dus op een gratis bos- en waterwandeling en in de zomer op een kaartje. VOORAF ONLINE REGELEN IS HET VERSCHIL TUSSEN WEL EN NIET NAAR BINNEN: zowel de toegangskaarten als de parkeerkaarten gaan volgens meerdere bronnen uitsluitend online, met een QR-code per mail die bij beide poorten werkt. Parkeren is apart betaald en er zijn drie parkeerterreinen rond het meer; fietsen stallen is gratis. Honden zijn er volgens een deel van de bronnen niet welkom - dat spreekt elkaar tegen, dus kijk op de borden. De actuele tarieven heb ik niet kunnen bevestigen; hun eigen site hield mij buiten de deur.",
+    },
+  },
+  {
+    id: 5,
+    velden: {
+      link: "https://bresaccommodaties.nl/recreatieoord-binnenmaas",
+      notities:
+        "Recreatieoord aan het water in de Hoeksche Waard, Vrouwehuisjesweg 1 in Mijnsheerenland. Er zit meer dan alleen zwemmen: een buitenzwembad met ligweide, een overzichtelijke speeltuin, een binnenspeeltuin, een waterspraypark, een kinderboerderij met boerderijdieren, elektrische bootjes en een jeepsafari. De overzichtelijke speeltuin is het woord dat hun eigen site gebruikt, en dat is met kleine kinderen precies wat je wil. HET SEIZOEN BEPAALT WAT ER OPEN IS, en dat is hier geen detail: het buitenzwembad en het waterspraypark lopen op het openingsseizoen, terwijl de binnenspeeltuin in november alleen op woensdag, vrijdag en in het weekend open is. Kijk dus per onderdeel en niet per park. Tarieven en openingstijden staan achter aparte links op hun site en wisselen per maand, dus die zijn hier niet overgenomen; de kinderboerderij was volgens een derde bron gratis.",
+    },
+  },
+  {
+    id: 17,
+    velden: {
+      link: "https://monkeytown.eu/nl/wamel",
+      notities:
+        "Overdekte speeltuin van de Monkey Town-keten in Wamel, aan de Waal tussen Tiel en Nijmegen: klimtoestellen, glijbanen, een apenkooi en een aparte hoek voor de kleinsten. Volledig binnen, dus een vaste regendagbestemming die niet van het seizoen afhangt. Maandag tot en met zaterdag open van 09:00 tot 18:00, zondag van 10:00 tot 18:00, met afwijkende tijden op feestdagen zoals nieuwjaarsdag, tweede paasdag en kerstavond. BEGELEIDERS GAAN GRATIS NAAR BINNEN: ouders en grootouders betalen volgens Monkey Town zelf geen entree, dus je rekent alleen voor de kinderen. Het peutertarief was EUR 5,95 voor kinderen van een tot en met drie jaar, maar alleen op maandag tot en met vrijdag als je voor 11:30 binnen bent, en niet in schoolvakanties of op feestdagen - dat is dus echt een vroege-ochtendkorting. Het gewone tarief staat niet op de vestigingspagina en wisselt per vestiging, dus kijk dat na voor je gaat.",
+    },
+  },
+  {
+    id: 18,
+    velden: {
+      link: "https://www.play-in.nl/",
+      notities:
+        "Binnenhal vol activiteiten in Utrecht, Hertogswetering 173, in winkelcentrum The Wall langs de A2. Het is geen enkele attractie maar een verzameling: Kids Paradise voor de kleinere kinderen vanaf ongeveer een jaar, een trampolinepark, klimwanden en een indoor minigolfbaan die in het donker oplicht. Alles binnen, dus ook dit is er een voor een regendag. JUMPSOKKEN ZIJN VERPLICHT voor het trampolinedeel; die koop je op locatie of meteen bij het online reserveren, en ze gaan niet in de prijs van je kaartje mee. De minigolf is vanaf zeven jaar en tot twaalf jaar onder begeleiding. VOORAF RESERVEREN WORDT STERK AANGERADEN en voor het springen was het volgens de ticketverkoop zelfs verplicht, omdat er met tijdslots per uur wordt gewerkt. Prijzen verschillen per onderdeel en ik kreeg hun eigen site niet te pakken, dus die staan hier niet: reken erop dat elk onderdeel apart betaald wordt.",
+    },
+  },
+  {
+    id: 20,
+    velden: {
+      notities:
+        "Trampolinepark: een hal vol aan elkaar gekoppelde trampolines, met daarnaast meestal een schuimrubberbak, een dodgeballveld en een basketring om op af te vliegen. Vanaf ongeveer zes jaar is het leuk; voor kleinere kinderen is er op sommige locaties een apart uurtje. CONTROLEER EERST OF DE VESTIGING DIE JE WIL NOG BESTAAT: deze keten is de afgelopen jaren flink verschoven. Eindhoven ging verder onder de naam You Jump, Amsterdam is gesloten en Gouda heet nu ook You Jump, terwijl de regel hierboven nog vier plaatsen noemt. Bel of kijk online voor je rijdt, en zoek eventueel op You Jump of Jump XL in plaats van op deze naam. JUMPSOKKEN ZIJN VERPLICHT en kosten rond de EUR 2 per paar, dus dat komt bovenop het kaartje - je eigen sokken mogen niet. Er wordt met runs van een uur gewerkt die elk half uur starten, dus reserveren voorkomt wachten. Een officiele link staat hier niet: ik kon in deze sessie geen pagina bevestigen die nog bij de juiste vestiging hoort.",
+    },
+  },
+  {
+    id: 26,
+    velden: {
+      link: "https://www.efteling.com/nl/park/openingstijden",
+      notities:
+        "Het grote sprookjespark in Kaatsheuvel, en volgens hun eigen kalender alle seizoenen geopend: Winter Efteling, Kerst, Oud en Nieuw, Lente, Zomer en Herfst hebben elk hun eigen programma. Dat maakt dit een van de weinige grote parken waar november geen dood seizoen is. In de Winter Efteling blijft een deel van het park tot 20:00 open, met vuurkorven, schaatsen en het Sprookjesbos in het donker - veel mensen vinden dat de mooiste tijd om te gaan. DE OPENINGSTIJDEN VERSCHILLEN PER DAG en staan alleen in de kalender op hun site, niet als vast rooster; kijk dus de datum na die je in gedachten hebt in plaats van een algemene tijd aan te nemen. Reken op een hele dag en op drukte in vakanties. Kaartjes zijn datumgebonden en online vooraf doorgaans goedkoper dan aan de poort, en parkeren wordt apart gerekend.",
+    },
+  },
+  {
+    id: 27,
+    velden: {
+      periode: "apr-jan",
+      link: "https://www.phantasialand.de/nl/openingstijden/",
+      notities:
+        "Attractiepark in Bruhl, net onder Keulen, op ongeveer twee uur rijden van het zuiden van het land. Bekend om zijn achtbanen - Taron, Black Mamba, F.L.Y. - en om de zorgvuldig uitgewerkte themagebieden, die veel bezoekers mooier vinden dan die van de grote Nederlandse parken. HET PARK SLUIT EIND JANUARI EN GAAT PAS IN HET VOORJAAR WEER OPEN: hun eigen openingstijdenpagina loopt doorlopend tot en met 24 januari, en daarna is er een winterstop. Februari en maart zijn dus geen optie, en dat is de reden dat hier nu een periode bij staat. In de weken rond de kerst loopt Wintertraum, met een deel van het park in winterjas en andere tijden, meestal van 11:00 tot 20:00. Kerstavond, eerste kerstdag en nieuwjaarsdag zijn gesloten, en er vallen in januari nog een paar losse sluitingsdagen. Buiten die winterperiode is het park dagelijks vanaf 09:00 open, waarbij de attracties zelf om 10:00 beginnen - dat eerste uur is dus voor binnenkomen en doorlopen.",
+    },
+  },
+  {
+    id: 28,
+    velden: {
+      link: "https://www.europapark.de/en/rulantica",
+      notities:
+        "Groot waterpark bij Europa-Park in Rust, Duitsland, met een Scandinavisch thema. Het is grotendeels overdekt en volgens Europa-Park zelf het hele jaar open, dagelijks van 09:30 tot 22:00 - die openingstijd tot tien uur 's avonds maakt het ook een avondbestemming. DIT IS GEEN ZOMERBESTEMMING MAAR EEN WINTERBESTEMMING: binnen is het altijd warm, en juist in de koude maanden heb je er het meest aan. De regel hierboven staat nog op zomer; dat kun je in het detailvenster zelf aanpassen, want een aanvulling overschrijft nooit iets dat al ingevuld is. Er is wel een buitengedeelte met een groot buitenbad, en de strandarrangementen daar zijn alleen van mei tot september te boeken. Het binnenbad Svommepol is het hele jaar open. Het park is los van Europa-Park te bezoeken, dus je hoeft geen pretparkdag te plannen om er te komen; reken op een rit van ongeveer vijf uur.",
+    },
+  },
+  {
+    id: 30,
+    velden: {
+      link: "https://www.kerststadvalkenburg.nl/",
+      tags: ["winter", "kerst", "stedentrip", "wandelen"],
+      notities:
+        "Weekendje Zuid-Limburg, en de reden dat hier winter staat is Kerststad Valkenburg: van 13 november 2026 tot en met 3 januari 2027 verandert het stadje in een kerstbestemming. DE KERSTMARKTEN ZITTEN ONDER DE GROND, in de Gemeentegrot en de Fluweelengrot, en dat is wat dit onderscheidt van elke andere kerstmarkt - je loopt door mergelgangen op elf graden in plaats van over een plein in de regen. Die grotmarkten lopen volgens meerdere bronnen van 13 november tot en met 30 december en sluiten dus eerder dan de stad zelf; op eerste kerstdag zijn de grotten dicht. De tijden waren maandag tot en met vrijdag 11:00 tot 19:00 en in het weekend 10:00 tot 19:00. KOOP KAARTJES VOORAF EN KIES EEN TIJDSLOT: in het weekend lopen de slots vol, en ze duren maar een half uur. Buiten die periode is Valkenburg alsnog een goede basis: kasteelruine, de Cauberg, het heuvelland eromheen en thermen in de buurt.",
+    },
+  },
+];
+
 // Avonturen die achteraf zijn ingetrokken. Een verse installatie krijgt ze niet
 // meer omdat ze uit de bundel zijn gehaald, maar een telefoon die de bundel al
 // verwerkte heeft ze nog staan - en die markering is al gezet, dus daar gebeurt
