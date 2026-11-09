@@ -22,6 +22,7 @@ import {
   EXTRA_SEPT_2026_F,
   VERRIJKINGEN_SEPT_2026,
   VERRIJKINGEN_SEPT_2026_B,
+  VERRIJKINGEN_SEPT_2026_C,
   INGETROKKEN,
 } from "../data/seed.js";
 
@@ -207,6 +208,7 @@ export function trekIn(avonturen, ingetrokken = INGETROKKEN) {
 export const VERRIJKINGEN = [
   { sleutel: "av_verrijking_sept26", items: VERRIJKINGEN_SEPT_2026 },
   { sleutel: "av_verrijking_sept26b", items: VERRIJKINGEN_SEPT_2026_B },
+  { sleutel: "av_verrijking_sept26c", items: VERRIJKINGEN_SEPT_2026_C },
 ];
 
 // Vult lege velden aan op avonturen die er al staan. Wat jij zelf hebt

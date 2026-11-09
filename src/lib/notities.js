@@ -54,14 +54,36 @@ const WOORD = /^[A-ZÀ-Þ][A-ZÀ-Þ'’-]+\.?$/;
 // "EDENYA" mag geen "edenya" worden. Meestal staat diezelfde naam verderop in
 // de notitie gewoon als "Edenya"; die schrijfwijze nemen we dan over. Zo hoeft
 // er geen lijst van eigennamen bijgehouden te worden.
+// Staat deze treffer aan het begin van een zin? Dan zegt de hoofdletter niets
+// over het woord zelf. Alleen leestekens en het begin van de tekst gelden;
+// een regelovergang midden in een zin niet.
+function begintEenZin(tekst, index) {
+  const ervoor = tekst.slice(0, index).trimEnd();
+  return !ervoor || /[.!?:]$/.test(ervoor);
+}
+
 function schrijfwijzeElders(woord, heleTekst) {
   const patroon = new RegExp(
     `\\b${woord.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`,
     "gi",
   );
   const telling = new Map();
-  for (const gevonden of heleTekst.match(patroon) || []) {
+  for (const treffer of heleTekst.matchAll(patroon)) {
+    const gevonden = treffer[0];
     if (gevonden === woord) continue;
+    // Een hoofdletter aan het begin van een zin is grammatica, geen bewijs.
+    // Zonder deze uitzondering werd "HET SEIZOEN BEPAALT WAT ER OPEN IS" een
+    // "Het seizoen bepaalt wat Er open is", omdat "Er" verderop een zin begon
+    // en "er" nergens los in het midden stond. Dezelfde fout als "De prijs",
+    // alleen haalde de regel "bij gelijkspel de kleine letter" die niet: 1
+    // tegen 0 is geen gelijkspel.
+    //
+    // De keerzijde: een eigennaam die elders ALLEEN een zin begint, verliest
+    // zijn hoofdletter. Dat is de goede ruil - een naam staat vrijwel altijd
+    // ook ergens midden in een zin, de samenstellingsregel hieronder vangt
+    // "Speulder-" alsnog, en het eerste woord van een aanhef krijgt zijn
+    // hoofdletter los daarvan terug.
+    if (begintEenZin(heleTekst, treffer.index)) continue;
     telling.set(gevonden, (telling.get(gevonden) ?? 0) + 1);
   }
   if (!telling.size) {
