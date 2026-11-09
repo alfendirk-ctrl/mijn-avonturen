@@ -23,6 +23,9 @@ import {
   VERRIJKINGEN_SEPT_2026,
   VERRIJKINGEN_SEPT_2026_B,
   VERRIJKINGEN_SEPT_2026_C,
+  VERRIJKINGEN_NOV_2026_D,
+  VERRIJKINGEN_NOV_2026_E,
+  CORRECTIES_NOV_2026,
   INGETROKKEN,
 } from "../data/seed.js";
 
@@ -209,6 +212,8 @@ export const VERRIJKINGEN = [
   { sleutel: "av_verrijking_sept26", items: VERRIJKINGEN_SEPT_2026 },
   { sleutel: "av_verrijking_sept26b", items: VERRIJKINGEN_SEPT_2026_B },
   { sleutel: "av_verrijking_sept26c", items: VERRIJKINGEN_SEPT_2026_C },
+  { sleutel: "av_verrijking_nov26d", items: VERRIJKINGEN_NOV_2026_D },
+  { sleutel: "av_verrijking_nov26e", items: VERRIJKINGEN_NOV_2026_E },
 ];
 
 // Vult lege velden aan op avonturen die er al staan. Wat jij zelf hebt
@@ -227,6 +232,46 @@ export function verrijkAvonturen(avonturen, verrijkingen = VERRIJKINGEN_SEPT_202
     if (!Object.keys(aanvulling).length) return a;
     veranderd = true;
     return { ...a, ...aanvulling };
+  });
+  return veranderd ? uit : null;
+}
+
+// Rondes correcties, net als BUNDELS en VERRIJKINGEN elk met een eigen
+// markering. Ook hier geldt: hergebruik er nooit een.
+export const CORRECTIES = [
+  { sleutel: "av_correctie_nov26", items: CORRECTIES_NOV_2026 },
+];
+
+/**
+ * Overschrijft velden die aantoonbaar fout stonden.
+ *
+ * Dit is de enige plek naast `trekIn()` waar code iets wegschrijft over een
+ * bestaande waarde heen, dus er zitten twee sloten op. De naam moet nog
+ * kloppen, zoals bij `trekIn()` - heb je dat id inmiddels aan iets anders
+ * gegeven, dan gebeurt er niets. En de huidige waarde moet nog EXACT de foute
+ * waarde zijn: zodra jij het veld zelf hebt aangeraakt, is het van jou en
+ * blijft het staan. Een correctie kan dus nooit een keuze van jou terugdraaien,
+ * alleen een fout die er altijd al in zat.
+ *
+ * Geeft null als er niets te doen viel.
+ */
+export function corrigeer(avonturen, correcties = CORRECTIES_NOV_2026) {
+  let veranderd = false;
+  const uit = avonturen.map((a) => {
+    // Filteren en niet zoeken: een avontuur kan meer dan een fout veld hebben,
+    // en met `find` zou alleen de eerste correctie landen en de tweede
+    // stilletjes verdwijnen.
+    const bronnen = correcties.filter((c) => c.id === a.id);
+    if (!bronnen.length) return a;
+    const naam = String(a.naam ?? "").trim();
+    let uitkomst = a;
+    for (const bron of bronnen) {
+      if (naam !== bron.naam) continue;
+      if (String(uitkomst[bron.veld] ?? "") !== bron.van) continue;
+      uitkomst = { ...uitkomst, [bron.veld]: bron.naar };
+      veranderd = true;
+    }
+    return uitkomst;
   });
   return veranderd ? uit : null;
 }

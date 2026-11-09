@@ -434,6 +434,28 @@ draait.
   verse installatie, telefoon die het had, hernoemd, en hetzelfde id met een
   ander avontuur.
 
+- **`CORRECTIES` + `corrigeer()`** zet velden recht die aantoonbaar FOUT
+  stonden. Dit is het spiegelbeeld van een verrijking, en het bestaat omdat
+  die twee elkaar uitsluiten: een verrijking raakt nooit een ingevuld veld
+  aan, juist zodat jouw invoer veilig is, maar daardoor kan een fout die
+  vanaf het begin in de standaardlijst zat ook nooit meer weg op een telefoon
+  die hem al heeft. Rulantica stond op "zomer" terwijl het overdekt en het
+  hele jaar open is; dat was met een aanvulling niet te repareren.
+  Omdat dit wél overschrijft, zitten er dezelfde twee sloten op als bij
+  `trekIn()`: **de naam moet nog kloppen én de huidige waarde moet nog exact
+  de foute waarde zijn.** Heb jij het veld zelf aangeraakt, naar wat dan ook,
+  dan blijft het van jou. Zo kan een correctie nooit een keuze terugdraaien,
+  alleen een fout. Let op twee dingen: `corrigeer()` **filtert** en zoekt niet,
+  want een avontuur kan meer dan één fout veld hebben en met `find` landt
+  alleen de eerste; en de seed wordt in dezelfde wijziging meegecorrigeerd,
+  zodat een verse installatie en een bestaande telefoon gelijk blijven.
+  Dat laatste geldt ook voor een notitie die naar een gecorrigeerd veld
+  verwijst: die tekst staat in twee versies, waarbij de oude wordt **afgeleid**
+  van de nieuwe met één `replace`, zodat twee kopieën van duizend tekens niet
+  uiteen kunnen lopen. Er is een controle die nagaat dat die twee echt
+  verschillen — vindt de vervanging niets, dan zijn ze gelijk en herkent de
+  correctie de oude tekst nooit meer.
+
 **Een notitie draagt wat lang meegaat, geen momentopname.** Een prijs is over
 een jaar fout maar ziet er in een notitie nog even gezaghebbend uit, en niemand
 gaat hem nalopen. Daarom gaat de officiele link er altijd in — dat is wat de
@@ -501,7 +523,7 @@ Three rules worth keeping:
 
 Run the reader over every seeded record **and over every enrichment round**,
 and check each one comes back out unchanged, bar the capitals of a heading. Of
-the 79 adventures 37 carry an actual note once the enrichments have run; the
+the 79 adventures 61 carry an actual note once the enrichments have run; the
 empty ones are part of the check, because `leesNotitie("")` must give an empty
 list and not a block of nothing. Worth listing the headings the run produces
 and looking at them: a capital in the middle of one should be a proper name,
@@ -557,8 +579,9 @@ Details that matter:
   (nearest first) and "A↓ Naam"; it only appears once some ride is actually
   known, and it defaults to distance the moment one is. A *filter* was the
   first instinct and the wrong one: a large minority have no known drive — 19
-  of 79 resolve to no place at all, and of the 60 that do, OSRM cannot reach
-  several by road (Thailand, the Pacific Crest Trail). A "max 45 min" filter
+  of 79 resolve to no place at all (the ones still carrying only a verb for a
+  name, like "Bowlen" and "Picknicken"), and of the 60 that do, OSRM cannot
+  reach several by road (Thailand, the Pacific Crest Trail). A "max 45 min" filter
   would therefore silently empty the Reizen tab. Sorting puts the unknowns at the
   bottom instead — nothing is hidden.
   In distance order **distance beats favourite**: a star that jumps the queue

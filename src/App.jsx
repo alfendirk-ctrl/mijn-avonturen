@@ -36,6 +36,8 @@ import {
   SLEUTEL_GEMIGREERD,
   BUNDELS,
   VERRIJKINGEN,
+  CORRECTIES,
+  corrigeer,
   SLEUTEL_INGETROKKEN,
   verrijkAvonturen,
   trekIn,
@@ -275,6 +277,32 @@ export default function App() {
       setActivities((lijst) => {
         const verrijkt = verrijkAvonturen(lijst, items);
         return verrijkt ? verrijkt.map(stempel) : lijst;
+      });
+      try {
+        localStorage.setItem(sleutel, "1");
+      } catch {
+        /* niets te doen */
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Velden die aantoonbaar fout stonden rechtzetten. Dit is de enige stap die
+  // over een bestaande waarde heen schrijft, dus corrigeer() controleert eerst
+  // of de naam nog klopt en of er nog precies de foute waarde staat - heb jij
+  // het veld zelf aangeraakt, dan blijft het van jou. Na de aanvullingen
+  // hierboven, want een correctie kan over een notitie gaan die daar net is
+  // neergezet.
+  useEffect(() => {
+    for (const { sleutel, items } of CORRECTIES) {
+      try {
+        if (localStorage.getItem(sleutel)) continue;
+      } catch {
+        return;
+      }
+      setActivities((lijst) => {
+        const recht = corrigeer(lijst, items);
+        return recht ? recht.map(stempel) : lijst;
       });
       try {
         localStorage.setItem(sleutel, "1");
