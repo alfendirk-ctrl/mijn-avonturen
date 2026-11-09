@@ -468,6 +468,17 @@ snel feiten verlopen: de vier Jumpsquare-vestigingen in die regel heten
 inmiddels deels anders of bestaan niet meer, en dat is precies het soort ding
 dat in de notitie hoort en niet in je hoofd.
 
+**Meet een afstand nooit vanaf een aangenomen thuisbasis.** Bij de ronde van
+november 2026 rekende ik de afstanden vanaf Eindhoven, omdat Strandbad Nuenen,
+De Splinter en GLOW daar liggen, en concludeerde dat de lijst scheef verdeeld
+was: maar vier uitjes binnen 25 km. De eigenaar woont in Tiel, en vandaar klopt
+de spreiding juist prima (5 binnen 25 km, 10 tussen 25 en 50). Die conclusie
+was dus niet een beetje mis maar precies verkeerd om. Het thuisadres staat
+alleen in `av_thuis` op het toestel zelf en hoort daar ook te blijven — dus
+**vraag het als je het nodig hebt**, leid het niet af uit waar de avonturen
+liggen. Wat wél klopte was de analyse per categorie: één museum tegenover
+achttien keer de tag `binnen`.
+
 **Controleer bij een nieuwe vondst eerst of hij er al staat.** "Adventure
 Valley" zou anders als tweede regel naast zichzelf zijn geëindigd, en
 "Netl Camping Kallumaan" stond er al sinds het begin — met niets dan een naam,
@@ -516,6 +527,13 @@ Three rules worth keeping:
   else in its note, but `Speulder-` does, and that is enough to know it is a
   name. Without that rule the heading read "in het speulderbos". The rule only
   fires when nothing else matched, and it only restores the leading capital.
+  **That fallback must skip sentence starts too**, and at first it did not — so
+  it quietly undid the rule above. The counting correctly ignored the
+  sentence-initial "Volwassenen betaalden EUR 10", found nothing, and then the
+  fallback picked up that very same word as evidence: "Voor Volwassenen moet
+  je…". Same for "Voorbij" (on the strength of a sentence beginning with
+  "Voor") and "niet geschikt Voor een kinderwagen". One exception, applied in
+  both places, or the second cancels the first.
 - Sentences after a warning start a fresh paragraph rather than being pulled
   into it. Sometimes the next sentence belongs to the warning ("Ga er dus niet
   heen zonder…"), sometimes it is a new subject — directly underneath reads
@@ -523,7 +541,7 @@ Three rules worth keeping:
 
 Run the reader over every seeded record **and over every enrichment round**,
 and check each one comes back out unchanged, bar the capitals of a heading. Of
-the 79 adventures 61 carry an actual note once the enrichments have run; the
+the 99 adventures 81 carry an actual note once the enrichments have run; the
 empty ones are part of the check, because `leesNotitie("")` must give an empty
 list and not a block of nothing. Worth listing the headings the run produces
 and looking at them: a capital in the middle of one should be a proper name,
