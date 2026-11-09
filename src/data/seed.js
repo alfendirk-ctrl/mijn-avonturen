@@ -298,6 +298,31 @@ export const VERRIJKINGEN_SEPT_2026_B = [
 // een prijs alleen als ik hem bij de bron zelf zag staan, met het jaartal
 // erbij. Waar bronnen elkaar tegenspraken staat dat er gewoon bij; dat is
 // nuttiger dan een getal dat zeker lijkt.
+// De notitie bij Rulantica in twee versies. Versie 1 staat al op een telefoon
+// die de ronde hierboven verwerkt heeft, en bevatte een zin die naar het
+// periodeveld verwees - dat veld is inmiddels gecorrigeerd, dus die zin klopt
+// niet meer. Versie 2 is tijdloos.
+//
+// Versie 1 wordt AFGELEID van versie 2 in plaats van overgetypt: twee losse
+// kopieen van duizend tekens lopen vroeg of laat uiteen, en dan herkent de
+// correctie de oude tekst niet meer en gebeurt er stilletjes niets. Er is een
+// controle die nagaat dat de twee echt verschillen, want als de vervanging
+// niets vindt zijn ze gelijk en is de correctie zinloos geworden.
+const RULANTICA_ZIN_V2 =
+  "Er staat daarom geen seizoen bij dit avontuur: het past het hele jaar.";
+const RULANTICA_ZIN_V1 =
+  "De regel hierboven staat nog op zomer; dat kun je in het detailvenster zelf aanpassen, want een aanvulling overschrijft nooit iets dat al ingevuld is.";
+
+export const RULANTICA_NOTITIE =
+  "Groot waterpark bij Europa-Park in Rust, Duitsland, met een Scandinavisch thema. Het is grotendeels overdekt en volgens Europa-Park zelf het hele jaar open, dagelijks van 09:30 tot 22:00 - die openingstijd tot tien uur 's avonds maakt het ook een avondbestemming. DIT IS GEEN ZOMERBESTEMMING MAAR EEN WINTERBESTEMMING: binnen is het altijd warm, en juist in de koude maanden heb je er het meest aan. " +
+  RULANTICA_ZIN_V2 +
+  " Er is wel een buitengedeelte met een groot buitenbad, en de strandarrangementen daar zijn alleen van mei tot september te boeken. Het binnenbad Svommepol is het hele jaar open. Het park is los van Europa-Park te bezoeken, dus je hoeft geen pretparkdag te plannen om er te komen; reken op een rit van ongeveer vijf uur.";
+
+export const RULANTICA_NOTITIE_V1 = RULANTICA_NOTITIE.replace(
+  RULANTICA_ZIN_V2,
+  RULANTICA_ZIN_V1,
+);
+
 export const VERRIJKINGEN_SEPT_2026_C = [
   {
     id: 13,
@@ -377,8 +402,7 @@ export const VERRIJKINGEN_SEPT_2026_C = [
     id: 28,
     velden: {
       link: "https://www.europapark.de/en/rulantica",
-      notities:
-        "Groot waterpark bij Europa-Park in Rust, Duitsland, met een Scandinavisch thema. Het is grotendeels overdekt en volgens Europa-Park zelf het hele jaar open, dagelijks van 09:30 tot 22:00 - die openingstijd tot tien uur 's avonds maakt het ook een avondbestemming. DIT IS GEEN ZOMERBESTEMMING MAAR EEN WINTERBESTEMMING: binnen is het altijd warm, en juist in de koude maanden heb je er het meest aan. De regel hierboven staat nog op zomer; dat kun je in het detailvenster zelf aanpassen, want een aanvulling overschrijft nooit iets dat al ingevuld is. Er is wel een buitengedeelte met een groot buitenbad, en de strandarrangementen daar zijn alleen van mei tot september te boeken. Het binnenbad Svommepol is het hele jaar open. Het park is los van Europa-Park te bezoeken, dus je hoeft geen pretparkdag te plannen om er te komen; reken op een rit van ongeveer vijf uur.",
+      notities: RULANTICA_NOTITIE,
     },
   },
   {
@@ -389,6 +413,297 @@ export const VERRIJKINGEN_SEPT_2026_C = [
       notities:
         "Weekendje Zuid-Limburg, en de reden dat hier winter staat is Kerststad Valkenburg: van 13 november 2026 tot en met 3 januari 2027 verandert het stadje in een kerstbestemming. DE KERSTMARKTEN ZITTEN ONDER DE GROND, in de Gemeentegrot en de Fluweelengrot, en dat is wat dit onderscheidt van elke andere kerstmarkt - je loopt door mergelgangen op elf graden in plaats van over een plein in de regen. Die grotmarkten lopen volgens meerdere bronnen van 13 november tot en met 30 december en sluiten dus eerder dan de stad zelf; op eerste kerstdag zijn de grotten dicht. De tijden waren maandag tot en met vrijdag 11:00 tot 19:00 en in het weekend 10:00 tot 19:00. KOOP KAARTJES VOORAF EN KIES EEN TIJDSLOT: in het weekend lopen de slots vol, en ze duren maar een half uur. Buiten die periode is Valkenburg alsnog een goede basis: kasteelruine, de Cauberg, het heuvelland eromheen en thermen in de buurt.",
     },
+  },
+];
+
+// Vierde ronde aanvullingen: de tien kale hikes. Vijf Nederlandse, waar de
+// vraag "waar parkeer ik en wat kost dat" het antwoord is, en vijf grote
+// buitenlandse treks, waar de vraag "wanneer moet ik dit boeken" het antwoord
+// is - bij drie ervan maanden van tevoren, en dat is precies het soort ding
+// dat je te laat ontdekt.
+//
+// Bij de Nederlandse blijft `periode` bewust leeg. Heide bloeit in augustus en
+// september, maar deze bossen zijn het hele jaar de moeite, en een periode
+// invullen zou ze de overige tien maanden van "Wat doen we?" weghouden.
+export const VERRIJKINGEN_NOV_2026_D = [
+  {
+    id: 45,
+    velden: {
+      link: "https://www.natuurmonumenten.nl/natuurgebieden/landgoed-mookerheide",
+      tags: ["bos", "heide", "wandelen", "uitzicht", "hond"],
+      notities:
+        "Heuvelachtig heide- en bosgebied van Natuurmonumenten op de grens van Gelderland en Limburg, bij Mook onder Nijmegen. Het hoogteverschil is voor Nederlandse begrippen fors en de uitzichten over de stuwwal zijn er navenant; er lopen ook grote grazers rond. Natuurmonumenten heeft hier zes gemarkeerde routes, waaronder het Landgoedpad van ongeveer een kilometer dat geschikt is voor een rolstoel of kinderwagen, de Twee Schansen-route van 5 km langs Jachtslot Mookerheide, en de Bisseltroute van 6,2 km richting Groesbeek. PARKEREN KOST SINDS JANUARI 2026 GELD voor wie geen lid is: de parkeerplaats aan de Heumensebaan vraagt een bijdrage, en leden en vrijwilligers staan er gratis met hun pas. Het bedrag staat niet op de gebiedspagina. Honden mogen mee op de paden, aangelijnd. Startadres Heumensebaan 2 in Molenhoek; er is ook een parkeerplaats bij de Papenbergseweg in Mook.",
+    },
+  },
+  {
+    id: 46,
+    velden: {
+      link: "https://www.staatsbosbeheer.nl/uit-in-de-natuur/locaties/radio-kootwijk",
+      tags: ["bos", "zand", "wandelen", "architectuur", "veluwe"],
+      notities:
+        "Een kathedraalachtig betonnen zendgebouw uit 1923 midden op de Veluwe, met daaromheen stuifzand, heide en bos - het Kootwijkerzand ligt ernaast en is een van de grootste zandverstuivingen van West-Europa. Die combinatie van een enorm leeg gebouw in een leeg landschap is wat de plek bijzonder maakt. Staatsbosbeheer beheert het terrein sinds 2008. HET ZENDGEBOUW IS NORMAAL NIET OPEN: je kunt er alleen in tijdens een rondleiding of een evenement, dus kijk dat vooraf na als het je om het gebouw te doen is - van buiten is het ook zonder meer de moeite. Wandelen kan altijd: er is een heideroute van ongeveer 12,5 km met rode paaltjes en een korte route van zo'n 2 km met groene paaltjes, allebei ook te starten bij Hoog Buurlo. PARKEREN BIJ HET ZENDGEBOUW IS BETAALD; een bron noemt EUR 5 per dag, maar dat is niet bevestigd en dateert van eerder. Gratis staan kan aan de Alverschotenseweg. Adres Radioweg 1, 7348 BG Radio Kootwijk - en let op: niet elke navigatie kent die plaatsnaam.",
+    },
+  },
+  {
+    id: 47,
+    velden: {
+      link: "https://pyramidevanausterlitz.nl/",
+      tags: ["uitzicht", "monument", "bos", "kids", "wandelen"],
+      notities:
+        "Een aarden piramide van 36 meter op de Utrechtse Heuvelrug, in 1804 in zes weken opgeworpen door de soldaten van Napoleons leger dat hier gelegerd lag. Er zit een trap in naar een bordes met uitzicht over de heuvelrug, en eromheen ligt bos waar je zo een wandeling aan vastknoopt; aan de voet staat een restaurant met een grote speeltuin. HET MONUMENT IS OP DIT MOMENT GESLOTEN WEGENS ONDERHOUD, dus de trap op kan nu niet - dat staat op hun eigen site, zonder einddatum, dus kijk dat na voor je rijdt. IN HET WINTERSEIZOEN, van 26 oktober 2026 tot 20 maart 2027, zijn alleen het restaurant en de speeltuin open, en alleen op zondag van 10:00 tot 18:00. Buiten die zondagen is er in de winter dus weinig te halen behalve het bos zelf. Het park zelf is gratis en er is ruim gratis parkeren. Er zijn twee aparte websites: deze gaat over het park, het restaurant en de speeltuin, en monumentdepyramidevanausterlitz.nl over het monument en het bezoekerscentrum. Zeisterweg 98, Woudenberg.",
+    },
+  },
+  {
+    id: 48,
+    velden: {
+      link: "https://www.hunebedcentrum.eu/",
+      tags: ["wandelen", "geschiedenis", "kids", "hondsrug", "bos"],
+      notities:
+        "Vijfduizend jaar oude grafkamers van zwerfkeien, verspreid over de Hondsrug. Van de ruim vijftig in Nederland liggen er op twee na allemaal in Drenthe. D27 in Borger is de grootste van het land, ruim 22 meter lang, en ligt pal naast het Hunebedcentrum. DE HUNEBEDDEN ZELF STAAN GEWOON IN HET LANDSCHAP en zijn vrij te bezoeken; het museum ernaast is betaald en daar zit het verhaal, met een gereconstrueerd steentijddorp erbij. Je hoeft dus niet naar binnen om de stenen te zien. De mooiste manier is een wandeling: de ANWB-route vanaf het Hunebedcentrum is 18,5 km en in te korten tot 12,5 of 5 km, loopt langs meerdere hunebedden en gaat voor driekwart over onverharde paden. Parkeren bij het centrum is gratis. LET OP DE WEBSITE: die staat op .eu en niet op .nl. Hunebedstraat 27 in Borger; de prijzen van het museum wisselen en staan niet betrouwbaar bij derden, dus kijk op hun eigen site.",
+    },
+  },
+  {
+    id: 49,
+    velden: {
+      tags: ["zwemmen", "bos", "kids", "hondsrug", "wandelen"],
+      notities:
+        "Zwemplas midden in het bos bij Gasselte, aan de rand van Boswachterij Gieten-Borger op de Hondsrug. Het water is helder en ondiep en daarmee uitgesproken geschikt voor kleine kinderen, met zandstranden eromheen - en anders dan de meeste zwemplassen ligt deze echt in het bos, dus je kunt er zwemmen en wandelen aan elkaar knopen. Vlakbij ligt het Gasselterveld, een oude zandafgraving die in het midden vijftig meter diep is; dat is een ander water en niet hetzelfde als deze plas. Er loopt ook een mountainbikeroute van ongeveer 30 km door het bos, en het Boomkroonpad ligt op een paar minuten rijden - die twee zijn goed te combineren tot een dag. Adres Houtvester Jansenweg 2, 9462 TB Gasselte. OVER HET PARKEREN IS HET BEELD ONDUIDELIJK: er wordt op het terrein al ergens betaald geparkeerd en Staatsbosbeheer wil betaald parkeren bij de plas zelf invoeren, maar een officieel besluit met tarief heb ik niet gevonden. Reken erop dat het geld kost. Een officiele pagina voor deze plas is er niet; de informatie loopt via het recreatieterrein Gasselterveld.",
+    },
+  },
+  {
+    id: 50,
+    velden: {
+      link: "https://cortina.dolomiti.org/en/summer/what-to-do/activities/trekking/alta-via-n-1/",
+      tags: ["meerdaags", "berghut", "dolomieten", "uitdagend", "uitzicht"],
+      notities:
+        "De bekendste meerdaagse trek van de Dolomieten, van Lago di Braies in het noorden naar Belluno in het zuiden, in twaalf etappes van hut naar hut. Bij elkaar rond de 120 tot 130 kilometer met zo'n 7.500 meter klimmen; de officiele etappelijst telt dagen van 6 tot 15 km, dus het zijn korte afstanden met veel hoogtemeters. Je slaapt in rifugi met bedden en eten, dus je hoeft geen tent en geen kookspullen mee. BOEK DE HUTTEN MAANDEN VAN TEVOREN: de reserveringen openen bij de meeste rifugi ergens tussen oktober en januari voor de zomer erna, en de populaire hutten zitten binnen dagen vol - dit is de reden dat mensen deze trek een jaar vooruit plannen. Elke hut boek je apart, soms online en soms alleen per mail of telefoon, dus reken op een avond uitzoekwerk. Het seizoen loopt ongeveer van half juni tot eind september en de hutten zijn daarbuiten dicht. Je eindigt bij bushalte La Pissa, twintig minuten van Belluno, vanwaar bus en trein gaan.",
+    },
+  },
+  {
+    id: 51,
+    velden: {
+      link: "https://auronzo.info/",
+      tags: ["dagwandeling", "dolomieten", "uitzicht", "berghut"],
+      notities:
+        "DIT IS GEEN MEERDAAGSE TREK MAAR EEN DAGRONDJE, ondanks het woord trek in de naam: de klassieke lus om de drie torens heen is ongeveer 10 km en kost drie tot vier uur, vanaf Rifugio Auronzo. Dat maakt het een van de weinige plekken waar je het grote Dolomietenbeeld meekrijgt zonder dat je er een week voor vrij hoeft te maken. Onderweg liggen Rifugio Lavaredo en Rifugio Locatelli, met vanaf die laatste het ansichtkaartbeeld van de drie noordwanden. RESERVEREN VAN DE TOLWEG EN PARKEERPLAATS IS VERPLICHT EN KAN NIET OP DE DAG ZELF: dat gaat uitsluitend online, via de gemeente Auronzo, en uiterlijk de avond ervoor tot 23:59. Zonder reservering kom je de weg niet op. Dat kostte in 2026 EUR 40 voor een auto, inclusief twaalf uur parkeren; een motor EUR 26 en een camper EUR 60. Goedkoper kan: parkeren in Misurina en met de bus omhoog, of starten bij Lago d'Antorno net voor de tolpoort. De tolweg is ongeveer van eind mei tot eind oktober open, afhankelijk van de sneeuw.",
+    },
+  },
+  {
+    id: 53,
+    velden: {
+      link: "https://zermatt.swiss/en/p/the-matterhorn-trek-01tVj000005EvrhIAC",
+      tags: ["meerdaags", "berghut", "alpen", "uitdagend", "uitzicht"],
+      notities:
+        "LET OP: ER BESTAAN TWEE ROUTES MET BIJNA DEZELFDE NAAM, en dat scheelt een week vakantie. De Tour du Cervin oftewel de grote ronde om de Matterhorn heen is zo'n 145 tot 155 km in acht tot elf dagen, loopt via Zwitserland en Italie en gaat over gletsjer en hoge passen - voor een deel daarvan heb je stijgijzers nodig. De Matterhorn Trek van Zermatt zelf is een andere, kortere route: vijf dagen van hut naar hut met etappes van vier tot zes uur, start en finish in Zermatt, langs Trift, Schonbiel, de Hornlihutte en de Gandegghutte. Die laatste is de route waar deze link over gaat en de meest haalbare van de twee als je een week hebt. Allebei zijn ze hoogalpien en allebei alleen in de zomer, grofweg juli tot half september, als de hutten open zijn en de passen sneeuwvrij. Boek de hutten ruim vooruit; de Hornlihutte aan de voet van de Matterhorn is de drukst geboekte berghut van Zwitserland.",
+    },
+  },
+  {
+    id: 54,
+    velden: {
+      link: "https://www.oficinadelperegrino.com/en/",
+      tags: ["meerdaags", "pelgrimsroute", "spanje", "cultuur"],
+      notities:
+        "De pelgrimsroute naar Santiago de Compostela, waarvan de Camino Frances met bijna 800 km vanaf Saint-Jean-Pied-de-Port de bekendste is. Je slaapt in albergues, loopt dagetappes van twintig tot dertig kilometer en hoeft weinig vooruit te plannen - dat laatste maakt het een heel andere soort tocht dan een alpiene hut-tot-huttrek. JE HEBT EEN CREDENCIAL NODIG, het pelgrimspaspoort, en daar verzamel je onderweg stempels in; reken op twee per dag om geen gedoe te krijgen. VOOR DE COMPOSTELA MOET JE MINIMAAL HONDERD KILOMETER TE VOET LOPEN, of tweehonderd op de fiets, aaneengesloten op een erkende route en inclusief de laatste etappe naar Santiago. Op de Camino Frances is dat vanaf Sarria, en wie alleen dat laatste stuk doet heeft ongeveer vijf dagen nodig. Loop je in een ander land, dan moeten er alsnog zeventig kilometer in Spanje bij. Mei tot oktober is het seizoen; juli en augustus zijn heet en druk, mei en september zijn aangenamer. De regels rond de honderd kilometer zijn de afgelopen jaren veranderd, dus kijk ze na bij het pelgrimsbureau zelf.",
+    },
+  },
+  {
+    id: 55,
+    velden: {
+      link: "https://swedishtouristassociation.com/kungsleden",
+      tags: ["meerdaags", "berghut", "zweden", "poolcirkel", "uitdagend"],
+      notities:
+        "De Koningsleden, ruim 450 km door Zweeds Lapland van Abisko naar Hemavan, grotendeels boven de poolcirkel. De meeste mensen lopen alleen het noordelijke stuk van Abisko naar Nikkaluokta, ongeveer een week, langs Kebnekaise - de hoogste berg van Zweden. De Zweedse Toeristenvereniging beheert zestien hutten op tien tot twintig kilometer van elkaar; tussen Kvikkjokk en Ammarnas staan er geen. EEN BOEKING IS GEEN GEGARANDEERD BED: de plaatsen in een berghut worden per dag vergeven op volgorde van aankomst, dus je boeking is in feite een voucher. Lid worden van de STF verdient zichzelf terug zodra je een paar nachten boekt. HET SEIZOEN LOOPT VAN EIND JUNI TOT HALVERWEGE SEPTEMBER en daarna gaan de hutten dicht, de meeste tussen 20 en 30 september. De regel hierboven zegt juli-augustus, maar dat is juist de muggentijd: na de eerste nachtvorst in augustus zijn ze vrijwel weg, en eind augustus tot half september is de rustigste en mooiste periode, met herfstkleuren erbij. Vanaf Nikkaluokta gaat er een paar keer per dag een bus naar Kiruna.",
+    },
+  },
+];
+
+// Vijfde ronde aanvullingen: de reizen. Drie bijzondere verblijven, acht
+// roadtrips en drie verre vakanties.
+//
+// Bij een roadtrip is er geen entree en geen openingstijd, dus de nuttige
+// feiten zijn andere: welke route, welk seizoen, en wat je aan de grens of bij
+// de tolpoort tegenkomt. Dat laatste is het soort ding dat een dag kan kosten
+// als je het niet weet - een vignet dat je niet hebt, een pas die dicht is,
+// een reservering die niet op de dag zelf kan.
+//
+// Twee regels blijven leeg: "Drijfhuisje Vinkeveen" is niet thuis te brengen
+// (er liggen tientallen drijvende huisjes op die plassen) en "Boomhut" is
+// geen plek maar een soort, net als "Bowlen".
+export const VERRIJKINGEN_NOV_2026_E = [
+  {
+    id: 32,
+    velden: {
+      link: "https://www.cabiner.com/",
+      tags: ["off-grid", "bos", "wandelen", "stilte", "twee personen"],
+      notities:
+        "Houten hutjes diep in de natuur, die je alleen te voet bereikt: je parkeert aan de rand van het gebied en loopt het laatste stuk, en dat lopen hoort bij het concept. De hutten staan in tien natuurgebieden, waaronder het Dwingelderveld, de Drentsche Aa, de Sallandse Heuvelrug, de Noord-Veluwe, het Horsterwold, het Kuinderbos en het Lauwersmeer. ZE ZIJN OFF-GRID: je pompt je eigen water en stookt een houtkachel voor de warmte, dus reken niet op stopcontacten, verwarming of een douche zoals thuis. Dat is het punt, maar het is wel iets om te weten voordat je boekt met iemand die daar anders over denkt. Neem eten mee; er is geen winkel om de hoek en je kunt er niet even heen rijden. Een kanttekening uit de recensies: niet elke hut staat even afgelegen, eentje op de Veluwe bleek vlak langs een druk wandelpad te liggen - kijk dus even naar de ligging van de specifieke hut en niet alleen naar de foto's.",
+    },
+  },
+  {
+    id: 33,
+    velden: {
+      tags: ["winter", "joert", "bos", "drenthe", "kampvuur"],
+      notities:
+        "Winterkamp met Mongoolse joerten in het bos van Elp in Drenthe, opgezet als tijdelijk kamp door de mensen achter Travelbase. De joerten zijn gemaakt voor veel strengere winters dan de onze, met een kachel binnen, dus dit is kamperen in de kou zonder dat je het koud hebt - precies het soort overnachting waar in de rest van deze lijst weinig van staat. DIT IS EEN POP-UP EN GEEN VASTE ACCOMMODATIE: het kamp staat er alleen in het winterseizoen, grofweg van oktober tot eind maart, en daarbuiten is er niets te boeken. Of het elk jaar terugkomt is niet gegarandeerd, dus kijk in het najaar of het seizoen doorgaat. Populaire data zaten in eerdere jaren vol met wachtlijsten, dus vroeg boeken loont. Een eerdere editie vroeg vanaf EUR 190 per nacht voor twee tot vier personen. Adres Ieberen 1, 9442 TJ Elp. Een eigen website heb ik niet met zekerheid kunnen vaststellen; zoek via Travelbase.",
+    },
+  },
+  {
+    id: 34,
+    velden: {
+      link: "https://www.cabinanna.com/",
+      tags: ["architectuur", "natuur", "twee personen", "bijzonder"],
+      notities:
+        "Een huisje dat je zelf openschuift: twee schillen om elkaar heen, waarvan je de buitenste met de hand wegrolt, zodat de glazen binnenkant in de open lucht komt te staan. Ontworpen door Caspar Schols, oorspronkelijk voor zijn moeder in een tuin in Eindhoven, en inmiddels een reeks. Het idee is dat je de verhouding tussen binnen en buiten per dag bijstelt, en dat maakt het meer een ervaring dan een overnachting. Overnachten kan onder andere op Camping Holenberg in Schaijk, in de Maashorst in Noord-Brabant; er staan er ook elders, onder meer in de Biesbosch. DE CABINS STAAN NIET ALLEMAAL OP EEN EIGEN SITE TE BOEKEN: per locatie loopt het via de camping of het landgoed waar hij staat, dus zoek op de plaats en niet alleen op de naam. Er zijn twee slaapkamers, een keuken en een badkamer. Prijzen staan nergens publiek vermeld en wisselen per locatie, dus reken op opvragen.",
+    },
+  },
+  {
+    id: 36,
+    velden: {
+      link: "https://www.visitzuidlimburg.nl/",
+      tags: ["heuvels", "dagrit", "uitzicht", "dichtbij"],
+      notities:
+        "Het enige stuk Nederland met echte hellingen, en daarmee de enige roadtrip van deze lijst die je op een zaterdag kunt doen. De klassieke route is de Mergellandroute, die door het Heuvelland slingert langs het Geuldal en het Maasdal, met Valkenburg, Slenaken, Margraten en Vaals onderweg. Visit Zuid-Limburg heeft een autoroute van ongeveer 120 km van het Drielandenpunt op de Vaalserberg naar Maastricht, en een camperroute van ongeveer 111 km die de smalste weggetjes juist mijdt. Een langere variant van 248 km pakt er Thorn bij. DEZE WEGEN WORDEN GEDEELD MET FIETSERS EN WANDELAARS, en dat is geen bijzin: het is het drukste wielergebied van het land en de weggetjes zijn smal en onoverzichtelijk. Rij er rustig. Sommige hellingen gaan over de 16 procent, wat met een zwaar beladen auto of een camper iets is om te weten. Het hele jaar te rijden; het mooist in het voorjaar en in oktober.",
+    },
+  },
+  {
+    id: 37,
+    velden: {
+      link: "https://www.visitluxembourg.com/",
+      periode: "apr-okt",
+      tags: ["kastelen", "wandelen", "rotsen", "dichtbij"],
+      notities:
+        "Op ongeveer vier uur rijden, en daarmee het dichtstbijzijnde buitenland dat echt anders voelt. Twee gebieden dragen de reis: het Mullerthal in het oosten, bijgenaamd Klein Zwitserland, met zandsteenrotsen, kloven en grotten - de Schiessentumpel-waterval, de Hohllay-grot en de kloof Werschrummschluff zijn de bekendste. En Vianden in het noorden, met een van de best bewaarde middeleeuwse burchten van West-Europa boven de Our, een stadsmuur met wachttorens en de enige stoeltjeslift van het land. Tussen die twee zit een klein half uur rijden, dus een lang weekend is genoeg voor allebei. De wandelpaden van de Mullerthal Trail zijn het mooist van april tot en met oktober; daarom staat die periode er nu bij. TANKEN DOE JE IN LUXEMBURG EN NIET ERNAAST: brandstof is er structureel goedkoper dan in de buurlanden, dus vul vol voordat je de grens weer over gaat. Een tolvignet heb je er niet nodig.",
+    },
+  },
+  {
+    id: 38,
+    velden: {
+      tags: ["bergpassen", "uitzicht", "meerdaags", "vignet"],
+      notities:
+        "Een rondrit over de Alpenpassen, en de voorbereiding zit hem hier vooral in de papieren en de kalender. EEN VIGNET IS VERPLICHT IN ZWITSERLAND EN OOSTENRIJK, en dat regel je voor vertrek: Zwitserland kent alleen een jaarvignet, dat in 2026 CHF 40 kostte en geldig is van december tot en met januari van het jaar erna, dus ook voor een weekend betaal je het hele jaar. Oostenrijk heeft wel korte vignetten: in 2026 ongeveer EUR 9,60 voor een dag, EUR 12,80 voor tien dagen en EUR 32 voor twee maanden. Zonder vignet riskeer je een boete van EUR 120 in Oostenrijk en CHF 200 in Zwitserland. Vanaf 2027 is het Oostenrijkse vignet alleen nog digitaal. Bovenop het vignet komen losse tolwegen en tunnels, die apart afgerekend worden. DE HOGE PASSEN ZIJN NIET HET HELE JAAR OPEN: de meeste gaan pas in mei of juni sneeuwvrij en sluiten in oktober, dus een Alpenroadtrip is een zomerplan. Controleer de passtatus vlak voor vertrek, want ook in de zomer kan er sneeuw liggen.",
+    },
+  },
+  {
+    id: 39,
+    velden: {
+      link: "https://www.schwarzwald-tourismus.info/",
+      tags: ["panoramaweg", "bos", "watervallen", "dichtbij"],
+      notities:
+        "De Schwarzwaldhochstrasse is de route waar het om draait: een panoramaweg over de bergkam van Baden-Baden naar Freiburg, met Freudenstadt, Triberg en de Titisee onderweg. Vier tot vijf dagen is comfortabel; wie er een week van maakt kan er een lus van maken met de Bodensee erbij, of vanuit Freiburg de Rijn oversteken naar Colmar in de Elzas - dat is een dagtrip. Uitzichtpunten langs de weg zijn de Windeckfelsen en de Huberfelsen, en de Mummelsee ligt pal aan de route. Triberg heeft de hoogste waterval van Duitsland en ligt aan de Duitse Klokkenroute; in Schonach ernaast staat de grootste koekoeksklok ter wereld. Anders dan de Alpen is dit géén zomerexclusief plan: de watervallen en kloven zijn er ook in de winter en de regio heeft een uitgesproken adventsseizoen. WEL KAN ER OP DE HOOGSTE DELEN SNEEUW LIGGEN, en over winterafsluitingen van de hoogstraat vond ik geen harde informatie - kijk dat na als je buiten het zomerseizoen gaat. Geen vignet nodig in Duitsland.",
+    },
+  },
+  {
+    id: 40,
+    velden: {
+      link: "https://www.brittanytourism.com/",
+      tags: ["kust", "zee", "meerdaags", "getijden"],
+      notities:
+        "De ruige Atlantische kust van Frankrijk, en een route die bijna altijd bij de Mont Saint-Michel begint - die strikt genomen in Normandie ligt, net over de grens. De lange variant loopt van daar naar Saint-Nazaire en is ongeveer 870 km; een kortere noordelijke lus gaat via Cancale, bekend om de oesters, naar Saint-Malo, de Cote de Granit Rose en Roscoff, en is zo'n 350 km. Reken op een week tot twee weken. HET GETIJ IS HIER EXTREEM EN DAT IS GEEN FOLKLORE: in de baai van de Mont Saint-Michel komt het water met snelheden tot zes kilometer per uur op, en over het wad loop je alleen met een gids die de paden en de tijden kent. Kijk de getijdentabel na voordat je een dag vastlegt, want hij bepaalt of je het eiland over de dijk of omringd door water ziet. Het seizoen loopt van april tot eind september; juni en september zijn het aangenaamst, met minder drukte en zelden meer dan 25 graden. In Frankrijk betaal je tol per traject op de autoroutes, zonder vignet.",
+    },
+  },
+  {
+    id: 41,
+    velden: {
+      link: "https://www.visitwallonia.be/",
+      tags: ["ardennen", "weekend", "dichtbij", "kastelen", "water"],
+      notities:
+        "De Ardennen op twee tot drie uur rijden, en daarmee het makkelijkste weekend weg van deze lijst. De klassieke lus is Dinant, La Roche-en-Ardenne en Durbuy, bij elkaar ongeveer honderd kilometer rijden, dus je zit meer buiten de auto dan erin. Dinant ligt tegen de rotswand aan de Maas, met een citadel en de Grotte la Merveilleuse, en is de geboorteplaats van Adolphe Sax - vandaar de saxofoons door de hele stad. La Roche-en-Ardenne is de buitensportplek van de drie: wandelen, mountainbiken en kajakken op de Ourthe, met een burchtruine boven het dorp. Durbuy afficheert zich als de kleinste stad ter wereld en bestaat vooral uit een geplaveid oud centrum. Wil je er meer dagen van maken, dan passen Bouillon en de grotten van Han-sur-Lesse erbij; Han ligt ongeveer een uur van Dinant. Geen vignet nodig in Belgie. Het hele jaar te doen, al is het water in het voorjaar het hoogst en de herfst het mooist.",
+    },
+  },
+  {
+    id: 43,
+    velden: {
+      link: "https://www.dolomiti.it/",
+      tags: ["bergpassen", "uitzicht", "meerdaags", "italie"],
+      notities:
+        "Rijden over de Dolomietenpassen, met de Sella Ronda als bekendste rondje: Passo Pordoi, Passo Sella, Passo Gardena en Passo Campolongo in een lus om de Sellagroep heen. Daarnaast liggen de Passo Giau en de Passo Falzarego bij Cortina, en die eerste geldt als de mooiste van allemaal. Het zijn korte afstanden met heel veel bochten, dus reken niet op gemiddelde snelheden. LET OP WELKE PAS WANNEER OPEN IS, want dat verschilt per pas en niet per seizoen: de vier passen van de Sella Ronda blijven in de winter meestal gewoon bereikbaar omdat er skigebieden aan liggen, terwijl de Passo Giau en de Passo Fedaia van ongeveer oktober tot april dicht kunnen zijn. En ook een open pas gaat bij sneeuwval of lawinegevaar tijdelijk dicht, soms van de ene dag op de andere. Controleer de actuele status vlak voor vertrek bij Veneto Strade voor de Venetiaanse passen en bij Sudtirol voor Sella en Gardena. In Italie betaal je tol per traject op de autostrada, zonder vignet - maar Oostenrijk of Zwitserland onderweg betekent wel een vignet.",
+    },
+  },
+  {
+    id: 44,
+    velden: {
+      link: "https://www.visitnorway.com/",
+      tags: ["fjorden", "meerdaags", "ver", "veerboten"],
+      notities:
+        "Fjorden, watervallen en de bekende routes: de Atlanterhavsveien die van eilandje naar eilandje springt, de elf haarspeldbochten van de Trollstigen, en de hoge Sognefjellet. De Atlantic Road zelf is tolvrij, maar daar houdt het goede nieuws over kosten op. TOL EN VEERBOTEN LOPEN VIA KENTEKENHERKENNING EN KOM JE PAS THUIS TEGEN: je rijdt gewoon door en krijgt later een factuur, met administratiekosten erbovenop. Registreer je kenteken vooraf bij AutoPASS of epass24, dan betaal je het juiste tarief en scheelt het geld. Een gewone fjordenrondrit kost al snel richting duizend Noorse kronen aan tol, en voor de veerboten bestaat een aparte AutoPASS-kaart die alleen loont als je er veel neemt. Onderzeese tunnels zijn het duurst. OP SMALLE PASWEGEN ALS DE TROLLSTIGEN HEEFT DALEND VERKEER VOORRANG, wat andersom is dan je gewend bent. De hoge passen gaan in de winter dicht, dus dit is een plan voor eind mei tot september; kijk de wegstatus na bij Statens vegvesen.",
+    },
+  },
+  {
+    id: 58,
+    velden: {
+      link: "https://www.tourismthailand.org/",
+      tags: ["ver", "stranden", "eilanden", "lang weg"],
+      notities:
+        "Het koele droge seizoen loopt van november tot en met februari en dat is waarom die periode hierboven staat: dan is het in het hele land goed te doen, met Chiang Mai en het noorden op hun best. Maart en april zijn heet, en in het noorden hangt er dan rook van het brandseizoen. DE TWEE KUSTEN IN HET ZUIDEN HEBBEN VERSCHILLENDE REGENSEIZOENEN, en dat is de fout die mensen maken: aan de Andamanse kant, met Phuket en Krabi, regent het vooral van mei tot oktober, terwijl aan de Golfkust, met Koh Samui, Koh Phangan en Koh Tao, de regen juist in oktober tot december valt. Je kunt dus in november prachtig weer hebben op Phuket en tegelijk regen op Koh Samui. Kies de kust bij de maand en niet andersom. Het regenseizoen is overigens geen verloren tijd: hotels zijn dan veertig tot zestig procent goedkoper en het is veel rustiger, en de regen valt meestal in buien en niet de hele dag.",
+    },
+  },
+  {
+    id: 59,
+    velden: {
+      link: "https://www.jordanpass.jo/",
+      tags: ["ver", "woestijn", "geschiedenis", "petra"],
+      notities:
+        "Petra, Wadi Rum en de Dode Zee in een land dat klein genoeg is om in anderhalve week rond te komen. Maart tot mei staat hierboven en dat klopt: daarna wordt het in de woestijn te heet. KOOP DE JORDAN PASS VOOR JE VERTREKT, want daar zit het toeristenvisum bij in en dat scheelt de 40 JOD die je anders bij aankomst betaalt. De pass dekt ook Petra en meer dan veertig andere plekken, en er zijn varianten naar het aantal dagen Petra dat je wil: in 2026 rond de 70, 75 en 80 JOD voor een, twee of drie dagen. Petra alleen kost al zo'n 50 JOD voor een dag, dus de pass verdient zich bijna meteen terug. TWEE VOORWAARDEN ZIJN MAKKELIJK TE MISSEN: je moet hem online kopen voordat je aankomt - aan de grens kan het niet - en je moet minimaal drie opeenvolgende nachten in het land blijven, anders vervalt het visumvoordeel. De pass is niet te ruilen en niet terug te geven. Petra by Night zit er niet bij en kost apart ongeveer 17 JOD.",
+    },
+  },
+  {
+    id: 60,
+    velden: {
+      link: "https://www.dolomiti.it/",
+      tags: ["bergen", "wandelen", "italie", "uitzicht"],
+      notities:
+        "Niet rijdend maar blijvend: een week of twee in een dal, met wandelen vanuit de deur. De klassieke bases zijn Cortina d'Ampezzo, Alta Badia, Val Gardena en Val di Fassa, en vanuit elk daarvan kom je met kabelbanen hoog zonder dat je eerst duizend meter moet klimmen - dat maakt de Dolomieten ongewoon toegankelijk voor een hooggebergte. Juli en augustus staan hierboven, en dat is ook wanneer de berghutten en de liften draaien; half september gaat alles geleidelijk dicht. IN HET HOOGSEIZOEN IS HET ER VOL EN DUUR, augustus voorop, want dan heeft heel Italie vakantie - de laatste week van juni en de eerste helft van september zijn rustiger met hetzelfde weer. Combineer het eventueel met een stuk van de Alta Via 1 of de rondwandeling om de Tre Cime, die allebei ook los in deze lijst staan. Reken op ongeveer twaalf uur rijden vanuit Nederland, of vlieg naar Venetie of Innsbruck en huur daar een auto.",
+    },
+  },
+];
+
+// Velden die aantoonbaar FOUT stonden en dus overschreven moeten worden. Dit
+// is het spiegelbeeld van een verrijking: die vult alleen lege velden en raakt
+// nooit iets aan dat al ingevuld is, juist zodat jouw invoer veilig is. Maar
+// daardoor kan een fout die vanaf het begin in de standaardlijst zat ook nooit
+// meer weg op een telefoon die hem al heeft.
+//
+// Omdat dit wél overschrijft, zitten er dezelfde twee sloten op als bij
+// INGETROKKEN: de naam moet nog kloppen, en de HUIDIGE waarde moet nog precies
+// de foute waarde zijn. Heb jij het veld zelf al aangepast - naar wat dan ook,
+// ook naar iets anders fouts - dan blijft jouw waarde staan. Zo kan dit nooit
+// een keuze van jou terugdraaien.
+//
+// Hou deze lijst kort. Een correctie is voor een feit dat fout is, niet voor
+// een mening over hoe iets beter kan.
+export const CORRECTIES_NOV_2026 = [
+  {
+    // Overdekt en het hele jaar open, dus "zomer" hield hem in de winter weg
+    // terwijl dat juist het seizoen is waarin je er wat aan hebt. Leeg betekent
+    // hier "altijd", en de notitie vertelt de rest.
+    id: 28,
+    naam: "Rulantica Waterpark",
+    veld: "periode",
+    van: "zomer",
+    naar: "",
+  },
+  {
+    // Het hele jaar open, alleen van november t/m maart beperkt tot vrijdag,
+    // zaterdag en zondag. Dat is een openingstijd en geen seizoen, dus het
+    // hoort in de notitie en niet in dit veld - "lente/zomer" liet hem in de
+    // herfst en winter helemaal niet zien, terwijl dat juist het mooiste bos is.
+    id: 21,
+    naam: "Boomkroonpad",
+    veld: "periode",
+    van: "lente/zomer",
+    naar: "",
+  },
+  {
+    // De notitie van Rulantica verwees naar het periodeveld hierboven ("staat
+    // nog op zomer"), en dat klopt niet meer zodra die correctie gedraaid is.
+    // Zonder deze regel zou een verse installatie de goede tekst hebben en een
+    // bestaande telefoon de verouderde - precies de scheefgroei die dit
+    // bestand elders juist probeert te voorkomen.
+    id: 28,
+    naam: "Rulantica Waterpark",
+    veld: "notities",
+    van: RULANTICA_NOTITIE_V1,
+    naar: RULANTICA_NOTITIE,
   },
 ];
 
@@ -439,14 +754,18 @@ export const SEED_ACTIVITIES = [
   { id: 18, naam: "Play-in", locatie: "Utrecht", categorie: "Speelpark", type: "Indoor Speelpark", link: null, notities: "", status: "wil doen", periode: "", tags: ["kids","binnen","regendag"] },
   { id: 19, naam: "Kidswonderland", locatie: "Nederland", categorie: "Speelpark", type: "Kinderuitje", link: null, notities: "", status: "wil doen", periode: "", tags: ["kids","binnen","regendag"] },
   { id: 20, naam: "Jumpsquare", locatie: "Nieuwegein / Nijmegen / Arnhem / Ede", categorie: "Speelpark", type: "Trampoline Park", link: null, notities: "", status: "wil doen", periode: "", tags: ["kids","binnen","regendag"] },
-  { id: 21, naam: "Boomkroonpad", locatie: "Drenthe", categorie: "Natuur", type: "Natuur", link: null, notities: "", status: "wil doen", periode: "lente/zomer", tags: [] },
+  // periode bewust leeg: het hele jaar open, in de winter alleen vr/za/zo.
+  // Dat is een openingstijd en geen seizoen. Zie CORRECTIES_NOV_2026.
+  { id: 21, naam: "Boomkroonpad", locatie: "Drenthe", categorie: "Natuur", type: "Natuur", link: null, notities: "", status: "wil doen", periode: "", tags: [] },
   { id: 22, naam: "Padel", locatie: "Nederland", categorie: "Sport", type: "Racketsport", link: null, notities: "", status: "wil doen", periode: "", tags: [] },
   { id: 23, naam: "Skien", locatie: "Alpen", categorie: "Sport", type: "Wintersport", link: null, notities: "", status: "favoriet", periode: "dec-maart", tags: [] },
   { id: 24, naam: "Mountainbiken", locatie: "Nederland/Europa", categorie: "Sport", type: "Fietssport", link: null, notities: "", status: "wil doen", periode: "", tags: [] },
   { id: 25, naam: "Adventure Valley", locatie: "Europa", categorie: "Pretpark", type: "Pretpark", link: null, notities: "", status: "wil doen", periode: "", tags: ["kids","hele dag"] },
   { id: 26, naam: "Efteling", locatie: "Kaatsheuvel, Noord-Brabant", categorie: "Pretpark", type: "Pretpark", link: null, notities: "", status: "gedaan", periode: "", tags: ["kids","hele dag"] },
   { id: 27, naam: "Phantasialand", locatie: "Bruhl, Duitsland", categorie: "Pretpark", type: "Pretpark", link: null, notities: "", status: "wil doen", periode: "", tags: ["kids","hele dag"] },
-  { id: 28, naam: "Rulantica Waterpark", locatie: "Rust, Duitsland", categorie: "Pretpark", type: "Waterpark", link: null, notities: "", status: "wil doen", periode: "zomer", tags: ["kids","zwemmen","binnen"] },
+  // periode bewust leeg: overdekt en het hele jaar open, dus geen seizoen.
+  // Zie CORRECTIES_NOV_2026.
+  { id: 28, naam: "Rulantica Waterpark", locatie: "Rust, Duitsland", categorie: "Pretpark", type: "Waterpark", link: null, notities: "", status: "wil doen", periode: "", tags: ["kids","zwemmen","binnen"] },
   { id: 29, naam: "Drijfhuisje Vinkeveen", locatie: "Vinkeveen, Utrecht", categorie: "Verblijf", type: "Bijzonder Verblijf", link: null, notities: "", status: "favoriet", periode: "", tags: [] },
   { id: 30, naam: "Valkenburg", locatie: "Limburg", categorie: "Verblijf", type: "Weekendje Weg", link: null, notities: "", status: "wil doen", periode: "winter", tags: [] },
   { id: 31, naam: "Boomhut", locatie: "Nederland", categorie: "Verblijf", type: "Bijzonder Verblijf", link: null, notities: "", status: "wil doen", periode: "", tags: [] },
