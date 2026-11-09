@@ -91,9 +91,19 @@ function schrijfwijzeElders(woord, heleTekst) {
     // eerste deel elders staat. "SPEULDERBOS" komt in zijn geheel nergens
     // anders voor, maar "Speulder-" wel - en dat is genoeg om te weten dat
     // het een eigennaam is. Zonder dit werd het "speulderbos".
+    //
+    // Deze regel moet zinsbegin NET ZO GOED overslaan als de telling hierboven,
+    // en deed dat eerst niet. Daardoor werd "VOOR VOLWASSENEN MOET JE WEL
+    // VOORAF EEN TICKET RESERVEREN" een "Voor Volwassenen moet je...": de
+    // telling sloeg het zinsbegin "Volwassenen betaalden EUR 10" terecht over,
+    // waarna deze regel datzelfde woord alsnog als bewijs pakte. Hetzelfde
+    // gebeurde met "Voorbij" (op grond van een zin die met "Voor" begon) en met
+    // "Voor een kinderwagen". Eén uitzondering op twee plekken, anders doet de
+    // tweede de eerste teniet.
     const klein = woord.toLowerCase();
-    for (const [, gevonden] of heleTekst.matchAll(/\b(\p{Lu}\p{Ll}{3,})/gu)) {
-      if (klein.startsWith(gevonden.toLowerCase())) {
+    for (const treffer of heleTekst.matchAll(/\b(\p{Lu}\p{Ll}{3,})/gu)) {
+      if (begintEenZin(heleTekst, treffer.index)) continue;
+      if (klein.startsWith(treffer[1].toLowerCase())) {
         return woord.charAt(0) + woord.slice(1).toLowerCase();
       }
     }
