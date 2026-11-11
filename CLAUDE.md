@@ -62,6 +62,15 @@ Two habits that have each caught a real bug:
   there with the app closed. Attach the `pageerror` collector after that, or
   the helper page's own missing favicon is reported as an app error.
 
+- **"Wat doen we?" toont maar `MAX_SUGGESTIES` (8) van de passende avonturen**,
+  met de rest achter "nog N meer die nu passen". Afwezigheid in de tekst van
+  dat scherm bewijst dus niets zolang de hele lijst erin staat — twee
+  winteritems leken te ontbreken terwijl ze gewoon op plek negen en tien
+  stonden. Zet voor zo'n controle alleen de regels die je test in `av_db`, plus
+  alle migratiemarkeringen zodat er niets bijkomt. Een maandfilter test je met
+  een **vastgezette klok**, en die moet via `addInitScript` vóór de app laadt,
+  anders heeft die de echte maand al gelezen.
+
 And the honest limit: a stub proves what the app asks for and what it does with
 the answer, not that the real service replies that way. Say so when reporting.
 
@@ -468,6 +477,16 @@ snel feiten verlopen: de vier Jumpsquare-vestigingen in die regel heten
 inmiddels deels anders of bestaan niet meer, en dat is precies het soort ding
 dat in de notitie hoort en niet in je hoofd.
 
+**Bij een jaarlijkse editie staat het patroon voorop en de datum erachter.**
+Een kerstmarkt, een festival of een winterprogramma komt elk jaar terug, maar
+op een datum die schuift - Kasteel Middachten was 11 t/m 15 december in 2024,
+10 t/m 14 in 2025 en 9 t/m 13 in 2026. De datum van dit jaar is dus het minst
+duurzame dat in de notitie kan staan. Schrijf daarom eerst dát het terugkomt en
+ongeveer wanneer ("steeds in de tweede week van december"), en pas daarna de
+datum van dit seizoen met het jaartal erbij, zodat je ziet wanneer hij
+verouderd is. Zet er ook bij of die datum van de organisatie zelf komt of van
+een uitjessite; bij dit soort kleine evenementen is dat vaak het laatste.
+
 **Meet een afstand nooit vanaf een aangenomen thuisbasis.** Bij de ronde van
 november 2026 rekende ik de afstanden vanaf Eindhoven, omdat Strandbad Nuenen,
 De Splinter en GLOW daar liggen, en concludeerde dat de lijst scheef verdeeld
@@ -541,7 +560,7 @@ Three rules worth keeping:
 
 Run the reader over every seeded record **and over every enrichment round**,
 and check each one comes back out unchanged, bar the capitals of a heading. Of
-the 99 adventures 81 carry an actual note once the enrichments have run; the
+the 109 adventures 91 carry an actual note once the enrichments have run; the
 empty ones are part of the check, because `leesNotitie("")` must give an empty
 list and not a block of nothing. Worth listing the headings the run produces
 and looking at them: a capital in the middle of one should be a proper name,
