@@ -506,6 +506,14 @@ bundel maar een **verrijking**: de regel is er, alleen nog leeg. En kijk of
 de plaats in de gazetteer van `lib/kaart.js` zit, anders belandt het avontuur
 onder de kaart in plaats van erop.
 
+**En controleer de plaatsnaam zelf, ook als die in de vraag staat.** "Space
+expo in Katwijk aan zee" staat op Keplerlaan 3 in **Noordwijk**, net over de
+gemeentegrens; alleen de bushalte heet Katwijk. Overgenomen zoals gevraagd had
+dat twee dingen gekost: een speld een eind van de werkelijke plek, en een
+notitie die de eigenaar op de verkeerde plaatsnaam laat zoeken. Zet in zo'n
+geval de juiste plaats in `locatie` en de verwarring zelf in de notitie — dat
+is precies het soort ding dat lang meegaat, anders dan een prijs.
+
 ## Notities
 
 `lib/notities.js` reads the free-text `notities` field as a list of blocks —
@@ -560,7 +568,7 @@ Three rules worth keeping:
 
 Run the reader over every seeded record **and over every enrichment round**,
 and check each one comes back out unchanged, bar the capitals of a heading. Of
-the 109 adventures 91 carry an actual note once the enrichments have run; the
+the 110 adventures 92 carry an actual note once the enrichments have run; the
 empty ones are part of the check, because `leesNotitie("")` must give an empty
 list and not a block of nothing. Worth listing the headings the run produces
 and looking at them: a capital in the middle of one should be a proper name,
