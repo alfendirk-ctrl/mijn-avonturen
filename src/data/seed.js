@@ -482,6 +482,19 @@ export const EXTRA_NOV_2026_H = [
   {id: 111, naam: "Kerst op de Arnhemse landgoederen", locatie: "Arnhem, Gelderland", categorie: "Cultuur", type: "Kerstmarkten en winterfairs op buitenplaatsen", link: "", notities: "Rond Arnhem liggen een paar landgoederen die in december allemaal iets kerstigs doen, en omdat ze dicht bij elkaar liggen kun je er een middag van maken. Kerst op Zypendaal valt op losse dagen - voor 2026 worden 7, 14 en 21 december en 4 januari genoemd - en de winterfair op kasteel Rosendael staat voor 20 en 21 december. In Arnhem zelf loopt Winter Arnhem op 13, 14, 27 en 28 december, en op Schaarsbergen is er op 13 december een kerstmarkt. DIT ZIJN LOSSE DAGEN EN GEEN DOORLOPEND PROGRAMMA, en dat is het verschil met Valkenburg of Nijmegen: je kunt hier niet zomaar een willekeurige decemberdag heen rijden, je moet de datum opzoeken. ALLE DATA KOMEN VAN EEN UITJESSITE en niet van de landgoederen zelf, en bij dit soort kleine evenementen schuiven ze per jaar - dus controleer ze bij Geldersch Landschap, dat Zypendaal en Rosendael beheert.", gedaan: false, favoriet: false, periode: "dec", tags: ["winter", "kerst", "kasteel", "buiten", "lichtjes"]},
 ];
 
+// Losse vondst: Space Expo. Eén regel, maar wel een eigen bundel met een eigen
+// markering, want hergebruiken van `av_bundel_nov26h` zou betekenen dat deze
+// nooit aankomt op een telefoon die de winterronde al verwerkt heeft.
+//
+// De vraag kwam binnen als "Space expo in Katwijk aan zee", en dat is het
+// niet: het staat op Keplerlaan 3 in Noordwijk, net over de gemeentegrens, en
+// alleen de bushalte heet Katwijk. Dat staat met zoveel woorden in de notitie,
+// want wie er op Katwijk naar zoekt komt er niet uit - en de kaart zou de
+// speld honderd kilometer verkeerd zetten.
+export const EXTRA_NOV_2026_I = [
+  {id: 112, naam: "Space Expo", locatie: "Noordwijk, Zuid-Holland", categorie: "Cultuur", type: "Ruimtevaartmuseum bij ESA ESTEC", link: "https://www.space-expo.nl/openingstijden-en-prijzen", notities: "Het officiele bezoekerscentrum van ESA, pal naast ESTEC, het technische hart van de Europese ruimtevaart. Je raakt er een echte meteoriet aan, loopt door een model van het internationale ruimtestation ISS en kijkt in de originele Sojoez-capsule van André Kuipers. DIT IS NOORDWIJK EN NIET KATWIJK: het staat op Keplerlaan 3 in Noordwijk, net over de gemeentegrens, en alleen de bushalte heet Katwijk - zoek je op Katwijk aan Zee, dan kom je er niet uit. Het ligt wel vlak bij Naturalis in Leiden, dat ook in deze lijst staat, dus daar is één dag van te maken. MAANDAG IS DICHT en de rest van de week zijn ze open van 10 tot 17 uur, behalve in schoolvakanties en op feestdagen. Hun site houdt een lange lijst uitzonderingen bij en die is het nakijken waard: maandag 21 en 28 december 2026 zijn ze wel open, 25 december en 1 januari niet, en op 24 en 31 december gaan ze om 16 uur dicht. De entree was in 2026 EUR 18,50 vanaf dertien jaar, EUR 16,50 voor vier tot en met twaalf jaar, gratis tot en met drie jaar, EUR 12,50 met CJP en gratis met Museumkaart. Je kunt er alleen pinnen. Ze raden aan vooraf online een tijdslot te boeken: aan de kassa kun je alleen terecht als er nog een slot vrij is, en telefonisch reserveren kan niet. DE SPACE TRAIN ZIT NIET BIJ DE ENTREE IN: die Space Train is de tour het ESTEC-terrein zelf op, kost EUR 10,75 extra en moet je los bijboeken. Hij is niet toegankelijk met een rolstoel of kinderwagen, want bij ESTEC moet je veel hoge trappen op en er is geen lift. Tot en met 30 april 2027 loopt er een tentoonstelling van Pokémon met ESA waarbij kinderen tien verstopte Pikachu's zoeken; dat is tijdelijk, de rest hierboven niet. Parkeren is gratis, maar er zijn maar ongeveer honderd plekken. Het Euro Space Center in Transinne staat ook in deze lijst, en dit overlapt daar minder mee dan de namen doen vermoeden: dat is een dag astronautentraining in simulators, dit is een museum.", gedaan: false, favoriet: false, periode: "", tags: ["kids", "binnen", "regendag", "museumkaart", "hele dag"]},
+];
+
 // Vierde ronde aanvullingen: de tien kale hikes. Vijf Nederlandse, waar de
 // vraag "waar parkeer ik en wat kost dat" het antwoord is, en vijf grote
 // buitenlandse treks, waar de vraag "wanneer moet ik dit boeken" het antwoord
@@ -872,4 +885,5 @@ export const SEED_ACTIVITIES = [
   ...EXTRA_SEPT_2026_F,
   ...EXTRA_NOV_2026_G,
   ...EXTRA_NOV_2026_H,
+  ...EXTRA_NOV_2026_I,
 ];

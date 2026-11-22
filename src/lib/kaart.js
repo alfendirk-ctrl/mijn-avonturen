@@ -39,6 +39,7 @@ const PLAATSEN = {
   binnenmaas: [51.7833, 4.4833],
   nieuwegein: [52.0292, 5.0806],
   nijmegen: [51.8126, 5.8372],
+  noordwijk: [52.2403, 4.4297],
   arnhem: [51.9851, 5.8987],
   nuenen: [51.4728, 5.5472],
   putten: [52.2547, 5.6086],
